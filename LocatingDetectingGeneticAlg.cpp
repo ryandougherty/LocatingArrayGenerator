@@ -6,6 +6,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <numeric>
 #include <map>
 #include <random>
@@ -25,15 +26,24 @@
 #include "zip.hpp"
 #include "LocatingDetectingGeneticAlg.h"
 
-using ca_type = std::vector<std::vector<int>>;
-using interaction_type = std::pair<std::vector<int>, std::vector<int>>;
+using N_type = int;
+using d_type = uint8_t;
+using k_type = uint8_t;
+using v_type = uint8_t;
+using t_type = uint8_t;
+using lambda_type = uint8_t;
+
+using ca_type = std::vector<std::vector<v_type>>;
+using interaction_type = std::pair<std::vector<k_type>, std::vector<v_type>>;
 using d_set_type = std::vector<interaction_type>;
 
 using namespace iter;
 using namespace std::chrono;
 
+
+
 auto interaction_to_str(const interaction_type& I) {
-	std::string result = "(";
+    std::string result = "(";
     for (auto& col : I.first) {
         result += std::to_string(col) + ',';
     }
@@ -60,17 +70,17 @@ void print_d_set(const d_set_type& D) {
 }
 
 auto d_set_to_str(const d_set_type& D) {
-	std::string result;
-	for (const auto& I : D) {
-		result += interaction_to_str(I) + " ";
-	}
-	return result;
+    std::string result;
+    for (const auto& I : D) {
+        result += interaction_to_str(I) + " ";
+    }
+    return result;
 }
 
 void print_array(const ca_type& A) {
     for (const auto& row : A) {
         for (const auto& value : row) {
-            std::cout << value << ' ';
+            std::cout << std::to_string(value) << ' ';
         }
         std::cout << '\n';
     }
@@ -79,7 +89,7 @@ void print_array(const ca_type& A) {
 template <typename T>
 void print_vec(std::vector<T> I) {
     for (const auto& elem : I) {
-        std::cout << elem << ",";
+        std::cout << std::to_string(elem) << ",";
     }
 }
 
@@ -139,10 +149,10 @@ long long LLL_CA_sum(const int t, const int k, const int v, const int lambda) {
     return lb;
 }
 
-ca_type random_array(const int N, const int k, const int v) {
+ca_type random_array(const N_type N, const k_type k, const v_type v) {
     std::random_device generator;
     std::uniform_int_distribution<int> distribution(0, v - 1);
-    ca_type to_return(N, std::vector<int>(k, 0));
+    ca_type to_return(N, std::vector<v_type>(k, 0));
     for (int row = 0; row < N; row++) {
         for (int col = 0; col < k; col++) {
             to_return[row][col] = distribution(generator);
@@ -153,7 +163,7 @@ ca_type random_array(const int N, const int k, const int v) {
 
 // https://stackoverflow.com/questions/10405030/c-unordered-map-fail-when-used-with-a-vector-as-key
 struct VectorHasher {
-    int operator()(const std::vector<int>& V) const {
+    int operator()(const std::vector<v_type>& V) const {
         int hash = V.size();
         for (auto& i : V) {
             hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
@@ -173,12 +183,27 @@ struct InteractionHasher {
         return hash;
     }
 };
+struct DSetHasher {
+    int operator()(const d_set_type& V) const {
+        int hash = V.size();
+        for (auto& I : V) {
+            for (auto& i : I.first) {
+                hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+            }
+            for (auto& i : I.second) {
+                hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+            }
+        }
+        
+        return hash;
+    }
+};
 
-auto first_uncovered_cols(ca_type A, const int t, const int k, const int v, const int lambda) {
-    std::vector<int> row_in_A(t, 0);
-    std::vector<int> cols_to_return(t, 0);
+auto first_uncovered_cols(ca_type A, const t_type t, const k_type k, const v_type v, const lambda_type lambda) {
+    std::vector<v_type> row_in_A(t, 0);
+    std::vector<k_type> cols_to_return(t, 0);
     for (const auto& cols : combinations(range(k), t)) {
-        robin_hood::unordered_flat_map<std::vector<int>, int, VectorHasher> c;
+        robin_hood::unordered_flat_map<std::vector<v_type>, int, VectorHasher> c;
         for (const auto& row : A) {
             for (int i = 0; i < cols.size(); i++) {
                 row_in_A[i] = row[cols[i]];
@@ -207,10 +232,10 @@ auto first_uncovered_cols(ca_type A, const int t, const int k, const int v, cons
             }
         }
     }
-    return std::vector<int>();
+    return std::vector<k_type>();
 }
 
-ca_type LLL_gen(int t, int k, int v, int lambda) {
+ca_type LLL_gen(t_type t, k_type k, v_type v, lambda_type lambda) {
     std::random_device generator;
     std::uniform_int_distribution<int> distribution(0, v - 1);
     auto N = LLL_CA_sum(t, k, v, lambda);
@@ -267,47 +292,47 @@ int size_of_symmetric_difference(InputIterator1 first1, InputIterator1 last1,
     }
 }
 
-auto get_interactions(unsigned int t, unsigned int k, unsigned int v) {
+auto get_interactions(t_type t, k_type k, v_type v) {
     auto cols = combinations(range(k), t);
-    std::vector<std::vector<int>> col_sets;
+    std::vector<std::vector<k_type>> col_sets;
     for (const auto& col_set : cols) {
-        std::vector<int> to_add;
+        std::vector<k_type> to_add;
         for (const auto& new_col : col_set) {
             to_add.push_back(new_col);
         }
         col_sets.push_back(to_add);
     }
-    std::vector<std::vector<int>> vals;
+    std::vector<std::vector<v_type>> vals;
     if (t == 1) {
-        for (int i = 0; i < v; i++) {
-            std::vector<int> s{i};
+        for (v_type i = 0; i < v; i++) {
+            std::vector<v_type> s{i};
             vals.push_back(s);
         }
     }
     else if (t == 2) {
-        for (int i = 0; i < v; i++) {
-            for (int j = 0; j < v; j++) {
-                std::vector<int> s{i, j};
+        for (v_type i = 0; i < v; i++) {
+            for (v_type j = 0; j < v; j++) {
+                std::vector<v_type> s{i, j};
                 vals.push_back(s);
             }
         }
     }
     else if (t == 3) {
-        for (int i = 0; i < v; i++) {
-            for (int j = 0; j < v; j++) {
-                for (int k = 0; k < v; k++) {
-                    std::vector<int> s{i, j, k};
+        for (v_type i = 0; i < v; i++) {
+            for (v_type j = 0; j < v; j++) {
+                for (v_type k = 0; k < v; k++) {
+                    std::vector<v_type> s{i, j, k};
                     vals.push_back(s);
                 }
             }
         }
     }
     else if (t == 4) {
-        for (int i = 0; i < v; i++) {
-            for (int j = 0; j < v; j++) {
-                for (int k = 0; k < v; k++) {
-                    for (int l = 0; l < v; l++) {
-                        std::vector<int> s{i, j, k, l};
+        for (v_type i = 0; i < v; i++) {
+            for (v_type j = 0; j < v; j++) {
+                for (v_type k = 0; k < v; k++) {
+                    for (v_type l = 0; l < v; l++) {
+                        std::vector<v_type> s{i, j, k, l};
                         vals.push_back(s);
                     }
                 }
@@ -315,12 +340,12 @@ auto get_interactions(unsigned int t, unsigned int k, unsigned int v) {
         }
     }
     else if (t == 5) {
-        for (int i = 0; i < v; i++) {
-            for (int j = 0; j < v; j++) {
-                for (int k = 0; k < v; k++) {
-                    for (int l = 0; l < v; l++) {
-                        for (int m = 0; m < v; m++) {
-                            std::vector<int> s{i, j, k, l, m};
+        for (v_type i = 0; i < v; i++) {
+            for (v_type j = 0; j < v; j++) {
+                for (v_type k = 0; k < v; k++) {
+                    for (v_type l = 0; l < v; l++) {
+                        for (v_type m = 0; m < v; m++) {
+                            std::vector<v_type> s{i, j, k, l, m};
                             vals.push_back(s);
                         }
                     }
@@ -329,13 +354,13 @@ auto get_interactions(unsigned int t, unsigned int k, unsigned int v) {
         }
     }
     else if (t == 6) {
-        for (int i = 0; i < v; i++) {
-            for (int j = 0; j < v; j++) {
-                for (int k = 0; k < v; k++) {
-                    for (int l = 0; l < v; l++) {
-                        for (int m = 0; m < v; m++) {
-                            for (int n = 0; n < v; n++) {
-                                std::vector<int> s{i, j, k, l, m, n};
+        for (v_type i = 0; i < v; i++) {
+            for (v_type j = 0; j < v; j++) {
+                for (v_type k = 0; k < v; k++) {
+                    for (v_type l = 0; l < v; l++) {
+                        for (v_type m = 0; m < v; m++) {
+                            for (v_type n = 0; n < v; n++) {
+                                std::vector<v_type> s{i, j, k, l, m, n};
                                 vals.push_back(s);
                             }
                         }
@@ -359,10 +384,8 @@ auto get_interactions(unsigned int t, unsigned int k, unsigned int v) {
     return interactions;
 }
 
-auto find_non_locating_sets(ca_type& A, unsigned int t,  unsigned int k, unsigned int v, unsigned int lambda, unsigned int d) {
+auto find_non_locating_sets(ca_type& A, t_type t, k_type k, v_type v, lambda_type lambda, unsigned int d) {
     auto interactions = get_interactions(t, k, v);
-
-    //auto interactions = product(cols, vals);
 
     // get all at most d;
     std::vector<d_set_type> d_sets;
@@ -409,23 +432,6 @@ auto find_non_locating_sets(ca_type& A, unsigned int t,  unsigned int k, unsigne
         std::vector<int> vrows(the_rows.begin(), the_rows.end());
         std::sort(vrows.begin(), vrows.end());
 
-        // for (int m=0; m < lambda; m++) {
-        //     dest[m] = vrows[vrows.size()-lambda+m];
-        // }
-		
-        // pick random subset
-        // std::sample(the_rows.begin(), the_rows.end(), std::back_inserter(dest), lambda, rng);
-        // std::sort(dest.begin(), dest.end());
-
-        // https://stackoverflow.com/questions/18807792/find-n-largest-values-in-a-vector
-        // std::partial_sort_copy(
-        //     std::begin(the_rows), std::end(the_rows), //.begin/.end in C++98/C++03
-        //     std::begin(dest), std::end(dest),
-        //     std::greater<>() //remove "int" in C++14
-        // );
-        // std::sort(dest.begin(), dest.end());
-        //int largest_row_num = *std::max_element(the_rows.begin(), the_rows.end());
-
         if (initial_rows_map.count(n)) {
             initial_rows_map[n].push_back(std::make_pair(copied_d_set, vrows));
         }
@@ -442,15 +448,6 @@ auto find_non_locating_sets(ca_type& A, unsigned int t,  unsigned int k, unsigne
             [](auto& pair1, auto& pair2) { return pair1.second < pair2.second;  }
         );
     }
-
-    // now look at pairs of d_sets
-    //std::cout << rows_in_A_pairs.size() << '\n';
-
-
-    //for (const auto& [rows, vector_of_ds] : largest_rows_num_map) {
-    //    print_vec(rows);
-    //    std::cout << vector_of_ds.size() << "\n";
-    //}
   
     // SORTED vector for the first AND second values
     // std::vector<std::pair<std::vector<int>, std::vector<std::pair<d_set_type, std::vector<int>>>>> largest_rows_num_map;
@@ -466,7 +463,7 @@ auto find_non_locating_sets(ca_type& A, unsigned int t,  unsigned int k, unsigne
     std::cout << "Ready to look at pairs...\n";
     std::cout << "largest_rows_num_map size=" << largest_rows_num_map.size() << "\n";
     for (const auto& pair : largest_rows_num_map) {
-    	std::cout << "(" << pair.first << ", " << pair.second.size() << ") ";
+        std::cout << "(" << pair.first << ", " << pair.second.size() << ") ";
     }
     std::cout << "\n";
 
@@ -474,7 +471,7 @@ auto find_non_locating_sets(ca_type& A, unsigned int t,  unsigned int k, unsigne
     //      so if the nums are sufficiently far apart, all pairs of them must be locating
     //      i.e., pair2.num_rows - pair1.num_rows >= lambda
     for (auto pair1 = largest_rows_num_map.begin(); pair1 != largest_rows_num_map.end(); pair1++) {
-    	const auto& num_rows1 = (*pair1).first;
+        const auto& num_rows1 = (*pair1).first;
         const auto& all_dset1 = (*pair1).second;
 
         for (auto pair2 = pair1; pair2 != largest_rows_num_map.end(); pair2++) {
@@ -496,6 +493,10 @@ auto find_non_locating_sets(ca_type& A, unsigned int t,  unsigned int k, unsigne
 
                         if (rows_1.back() < rows_2.front()) {
                             break;
+                        }
+
+                        if (d_set1 == d_set2) {
+                            continue;
                         }
 
                         int diff_size = size_of_symmetric_difference(rows_1.begin(), rows_1.end(), rows_2.begin(), rows_2.end());
@@ -521,110 +522,320 @@ auto find_non_locating_sets(ca_type& A, unsigned int t,  unsigned int k, unsigne
 
         }
     }
-    //for (const auto& [row_nums, d_sets] : largest_rows_num_map) {
-    //    << row_num << ", Size=" << d_sets.size() << ", Total=" << total_iter << ", Non-Locating = " << num << "\n";
-    //    for (int i1 = 0; i1 < d_sets.size(); i1++) {
-    //        const auto& elem1 = d_sets[i1];
-    //        const auto& d_set1 = elem1.first;
-    //        const auto& rows_1 = elem1.second;
-    //        for (int i2 = i1 + 1; i2 < d_sets.size(); i2++) {
-
-    //            
-    //        }
-    //    }
-    //}
-    
-    // auto total_inters = comb(k, t) * pow(v, t);
-    // auto total_d_sets = comb(total_inters, d);
-    // auto total_pairs = comb(total_d_sets, 2);
 
     return to_return;
 }
 
 auto read_ca_from_cagen(const std::string& filename) {
-	std::ifstream file(filename);
-	std::string line;
-	// skip first line as that does not have CA info
-	std::getline(file, line);
-	ca_type result;
-	while (std::getline(file, line)) {
-		std::stringstream ss(line);
-		std::vector<int> ca_line;
-		for (int i; ss >> i;) {
-			ca_line.push_back(i);
-			if (ss.peek() == ',') {
-				ss.ignore();
-			}
-		}
-		result.push_back(ca_line);
-	}
-	return result;
+    std::ifstream file(filename);
+    std::string line;
+    // skip first line as that does not have CA info
+    std::getline(file, line);
+    ca_type result;
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::vector<v_type> ca_line;
+        for (int i; ss >> i;) {
+            ca_line.push_back(i);
+            if (ss.peek() == ',') {
+                ss.ignore();
+            }
+        }
+        result.push_back(ca_line);
+    }
+    return result;
 }
 
-// usage: ./progname d t k v l
-int main(int argc, char** argv)
-{
-    const bool LLL_instead_of_file = false;
-    int ks[] = {10, 15, 20, 30, 40, 50, 100};
-	for (int k : ks) {
-		for (int d=1; d <= 1; d++) {  
-    		for (int t=2; t <= 3; t++) {
-                for (int v=2; v <= 3; v++) {
+template<typename Iter, typename RandomGenerator>
+Iter select_randomly(Iter start, Iter end, RandomGenerator& g) {
+    std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+    std::advance(start, dis(g));
+    return start;
+}
+
+template<typename Iter>
+Iter select_randomly(Iter start, Iter end) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    return select_randomly(start, end, gen);
+}
+
+auto lookup_or_assign_interaction_map(std::map<interaction_type, robin_hood::unordered_flat_set<int>>& rows_map, const interaction_type& interaction, const ca_type& ind) {
+    if (rows_map.find(interaction) != rows_map.end()) {
+        const auto& rows = rows_map[interaction];
+        return rows;
+    } else {
+        const auto& rows = rows_of_interaction(interaction, ind);
+        rows_map[interaction] = rows;
+        return rows;
+    } 
+}
+
+int fitness(const ca_type& ind, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
+    int score = 0;
+    // value is sorted
+    std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
+    auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
+        if (rows_map.find(d_set) != rows_map.end()) {
+            return rows_map[d_set];
+        } else {
+            robin_hood::unordered_set<N_type> the_rows;
+            for (const auto& interaction : d_set) {
+                const auto& rows = rows_of_interaction(interaction,ind);
+                the_rows.insert(rows.begin(), rows.end());
+            }
+            std::vector<int> vrows(the_rows.begin(), the_rows.end());
+            std::sort(vrows.begin(), vrows.end());
+            rows_map[d_set] = vrows;
+            return vrows;
+        }
+    };
+    for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs) {
+        auto requirement = l - num_times_sep_already;
+        auto rows1 = rows_of_dset(dset_1);
+        auto rows2 = rows_of_dset(dset_2);
+        int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
+        if (n >= requirement) {
+            score += 1;
+        }
+    }
+    return score;
+}
+
+ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, k_type k, v_type v, lambda_type l) {
+    int val = rand() % 2;
+    int n = p1.size();
+    ca_type child;
+    if (val == 0) {
+        auto rand_idx = rand() % p1.size();
+        for (int i=0; i<rand_idx; i++) {
+            child.push_back(p1[i]);
+        }
+        for (int i=rand_idx; i<n; i++) {
+            child.push_back(p2[i]);
+        }
+    } else if (val == 1) {
+        auto rand_idx1 = rand() % (p1.size());
+        auto rand_idx2 = rand() % (p1.size());
+        while (rand_idx1 == rand_idx2) {
+            rand_idx1 = rand() % (p1.size());
+            rand_idx2 = rand() % (p1.size());
+        }
+        auto lower = std::min(rand_idx1,rand_idx2);
+        auto higher = std::max(rand_idx1,rand_idx2);
+        for (int i=0; i<lower; i++) {
+            child.push_back(p1[i]);
+        }
+        for (int i=lower; i<higher; i++) {
+            child.push_back(p2[i]);
+        }
+        for (int i=higher; i<p1.size(); i++) {
+            child.push_back(p1[i]);
+        }
+    }
+    return child;
+}
+
+ca_type mutate(const ca_type& p1, d_type d, t_type t, k_type k, v_type v, lambda_type l) {
+    int val = rand() % 3;
+    int n = p1.size();
+    ca_type child = p1;
+    if (val == 0) {
+        auto rand_row = rand() % n;
+        for (int col=0; col<p1[0].size(); col++) {
+            child[rand_row][col] = rand() % v;
+        }
+    } else if (val == 1) {
+        auto rand_col = rand() % k;
+        for (int row=0; row<n; row++) {
+            child[row][rand_col] = rand() % v;
+        }
+    } else {
+        auto rand_row = rand() % p1.size();
+        auto rand_col = rand() % p1[0].size();
+        auto rand_val = rand() % v;
+        child[rand_row][rand_col] = rand_val;
+    }
+    return child;
+}
+
+struct Ind_NonRecompute_Fitness {
+    ca_type A;
+    int fitness;
+};
+
+ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
+    ca_type s;
+    int pop_size = 100;
+    int num_gens = 100;
+    std::vector<Ind_NonRecompute_Fitness> pop(pop_size);
+    for (auto& elem : pop) {
+        elem.A = random_array(N, k, v);
+        elem.fitness = -1;
+    }
+    auto best_fitness = std::numeric_limits<int>::min();
+    auto max_possible_fitness = non_locating_pairs.size();
+
+    for (int gen=0; gen<num_gens; gen++) {
+        std::vector<std::pair<int, Ind_NonRecompute_Fitness>> fitnesses;
+        for (auto& I : pop) {
+            int f = I.fitness;
+            if (f == -1) {
+                f = fitness(I.A, d, t, k, v, l, non_locating_pairs);
+                I.fitness = f; 
+            }
+            
+            if (f == max_possible_fitness) {
+                return I.A;
+            }
+            fitnesses.push_back(std::make_pair(f,I));
+        }
+        std::sort(fitnesses.begin(), fitnesses.end(), [](const auto& first, const auto& second) {
+            return first.first < second.first;
+        });
+
+        // get half the elems
+        std::vector<Ind_NonRecompute_Fitness> new_vec;
+        for (int i=pop_size/2; i < pop_size; i++) {
+            new_vec.push_back(fitnesses[i].second);
+        }
+        pop = new_vec;
+        new_vec.clear();
+
+        // create a sub population with half elements
+        while (new_vec.size() < pop_size / 2) {
+            auto idx1 = rand() % pop.size();
+            auto idx2 = rand() % pop.size();
+
+            const auto& p1 = pop[idx1];
+            const auto& p2 = pop[idx2];
+
+            auto cross_percent = rand() % 10;
+            auto mut_percent = rand() % 10;
+            if (cross_percent == 0 && mut_percent < 3) {
+                auto new_ind = cross(p1.A,p2.A,d,t,k,v,l);
+                new_ind = mutate(new_ind,d,t,k,v,l);
+                Ind_NonRecompute_Fitness true_new_ind;
+                true_new_ind.A = new_ind;
+                true_new_ind.fitness = -1;
+                new_vec.push_back(true_new_ind);
+            } else if (cross_percent == 0) {
+                auto new_ind = cross(p1.A,p2.A,d,t,k,v,l);
+                Ind_NonRecompute_Fitness true_new_ind;
+                true_new_ind.A = new_ind;
+                true_new_ind.fitness = -1;
+                new_vec.push_back(true_new_ind);
+            }
+        }
+        pop.insert(pop.end(), new_vec.begin(), new_vec.end());
+    }
+
+    return s;
+}
+
+ca_type go(d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
+    int N = 3;
+    
+    bool succ_first = true;
+    ca_type result;
+    while (true) {
+        result = try_N(N, d, t, k, v, l, non_locating_pairs);
+        if (succ_first && result.size() > 0) {
+            return result;
+        }
+        if (result.size() > 0) {
+            break;
+        }
+        N *= 2;
+        succ_first = false;
+    }
+    int N_hi = N;
+    int N_lo = N / 2;
+    while (N_lo < N_hi) {
+        int N_mid = (N_lo + N_hi) / 2;
+        auto result2 = try_N(N_mid, d, t, k, v, l, non_locating_pairs);
+        if (result2.size() > 0) {
+            N_hi = N_mid;
+            result = result2;
+        } else {
+            N_lo = N_mid + 1;
+        }
+    }
+    return result;
+}
+
+int main(int argc, char** argv) {
+    const bool LLL_instead_of_file = true;
+    k_type ks[] = {10, 15};
+    for (t_type t=2; t <= 5; t++) {
+        for (auto k : ks) {
+            for (d_type d=2; d <= 2; d++) {  
+                for (v_type v=2; v <= 2; v++) {
                     assert(d < v);
-                    for (int lambda=1; lambda <= 4; lambda++) {
-						auto filename = "./evaluation/" + std::to_string(v) + "^" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda);
-					    auto ext = ".csv";
-					    std::cout << "------------d=" << std::to_string(d) << " " << filename << "------------\n";
-					    ca_type A;
-                        std::string write_filename;
+                    for (lambda_type lambda=4; lambda <= 4; lambda++) {
+                        auto filename = "./evaluation/" + std::to_string(v) + "^" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda);
+                        auto ext = ".csv";
+                        std::cout << "------------d=" << std::to_string(d) << " " << filename << "------------\n";
+                        ca_type A;
 
                         auto start = high_resolution_clock::now();
 
                         if (LLL_instead_of_file) {
                             A = LLL_gen(t,k,v,lambda);
                             std::cout << "LLL done with " << A.size() << " rows.\n";
-                            write_filename = "./LLL_outputs/d" + std::to_string(d) + "_" + std::to_string(v) + "^" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda) + ".txt";
                         } else {
                             A = read_ca_from_cagen(filename + ext);
                             std::cout << "Read file with " << A.size() << " rows.\n";
-                            write_filename = "./outputs/d" + std::to_string(d) + "_" + std::to_string(v) + "^" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda) + ".txt";
                         }
-					    auto non_locating_pairs = find_non_locating_sets(A, t, k, v, lambda, d);
-					    
+                        auto non_locating_pairs = find_non_locating_sets(A, t, k, v, lambda, d);
+                        std::cout << "There were " << non_locating_pairs.size() << " non-locating pairs\n";
                         auto stop = high_resolution_clock::now();
-                        auto diff = duration_cast<milliseconds>(stop-start);
 
-                        std::cout << "Creation took " << diff.count() << "ms.\n";
-
-                        std::cout << non_locating_pairs.size() << "\n";
-					    std::ofstream out(write_filename);
-                        out << std::to_string(diff.count()) << "ms\n";
-					    // std::vector<std::tuple<d_set_type, d_set_type, int>> to_return;
-					    for (auto&& [dset_1, dset_2, num] : non_locating_pairs) {
-					    	auto s1 = d_set_to_str(dset_1);
-					    	auto s2 = d_set_to_str(dset_2);
-					    	auto to_write = s1 + s2 + std::to_string(num) + "\n";
-					    	// std::cout << to_write << "\n";
-					    	out << to_write;
-					    }
-					    out.close();
-
-                        // write created CA out to file if using LLL
-                        if (LLL_instead_of_file) {
-                            std::ofstream A_out("./LLL_outputs/t" + std::to_string(t) + "_k" + std::to_string(k) + "_v" + std::to_string(v) + "_l" + std::to_string(lambda) + ".txt");
-                            for (const auto& row : A) {
-                                for (const auto& elem : row) {
-                                    A_out << elem << " ";
-                                }
-                                A_out << "\n";
+                        auto smallest_GA_rows = std::numeric_limits<N_type>::max();
+                        auto ga_total_time = std::numeric_limits<int>::max();
+                        for (int ga_run = 0; ga_run < 1; ga_run++) {
+                            auto ga_start_time = high_resolution_clock::now();
+                            auto ga_rows = go(d,t,k,v,lambda,non_locating_pairs);
+                            auto ga_end_time = high_resolution_clock::now();
+                            if (ga_rows.size() < smallest_GA_rows) {
+                                smallest_GA_rows = ga_rows.size();
+                                ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
                             }
-                            A_out.close();
                         }
-					}
-				}
-			}
-		}
-	}
+                        
 
-    
+                        
+                        auto stage1_diff = duration_cast<milliseconds>(stop-start).count();
+                        auto total_time = stage1_diff + ga_total_time;
+
+                        
+                        std::cout << "Total N=" << A.size() + smallest_GA_rows << ", time=" << total_time << "ms.\n";
+                        // std::ofstream out(write_filename);
+                        // out << std::to_string(diff.count()) << "ms\n";
+                        // // std::vector<std::tuple<d_set_type, d_set_type, int>> to_return;
+                        // for (auto&& [dset_1, dset_2, num] : non_locating_pairs) {
+                        //  auto s1 = d_set_to_str(dset_1);
+                        //  auto s2 = d_set_to_str(dset_2);
+                        //  auto to_write = s1 + s2 + std::to_string(num) + "\n";
+                        //  // std::cout << to_write << "\n";
+                        //  out << to_write;
+                        // }
+                        // out.close();
+
+                        // // write created CA out to file if using LLL
+                        // if (LLL_instead_of_file) {
+                        //     std::ofstream A_out("./LLL_outputs/t" + std::to_string(t) + "_k" + std::to_string(k) + "_v" + std::to_string(v) + "_l" + std::to_string(lambda) + ".txt");
+                        //     for (const auto& row : A) {
+                        //         for (const auto& elem : row) {
+                        //             A_out << elem << " ";
+                        //         }
+                        //         A_out << "\n";
+                        //     }
+                        //     A_out.close();
+                        // }
+                    }
+                }
+            }
+        }
+    }
 }
