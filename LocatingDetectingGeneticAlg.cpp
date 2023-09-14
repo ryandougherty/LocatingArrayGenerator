@@ -201,7 +201,7 @@ struct DSetHasher {
 
 auto first_uncovered_cols(ca_type A, const t_type t, const k_type k, const v_type v, const lambda_type lambda) {
     std::vector<v_type> row_in_A(t, 0);
-    std::vector<k_type> cols_to_return(t, 0);
+    std::vector<k_type> cols_to_return;
     for (const auto& cols : combinations(range(k), t)) {
         robin_hood::unordered_flat_map<std::vector<v_type>, int, VectorHasher> c;
         for (const auto& row : A) {
