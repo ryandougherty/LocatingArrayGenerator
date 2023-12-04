@@ -14,6 +14,7 @@
 #include <sstream>
 #include <tuple>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 
@@ -664,18 +665,39 @@ struct Ind_NonRecompute_Fitness {
     int fitness;
 };
 
-ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
+
+
+
+// insert new parameter for the percentage of the locating array rows
+
+//ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
+auto try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
+
     ca_type s;
     int pop_size = 100;
     int num_gens = 100;
+    // KANG ADDED Code
+    auto new_non_locating_pairs = non_locating_pairs;
+
+    // creates 100 population variables
     std::vector<Ind_NonRecompute_Fitness> pop(pop_size);
+     
+    // using iterators iterate through pop: which is a vector of all population covering arrays
+    // each covering array is randomly generated in the population
+    // ---- and the fitness is set to -1
     for (auto& elem : pop) {
         elem.A = random_array(N, k, v);
         elem.fitness = -1;
     }
+
     auto best_fitness = std::numeric_limits<int>::min();
+    
+    // max fitness is set to how many non_locating_pairs we have
+    // FIX_THIS_SAM :: max possible fitness set to a percentage of the non_locating_pairs.size()
+    // ----------- e.g. = non_locating_pairs.size() * 0.8;
     auto max_possible_fitness = non_locating_pairs.size();
 
+    // GENERATIONS 0 - 100
     for (int gen=0; gen<num_gens; gen++) {
         std::vector<std::pair<int, Ind_NonRecompute_Fitness>> fitnesses;
         for (auto& I : pop) {
@@ -686,10 +708,15 @@ ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, c
             }
             
             if (f == max_possible_fitness) {
-                return I.A;
+                // KANG ADDED CODE++++++
+                // returns the new set of non_locating_pairs
+                new_non_locating_pairs = find_non_locating_sets(I.A, t, k, v, l, d);
+                return std::make_pair(I.A, new_non_locating_pairs);
             }
             fitnesses.push_back(std::make_pair(f,I));
         }
+
+        // sort fitness
         std::sort(fitnesses.begin(), fitnesses.end(), [](const auto& first, const auto& second) {
             return first.first < second.first;
         });
@@ -730,38 +757,70 @@ ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, c
         pop.insert(pop.end(), new_vec.begin(), new_vec.end());
     }
 
-    return s;
+    // return (s, new_non_locating_pairs)
+    // s = ca_type
+    // KANG ADDED CODE++++++
+    // returns the new set of non_locating_pairs
+    new_non_locating_pairs = find_non_locating_sets(s, t, k, v, l, d);
+    auto returnPair = std::make_pair(s, new_non_locating_pairs);
+    return returnPair;
 }
+
+
+
+
+// insert new parameter
+// parameter for the percentage of completion of locating rows
 
 ca_type go(d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
     int N = 3;
     
     bool succ_first = true;
-    ca_type result;
+    //ca_type result;
+
+    auto pairType = try_N(N, d, t, k, v, l, non_locating_pairs);
+
     while (true) {
-        result = try_N(N, d, t, k, v, l, non_locating_pairs);
-        if (succ_first && result.size() > 0) {
-            return result;
+        auto pairType = try_N(N, d, t, k, v, l, non_locating_pairs);
+        //auto[first, second] = try_N(N,d,t,k,v,l, non_locating_pairs);
+        if (succ_first &&  pairType.second.size() == 0) {
+            return pairType.first;
         }
-        if (result.size() > 0) {
+        if (pairType.first.size() > 0) {
             break;
         }
         N *= 2;
         succ_first = false;
     }
+
+    // high and low
+    // binary search
     int N_hi = N;
     int N_lo = N / 2;
+    // need to run only to half?
+    auto counter = pairType.second;
+    auto result = try_N(pairType.first.size(), d, t, k, v, l, non_locating_pairs);
+
+    while(counter.size() != 0) {
+        //result = try_N(pairType.first, d, t, k, v, l, non_locating_pairs);
+        pairType = result;
+        counter = result.second;
+    }
+
     while (N_lo < N_hi) {
         int N_mid = (N_lo + N_hi) / 2;
         auto result2 = try_N(N_mid, d, t, k, v, l, non_locating_pairs);
-        if (result2.size() > 0) {
+        if (result2.first.size() > 0) {
             N_hi = N_mid;
             result = result2;
         } else {
             N_lo = N_mid + 1;
         }
     }
-    return result;
+
+    return result.first;
+    // instead of returning just ca_type result, return also the non_locating
+    // OR put entire code into go
 }
 
 int main(int argc, char** argv) {
@@ -769,7 +828,7 @@ int main(int argc, char** argv) {
     k_type ks[] = {10, 15};
     for (t_type t=2; t <= 5; t++) {
         for (auto k : ks) {
-            for (d_type d=2; d <= 2; d++) {  
+            for (d_type d=1; d <= 1; d++) {
                 for (v_type v=2; v <= 2; v++) {
                     assert(d < v);
                     for (lambda_type lambda=4; lambda <= 4; lambda++) {
