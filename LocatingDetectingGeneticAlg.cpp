@@ -294,6 +294,7 @@ int size_of_symmetric_difference(InputIterator1 first1, InputIterator1 last1,
 }
 
 auto get_interactions(t_type t, k_type k, v_type v) {
+    // creates COL SETS don't really need to touch
     auto cols = combinations(range(k), t);
     std::vector<std::vector<k_type>> col_sets;
     for (const auto& col_set : cols) {
@@ -303,6 +304,22 @@ auto get_interactions(t_type t, k_type k, v_type v) {
         }
         col_sets.push_back(to_add);
     }
+
+
+    // Change up all of these for loops and implement this:
+    /* 
+
+    for (const auto& col_set : col_sets) {
+        for (const auto& val_set : vals) {
+            interaction_type I = std::make_pair(col_set, val_set);
+            interactions.push_back(I);
+        }
+    }
+    
+    */
+
+    // make interactions = [];
+    // loop for col sets
     std::vector<std::vector<v_type>> vals;
     if (t == 1) {
         for (v_type i = 0; i < v; i++) {
@@ -375,6 +392,7 @@ auto get_interactions(t_type t, k_type k, v_type v) {
         abort();
     }
 
+    // may have to delete later
     std::vector<interaction_type> interactions;
     for (const auto& col_set : col_sets) {
         for (const auto& val_set : vals) {
@@ -671,13 +689,13 @@ struct Ind_NonRecompute_Fitness {
 // insert new parameter for the percentage of the locating array rows
 
 //ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
-auto try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
+ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
 
     ca_type s;
     int pop_size = 100;
     int num_gens = 100;
     // KANG ADDED Code
-    auto new_non_locating_pairs = non_locating_pairs;
+    //auto new_non_locating_pairs = non_locating_pairs;
 
     // creates 100 population variables
     std::vector<Ind_NonRecompute_Fitness> pop(pop_size);
@@ -695,7 +713,8 @@ auto try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, cons
     // max fitness is set to how many non_locating_pairs we have
     // FIX_THIS_SAM :: max possible fitness set to a percentage of the non_locating_pairs.size()
     // ----------- e.g. = non_locating_pairs.size() * 0.8;
-    auto max_possible_fitness = non_locating_pairs.size();
+    //auto max_possible_fitness = non_locating_pairs.size(); // * 0.8 ??
+    auto max_possible_fitness = non_locating_pairs.size() * 0.8; // * 0.8 ??
 
     // GENERATIONS 0 - 100
     for (int gen=0; gen<num_gens; gen++) {
@@ -710,8 +729,9 @@ auto try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, cons
             if (f == max_possible_fitness) {
                 // KANG ADDED CODE++++++
                 // returns the new set of non_locating_pairs
-                new_non_locating_pairs = find_non_locating_sets(I.A, t, k, v, l, d);
-                return std::make_pair(I.A, new_non_locating_pairs);
+                //new_non_locating_pairs = find_non_locating_sets(I.A, t, k, v, l, d);
+                //return std::make_pair(I.A, new_non_locating_pairs);
+                return I.A;
             }
             fitnesses.push_back(std::make_pair(f,I));
         }
@@ -761,9 +781,9 @@ auto try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, cons
     // s = ca_type
     // KANG ADDED CODE++++++
     // returns the new set of non_locating_pairs
-    new_non_locating_pairs = find_non_locating_sets(s, t, k, v, l, d);
-    auto returnPair = std::make_pair(s, new_non_locating_pairs);
-    return returnPair;
+    //new_non_locating_pairs = find_non_locating_sets(s, t, k, v, l, d);
+    //auto returnPair = std::make_pair(s, new_non_locating_pairs);
+    return s;
 }
 
 
@@ -776,69 +796,76 @@ ca_type go(d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vec
     int N = 3;
     
     bool succ_first = true;
-    //ca_type result;
+    ca_type result;
 
-    auto pairType = try_N(N, d, t, k, v, l, non_locating_pairs);
+    //auto pairType = try_N(N, d, t, k, v, l, non_locating_pairs);
 
     while (true) {
-        auto pairType = try_N(N, d, t, k, v, l, non_locating_pairs);
+
+        //auto pairType = try_N(N, d, t, k, v, l, non_locating_pairs);
+        result = try_N(N, d, t, k, v, l, non_locating_pairs);
         //auto[first, second] = try_N(N,d,t,k,v,l, non_locating_pairs);
-        if (succ_first &&  pairType.second.size() == 0) {
-            return pairType.first;
+        if (succ_first &&  result.size() == 0) {
+            return result;
+            //return pairType.first;
         }
-        if (pairType.first.size() > 0) {
+        if (result.size() > 0) {
             break;
         }
         N *= 2;
         succ_first = false;
     }
 
-    // high and low
-    // binary search
-    int N_hi = N;
-    int N_lo = N / 2;
-    // need to run only to half?
+    /*
     auto counter = pairType.second;
     auto result = try_N(pairType.first.size(), d, t, k, v, l, non_locating_pairs);
 
     while(counter.size() != 0) {
-        //result = try_N(pairType.first, d, t, k, v, l, non_locating_pairs);
+        result = try_N(pairType.first, d, t, k, v, l, non_locating_pairs);
         pairType = result;
         counter = result.second;
-    }
+    } */ 
 
+    // high and low
+    // binary search finding least amount of rows
+    int N_hi = N;
+    int N_lo = N / 2;
     while (N_lo < N_hi) {
         int N_mid = (N_lo + N_hi) / 2;
         auto result2 = try_N(N_mid, d, t, k, v, l, non_locating_pairs);
-        if (result2.first.size() > 0) {
+        if (result2.size() > 0) {
             N_hi = N_mid;
             result = result2;
         } else {
             N_lo = N_mid + 1;
         }
     }
-
-    return result.first;
-    // instead of returning just ca_type result, return also the non_locating
-    // OR put entire code into go
+    return result;
 }
 
 int main(int argc, char** argv) {
     const bool LLL_instead_of_file = true;
-    k_type ks[] = {10, 15};
+    k_type ks[] = {10};
+    //v_type vs[] = {1, 2, 3, 4, 5, 6};
+
     for (t_type t=2; t <= 5; t++) {
         for (auto k : ks) {
             for (d_type d=1; d <= 1; d++) {
-                for (v_type v=2; v <= 2; v++) {
+                for (v_type v=4; v <= 4; v++) {
+                //for (auto v: vs) {
                     assert(d < v);
                     for (lambda_type lambda=4; lambda <= 4; lambda++) {
+
+                        /* setting up variables */
                         auto filename = "./evaluation/" + std::to_string(v) + "^" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda);
+                        //auto filename = "./evaluation/kang_custom";
                         auto ext = ".csv";
                         std::cout << "------------d=" << std::to_string(d) << " " << filename << "------------\n";
                         ca_type A;
+                        // Setting up Variables
 
+                        // CREATES INITIAL ARRAY FROM GIVEN FILE OR LAVACHE LOCAL LEMMA
                         auto start = high_resolution_clock::now();
-
                         if (LLL_instead_of_file) {
                             A = LLL_gen(t,k,v,lambda);
                             std::cout << "LLL done with " << A.size() << " rows.\n";
@@ -846,14 +873,111 @@ int main(int argc, char** argv) {
                             A = read_ca_from_cagen(filename + ext);
                             std::cout << "Read file with " << A.size() << " rows.\n";
                         }
+
+                        // Finds initial non_locating_pairs
                         auto non_locating_pairs = find_non_locating_sets(A, t, k, v, lambda, d);
                         std::cout << "There were " << non_locating_pairs.size() << " non-locating pairs\n";
                         auto stop = high_resolution_clock::now();
 
                         auto smallest_GA_rows = std::numeric_limits<N_type>::max();
                         auto ga_total_time = std::numeric_limits<int>::max();
+                        auto ga_start_time = high_resolution_clock::now();
+                        
+
+/* KANG IMPLENTED MULTI-STAGE GENETIC ALGORITHM: also edited max fitness in try_N */
+                        // CALL GO AND START GENETIC ALGORITHM!!
+                        auto ga_rows = go(d,t,k,v,lambda,non_locating_pairs);
+                        auto total_GA_rows = ga_rows.size();
+                        std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
+                        auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
+                            if (rows_map.find(d_set) != rows_map.end()) {
+                                return rows_map[d_set];
+                            } else {
+                                robin_hood::unordered_set<N_type> the_rows;
+                                for (const auto& interaction : d_set) {
+                                    const auto& rows = rows_of_interaction(interaction,ga_rows);
+                                    the_rows.insert(rows.begin(), rows.end());
+                                }
+                                std::vector<int> vrows(the_rows.begin(), the_rows.end());
+                                std::sort(vrows.begin(), vrows.end());
+                                rows_map[d_set] = vrows;
+                                return vrows;
+                            }
+                        };
+
+                        // Definition of non_locating_pairs type: std::vector<std::tuple<d_set_type, d_set_type, int>>
+                        // initializes the new non locating pairs
+                        std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
+                        // auto requirement = lambda - num_times_sep_already;
+                        for (const auto& [dset_1, dset_2, num_required] : non_locating_pairs) {
+                            //auto requirement = lambda - num_times_sep_already;
+                            auto rows1 = rows_of_dset(dset_1);
+                            auto rows2 = rows_of_dset(dset_2);
+                            int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
+                            int diff = num_required - n;
+                            if (n < num_required) {
+                                new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, diff));
+                            }
+                        }
+                        non_locating_pairs = new_non_locating_pairs;
+                        
+                        // add rows to ga_rows size
+                        total_GA_rows += ga_rows.size();
+                        
+                        // While there are non_locating_pairs, run the GA
+                        // same thing as above in while loop
+                        while(non_locating_pairs.size() > 0){
+                            // CALL GO AND START GENETIC ALGORITHM!!
+                            auto ga_rows = go(d,t,k,v,lambda,non_locating_pairs);
+                            //auto requirement = lambda - num_times_sep_already;
+                            for (const auto& [dset_1, dset_2, num_required] : non_locating_pairs) {
+                                //auto requirement = lambda - num_times_sep_already;
+
+                                std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
+                                auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
+                                    if (rows_map.find(d_set) != rows_map.end()) {
+                                        return rows_map[d_set];
+                                    } else {
+                                        robin_hood::unordered_set<N_type> the_rows;
+                                        for (const auto& interaction : d_set) {
+                                            const auto& rows = rows_of_interaction(interaction,ga_rows);
+                                            the_rows.insert(rows.begin(), rows.end());
+                                        }
+                                        std::vector<int> vrows(the_rows.begin(), the_rows.end());
+                                        std::sort(vrows.begin(), vrows.end());
+                                        rows_map[d_set] = vrows;
+                                        return vrows;
+                                    }
+                                };
+
+                                auto rows1 = rows_of_dset(dset_1);
+                                auto rows2 = rows_of_dset(dset_2);
+                                int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
+                                if (n < num_required) {
+                                    new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, num_required -n));
+                                }
+                            }
+                            non_locating_pairs = new_non_locating_pairs;
+                            
+                            // add rows to ga_rows size
+                            total_GA_rows += ga_rows.size();
+                            /*
+                            if (ga_rows.size() < smallest_GA_rows) {
+                                smallest_GA_rows = ga_rows.size();
+                                ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
+                            }
+                            */
+
+                        }
+                        auto ga_end_time = high_resolution_clock::now();
+// _________________ end of Kang implementation and running multi-stage genetic algorithm
+
+                        /*
+                        // OG FUNCTION
                         for (int ga_run = 0; ga_run < 1; ga_run++) {
                             auto ga_start_time = high_resolution_clock::now();
+                            
+                            // CALL GO AND START GENETIC ALGORITHM!!
                             auto ga_rows = go(d,t,k,v,lambda,non_locating_pairs);
                             auto ga_end_time = high_resolution_clock::now();
                             if (ga_rows.size() < smallest_GA_rows) {
@@ -861,8 +985,7 @@ int main(int argc, char** argv) {
                                 ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
                             }
                         }
-                        
-
+                        */
                         
                         auto stage1_diff = duration_cast<milliseconds>(stop-start).count();
                         auto total_time = stage1_diff + ga_total_time;
