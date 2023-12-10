@@ -864,13 +864,13 @@ int main(int argc, char** argv) {
     k_type ks[] = {97};
     v_type vs[] = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,4,5,5,5,5,5,6,6};
 
-    for (t_type t=1; t <= 1; t++) {
+    for (t_type t=2; t <= 2; t++) {
         for (auto k : ks) {
             for (d_type d=1; d <= 1; d++) {
                 //for (v_type v=4; v <= 4; v++) {
                 //for (auto v: vs) {
                     //assert(d < v);
-                for (lambda_type lambda=2; lambda <= 2; lambda++) {
+                for (lambda_type lambda=1; lambda <= 1; lambda++) {
 
                     /* setting up variables */
                     //auto filename = "./evaluation/" + std::to_string(v) + "^" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda);
