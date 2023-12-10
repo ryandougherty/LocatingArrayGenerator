@@ -314,27 +314,38 @@ auto get_interactions(t_type t, k_type k, v_type vs[]) {
 
 
     // Change up all of these for loops and implement this:
-    /*  std::vector<interaction_type> interactions;
-
-    for (const auto& col_set : col_sets) {
-        for (const auto& val_set : vals) {
-            interaction_type I = std::make_pair(col_set, val_set);
-            interactions.push_back(I);
-        }
-    }     */
-
-    // make interactions = [];
+    //  std::vector<interaction_type> interactions;
     // loop for col sets
     std::vector<interaction_type> interactions;
     std::vector<std::vector<v_type>> vals;
     if (t == 1) {
+        for (const auto& col: col_sets) {
+            for (v_type i = 0; i < vs[col[0]]; i++) {
+                std::vector<v_type> s{i};
+                interaction_type I = std::make_pair(col, s);
+                interactions.push_back(I);
+            }
+        }
+        /*
         for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
             std::vector<v_type> s{i};
             vals.push_back(s);
             //interactions.push_back((col_sets[], s));
         }
+        */
     }
     else if (t == 2) {
+        for (const auto& col: col_sets) {
+            for (v_type i = 0; i < vs[col[0]]; i++) {
+                for (v_type j = 0; j < vs[col[1]]; j++) {
+                    std::vector<v_type> s{i, j};
+                    interaction_type I = std::make_pair(col, s);
+                    interactions.push_back(I);
+                }
+            }
+        }
+
+        /*
         for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
             for (v_type j = 0; j < vs[col_sets[1].size()]; j++) {
                 std::vector<v_type> s{i, j};
@@ -342,8 +353,21 @@ auto get_interactions(t_type t, k_type k, v_type vs[]) {
                 //interactions.push_back((col_sets[], s));
             }
         }
+        */
     }
     else if (t == 3) {
+        for (const auto& col: col_sets) {
+            for (v_type i = 0; i < vs[col[0]]; i++) {
+                for (v_type j = 0; j < vs[col[1]]; j++) {
+                    for(v_type k = 0; k < vs[col[2]]; k++) {
+                        std::vector<v_type> s{i, j, k};
+                        interaction_type I = std::make_pair(col, s);
+                        interactions.push_back(I);
+                    }
+                }
+            }
+        }
+        /*
         for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
             for (v_type j = 0; j < vs[col_sets[1].size()]; j++) {
                 for (v_type k = 0; k < vs[col_sets[2].size()]; k++) {
@@ -353,8 +377,23 @@ auto get_interactions(t_type t, k_type k, v_type vs[]) {
                 }
             }
         }
+        */
     }
     else if (t == 4) {
+        for (const auto& col: col_sets) {
+            for (v_type i = 0; i < vs[col[0]]; i++) {
+                for (v_type j = 0; j < vs[col[1]]; j++) {
+                    for(v_type k = 0; k < vs[col[2]]; k++) {
+                        for(v_type l = 0; l < vs[col[3]]; l++) {
+                            std::vector<v_type> s{i, j, k, l};
+                            interaction_type I = std::make_pair(col, s);
+                            interactions.push_back(I);
+                        }
+                    }
+                }
+            }
+        }
+        /*
         for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
             for (v_type j = 0; j < vs[col_sets[1].size()]; j++) {
                 for (v_type k = 0; k < vs[col_sets[2].size()]; k++) {
@@ -366,8 +405,25 @@ auto get_interactions(t_type t, k_type k, v_type vs[]) {
                 }
             }
         }
+        */
     }
     else if (t == 5) {
+        for (const auto& col: col_sets) {
+            for (v_type i = 0; i < vs[col[0]]; i++) {
+                for (v_type j = 0; j < vs[col[1]]; j++) {
+                    for(v_type k = 0; k < vs[col[2]]; k++) {
+                        for(v_type l = 0; l < vs[col[3]]; l++) {
+                            for(v_type m = 0; m < vs[col[4]]; m++) {
+                                std::vector<v_type> s{i, j, k, l, m};
+                                interaction_type I = std::make_pair(col, s);
+                                interactions.push_back(I);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /*
         for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
             for (v_type j = 0; j < vs[col_sets[1].size()]; j++) {
                 for (v_type k = 0; k < vs[col_sets[2].size()]; k++) {
@@ -381,8 +437,27 @@ auto get_interactions(t_type t, k_type k, v_type vs[]) {
                 }
             }
         }
+        */
     }
     else if (t == 6) {
+        for (const auto& col: col_sets) {
+            for (v_type i = 0; i < vs[col[0]]; i++) {
+                for (v_type j = 0; j < vs[col[1]]; j++) {
+                    for(v_type k = 0; k < vs[col[2]]; k++) {
+                        for(v_type l = 0; l < vs[col[3]]; l++) {
+                            for(v_type m = 0; m < vs[col[4]]; m++) {
+                                for (v_type n = 0; n < vs[col[5]]; n++) {
+                                    std::vector<v_type> s{i, j, k, l, m};
+                                    interaction_type I = std::make_pair(col, s);
+                                    interactions.push_back(I);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /*
         for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
             for (v_type j = 0; j < vs[col_sets[1].size()]; j++) {
                 for (v_type k = 0; k < vs[col_sets[2].size()]; k++) {
@@ -398,6 +473,7 @@ auto get_interactions(t_type t, k_type k, v_type vs[]) {
                 }
             }
         }
+        */
     }
     else {
         std::cerr << "Error, Invalid t\n";
@@ -406,12 +482,14 @@ auto get_interactions(t_type t, k_type k, v_type vs[]) {
 
     // may have to delete later
     //std::vector<interaction_type> interactions;
+    /*
     for (const auto& col_set : col_sets) {
         for (const auto& val_set : vals) {
             interaction_type I = std::make_pair(col_set, val_set);
             interactions.push_back(I);
         }
     }
+    */
     return interactions;
 }
 
@@ -493,6 +571,7 @@ auto find_non_locating_sets(ca_type& A, t_type t, k_type k, v_type vs[], lambda_
     std::vector<std::tuple<d_set_type, d_set_type, int>> to_return;
     std::cout << "Ready to look at pairs...\n";
     std::cout << "largest_rows_num_map size=" << largest_rows_num_map.size() << "\n";
+
     for (const auto& pair : largest_rows_num_map) {
         std::cout << "(" << pair.first << ", " << pair.second.size() << ") ";
     }
@@ -730,7 +809,8 @@ ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type vs[], lambda_type l
     // FIX_THIS_SAM :: max possible fitness set to a percentage of the non_locating_pairs.size()
     // ----------- e.g. = non_locating_pairs.size() * 0.8;
     //auto max_possible_fitness = non_locating_pairs.size(); // * 0.8 ??
-    auto max_possible_fitness = non_locating_pairs.size() * 0.8; // * 0.8 ??
+    int max_possible_fitness = non_locating_pairs.size(); // * 0.8 ??
+    //int max_possible_fitness = non_locating_pairs.size() * 0.8; // * 0.8 ??
 
     // GENERATIONS 0 - 100
     for (int gen=0; gen<num_gens; gen++) {
@@ -793,12 +873,6 @@ ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type vs[], lambda_type l
         pop.insert(pop.end(), new_vec.begin(), new_vec.end());
     }
 
-    // return (s, new_non_locating_pairs)
-    // s = ca_type
-    // KANG ADDED CODE++++++
-    // returns the new set of non_locating_pairs
-    //new_non_locating_pairs = find_non_locating_sets(s, t, k, v, l, d);
-    //auto returnPair = std::make_pair(s, new_non_locating_pairs);
     return s;
 }
 
@@ -813,17 +887,27 @@ ca_type go(d_type d, t_type t, k_type k, v_type vs[], lambda_type l, const std::
     
     bool succ_first = true;
     ca_type result;
+    std::size_t howManyPairs;
 
-    //auto pairType = try_N(N, d, t, k, v, l, non_locating_pairs);
+    // Create a sub set of the non_locating_pairs to pass into the genetic algorithm
+    /*
+    if (static_cast<int>(non_locating_pairs.size()/2) <= 1) {
+        howManyPairs = static_cast<std::size_t>(non_locating_pairs.size());
+    } else {
+        howManyPairs = static_cast<std::size_t>(static_cast<int>(non_locating_pairs.size()/2));
+    }
+    std::vector<std::tuple<d_set_type, d_set_type, int>> some_non_locating_pairs;
+    some_non_locating_pairs.reserve(howManyPairs);
+    some_non_locating_pairs.resize(howManyPairs);
+    std::copy(non_locating_pairs.begin(), non_locating_pairs.begin() + howManyPairs, some_non_locating_pairs.begin());
+    */
 
+    
     while (true) {
 
-        //auto pairType = try_N(N, d, t, k, v, l, non_locating_pairs);
         result = try_N(N, d, t, k, vs, l, non_locating_pairs);
-        //auto[first, second] = try_N(N,d,t,k,v,l, non_locating_pairs);
-        if (succ_first &&  result.size() == 0) {
+        if (succ_first &&  result.size() > 0) {
             return result;
-            //return pairType.first;
         }
         if (result.size() > 0) {
             break;
@@ -848,6 +932,7 @@ ca_type go(d_type d, t_type t, k_type k, v_type vs[], lambda_type l, const std::
     int N_lo = N / 2;
     while (N_lo < N_hi) {
         int N_mid = (N_lo + N_hi) / 2;
+        //auto result2 = try_N(N_mid, d, t, k, vs, l, non_locating_pairs);
         auto result2 = try_N(N_mid, d, t, k, vs, l, non_locating_pairs);
         if (result2.size() > 0) {
             N_hi = N_mid;
@@ -862,25 +947,25 @@ ca_type go(d_type d, t_type t, k_type k, v_type vs[], lambda_type l, const std::
 int main(int argc, char** argv) {
     const bool LLL_instead_of_file = false;
     k_type ks[] = {97};
+    //k_type ks[] = {18};
     v_type vs[] = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,4,5,5,5,5,5,6,6};
+    //v_type vs[] = {2,2,2,2,2,2,2,2,2,2,2,2,2,4,4,4,4,4};
 
-    for (t_type t=2; t <= 2; t++) {
+    for (t_type t=1; t <= 1; t++) {
         for (auto k : ks) {
             for (d_type d=1; d <= 1; d++) {
                 //for (v_type v=4; v <= 4; v++) {
                 //for (auto v: vs) {
                     //assert(d < v);
-                for (lambda_type lambda=1; lambda <= 1; lambda++) {
+                for (lambda_type lambda=2; lambda <= 2; lambda++) {
 
                     /* setting up variables */
-                    //auto filename = "./evaluation/" + std::to_string(v) + "^" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda);
                     auto filename = "./evaluation/" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda);
-                    filename = "./evaluation/Konishi_1";
-                    //auto filename = "./evaluation/kang_custom";
+                    filename = "./evaluation/Konishi_2";
+                    //filename = "./evaluation/spin_s";
                     auto ext = ".csv";
                     std::cout << "------------d=" << std::to_string(d) << " " << filename << "------------\n";
                     ca_type A;
-                    // Setting up Variables
 
                     // CREATES INITIAL ARRAY FROM GIVEN FILE OR LAVACHE LOCAL LEMMA
                     auto start = high_resolution_clock::now();
@@ -910,6 +995,7 @@ int main(int argc, char** argv) {
 /* KANG IMPLENTED MULTI-STAGE GENETIC ALGORITHM: also edited max fitness in try_N */
                     // CALL GO AND START GENETIC ALGORITHM!!
                     auto ga_rows = go(d,t,k,vs,lambda,non_locating_pairs);
+                    ga_end_time = high_resolution_clock::now();
                     auto total_GA_rows = ga_rows.size();
                     std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
                     auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
@@ -943,6 +1029,7 @@ int main(int argc, char** argv) {
                         }
                     }
                     non_locating_pairs = new_non_locating_pairs;
+                    std::cout << "New non_locating_pairs: " << new_non_locating_pairs.size() << "\n";
                     
                     // add rows to ga_rows size
                     total_GA_rows += ga_rows.size();
@@ -950,6 +1037,7 @@ int main(int argc, char** argv) {
                     // While there are non_locating_pairs, run the GA
                     // same thing as above in while loop
                     while(non_locating_pairs.size() > 0){
+                        std::cout << "timesss\n";
                         // CALL GO AND START GENETIC ALGORITHM!!
                         auto ga_rows = go(d,t,k,vs,lambda,non_locating_pairs);
                         //auto requirement = lambda - num_times_sep_already;
@@ -1016,7 +1104,9 @@ int main(int argc, char** argv) {
                     auto total_time = stage1_diff + ga_total_time;
 
                     
-                    std::cout << "Total N=" << A.size() + smallest_GA_rows << ", time=" << total_time << "ms.\n";
+                    //std::cout << "Total N=" << A.size() + smallest_GA_rows << ", time=" << total_time << "ms.\n";
+                    std::cout << "Total N=" << A.size() + total_GA_rows << ", time=" << total_time << "ms.\n";
+                    std::cout << "Total GA=" << total_GA_rows << ", time=" << ga_total_time << "ms.\n";
                     // std::ofstream out(write_filename);
                     // out << std::to_string(diff.count()) << "ms\n";
                     // // std::vector<std::tuple<d_set_type, d_set_type, int>> to_return;
