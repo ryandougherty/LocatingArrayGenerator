@@ -293,6 +293,7 @@ int size_of_symmetric_difference(InputIterator1 first1, InputIterator1 last1,
     }
 }
 
+// implemented input of v_type array / maybe vector? nah probably array
 auto get_interactions(t_type t, k_type k, v_type v) {
     // creates COL SETS don't really need to touch
     auto cols = combinations(range(k), t);
@@ -848,7 +849,7 @@ int main(int argc, char** argv) {
     k_type ks[] = {10};
     //v_type vs[] = {1, 2, 3, 4, 5, 6};
 
-    for (t_type t=2; t <= 5; t++) {
+    for (t_type t=3; t <= 3; t++) {
         for (auto k : ks) {
             for (d_type d=1; d <= 1; d++) {
                 for (v_type v=4; v <= 4; v++) {
@@ -882,6 +883,7 @@ int main(int argc, char** argv) {
                         auto smallest_GA_rows = std::numeric_limits<N_type>::max();
                         auto ga_total_time = std::numeric_limits<int>::max();
                         auto ga_start_time = high_resolution_clock::now();
+                        auto ga_end_time = high_resolution_clock::now();
                         
 
 /* KANG IMPLENTED MULTI-STAGE GENETIC ALGORITHM: also edited max fitness in try_N */
@@ -955,8 +957,10 @@ int main(int argc, char** argv) {
                                 int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
                                 if (n < num_required) {
                                     new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, num_required -n));
+                                    ga_end_time = high_resolution_clock::now();
                                 }
                             }
+
                             non_locating_pairs = new_non_locating_pairs;
                             
                             // add rows to ga_rows size
@@ -969,7 +973,7 @@ int main(int argc, char** argv) {
                             */
 
                         }
-                        auto ga_end_time = high_resolution_clock::now();
+                        ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
 // _________________ end of Kang implementation and running multi-stage genetic algorithm
 
                         /*
