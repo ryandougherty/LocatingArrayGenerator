@@ -113,10 +113,11 @@ double calc_p(const int t, const int v) {
     return 1 / pow(v, t);
 }
 
-long long LLL_CA_sum(const int t, const int k, const int v, const int lambda) {
+/*
+long long LLL_CA_sum(const int t, const int k, const int vs[], const int lambda) {
     const double p = calc_p(t, v);
     long long N = 1;
-    auto calc_quantity = [t, k, v, lambda, p](long long m) {
+    auto calc_quantity = [t, k, vs, lambda, p](long long m) {
         const auto e = std::exp(1.0);
         auto sum = 0.0;
         for (int i = 0; i < lambda; i++) {
@@ -149,14 +150,17 @@ long long LLL_CA_sum(const int t, const int k, const int v, const int lambda) {
     }
     return lb;
 }
+*/
 
-ca_type random_array(const N_type N, const k_type k, const v_type v) {
+ca_type random_array(const N_type N, const k_type k, const v_type vs[]) {
     std::random_device generator;
-    std::uniform_int_distribution<int> distribution(0, v - 1);
+    //std::uniform_int_distribution<int> distribution(0, vs - 1);
     ca_type to_return(N, std::vector<v_type>(k, 0));
     for (int row = 0; row < N; row++) {
         for (int col = 0; col < k; col++) {
+            std::uniform_int_distribution<int> distribution(0, vs[col] - 1);
             to_return[row][col] = distribution(generator);
+            //to_return[row][col] = distribution(generator);
         }
     }
     return to_return;
@@ -200,7 +204,7 @@ struct DSetHasher {
     }
 };
 
-auto first_uncovered_cols(ca_type A, const t_type t, const k_type k, const v_type v, const lambda_type lambda) {
+auto first_uncovered_cols(ca_type A, const t_type t, const k_type k, const v_type vs[], const lambda_type lambda) {
     std::vector<v_type> row_in_A(t, 0);
     std::vector<k_type> cols_to_return;
     for (const auto& cols : combinations(range(k), t)) {
@@ -216,7 +220,7 @@ auto first_uncovered_cols(ca_type A, const t_type t, const k_type k, const v_typ
                 c[row_in_A] = 1;
             }
         }
-        if (c.size() != pow(v, t)) {
+        if (c.size() != pow(vs[cols.size()], t)) {
             for (const auto& col : cols) {
                 cols_to_return.push_back(col);
             }
@@ -236,18 +240,19 @@ auto first_uncovered_cols(ca_type A, const t_type t, const k_type k, const v_typ
     return std::vector<k_type>();
 }
 
-ca_type LLL_gen(t_type t, k_type k, v_type v, lambda_type lambda) {
+/*ca_type LLL_gen(t_type t, k_type k, v_type vs[], lambda_type lambda) {
     std::random_device generator;
-    std::uniform_int_distribution<int> distribution(0, v - 1);
+    //std::uniform_int_distribution<int> distribution(0, v - 1);
     auto N = LLL_CA_sum(t, k, v, lambda);
-    auto A = random_array(N, k, v);
+    auto A = random_array(N, k, vs);
     int i = 0;
     while (true) {
         i += 1;
-        auto cols = first_uncovered_cols(A, t, k, v, lambda);
+        auto cols = first_uncovered_cols(A, t, k, vs, lambda);
         if (!cols.empty()) {
             for (auto& row : A) {
                 for (auto& col : cols) {
+                std::uniform_int_distribution<int> distribution(0, vs[col] - 1);
                     row[col] = distribution(generator);
                 }
             }
@@ -257,6 +262,7 @@ ca_type LLL_gen(t_type t, k_type k, v_type v, lambda_type lambda) {
         }
     }
 }
+*/
 
 auto rows_of_interaction(const interaction_type& I, const ca_type& A) {
     const auto& cols = I.first;
@@ -294,7 +300,7 @@ int size_of_symmetric_difference(InputIterator1 first1, InputIterator1 last1,
 }
 
 // implemented input of v_type array / maybe vector? nah probably array
-auto get_interactions(t_type t, k_type k, v_type v) {
+auto get_interactions(t_type t, k_type k, v_type vs[]) {
     // creates COL SETS don't really need to touch
     auto cols = combinations(range(k), t);
     std::vector<std::vector<k_type>> col_sets;
@@ -308,64 +314,68 @@ auto get_interactions(t_type t, k_type k, v_type v) {
 
 
     // Change up all of these for loops and implement this:
-    /* 
+    /*  std::vector<interaction_type> interactions;
 
     for (const auto& col_set : col_sets) {
         for (const auto& val_set : vals) {
             interaction_type I = std::make_pair(col_set, val_set);
             interactions.push_back(I);
         }
-    }
-    
-    */
+    }     */
 
     // make interactions = [];
     // loop for col sets
+    std::vector<interaction_type> interactions;
     std::vector<std::vector<v_type>> vals;
     if (t == 1) {
-        for (v_type i = 0; i < v; i++) {
+        for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
             std::vector<v_type> s{i};
             vals.push_back(s);
+            //interactions.push_back((col_sets[], s));
         }
     }
     else if (t == 2) {
-        for (v_type i = 0; i < v; i++) {
-            for (v_type j = 0; j < v; j++) {
+        for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
+            for (v_type j = 0; j < vs[col_sets[1].size()]; j++) {
                 std::vector<v_type> s{i, j};
                 vals.push_back(s);
+                //interactions.push_back((col_sets[], s));
             }
         }
     }
     else if (t == 3) {
-        for (v_type i = 0; i < v; i++) {
-            for (v_type j = 0; j < v; j++) {
-                for (v_type k = 0; k < v; k++) {
+        for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
+            for (v_type j = 0; j < vs[col_sets[1].size()]; j++) {
+                for (v_type k = 0; k < vs[col_sets[2].size()]; k++) {
                     std::vector<v_type> s{i, j, k};
                     vals.push_back(s);
+                    //interactions.push_back((col_sets[], s));
                 }
             }
         }
     }
     else if (t == 4) {
-        for (v_type i = 0; i < v; i++) {
-            for (v_type j = 0; j < v; j++) {
-                for (v_type k = 0; k < v; k++) {
-                    for (v_type l = 0; l < v; l++) {
+        for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
+            for (v_type j = 0; j < vs[col_sets[1].size()]; j++) {
+                for (v_type k = 0; k < vs[col_sets[2].size()]; k++) {
+                    for (v_type l = 0; l < vs[col_sets[3].size()]; l++) {
                         std::vector<v_type> s{i, j, k, l};
                         vals.push_back(s);
+                        //interactions.push_back((col_sets[], s));
                     }
                 }
             }
         }
     }
     else if (t == 5) {
-        for (v_type i = 0; i < v; i++) {
-            for (v_type j = 0; j < v; j++) {
-                for (v_type k = 0; k < v; k++) {
-                    for (v_type l = 0; l < v; l++) {
-                        for (v_type m = 0; m < v; m++) {
+        for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
+            for (v_type j = 0; j < vs[col_sets[1].size()]; j++) {
+                for (v_type k = 0; k < vs[col_sets[2].size()]; k++) {
+                    for (v_type l = 0; l < vs[col_sets[3].size()]; l++) {
+                        for (v_type m = 0; m < vs[col_sets[4].size()]; m++) {
                             std::vector<v_type> s{i, j, k, l, m};
                             vals.push_back(s);
+                            //interactions.push_back((col_sets[], s));
                         }
                     }
                 }
@@ -373,14 +383,15 @@ auto get_interactions(t_type t, k_type k, v_type v) {
         }
     }
     else if (t == 6) {
-        for (v_type i = 0; i < v; i++) {
-            for (v_type j = 0; j < v; j++) {
-                for (v_type k = 0; k < v; k++) {
-                    for (v_type l = 0; l < v; l++) {
-                        for (v_type m = 0; m < v; m++) {
-                            for (v_type n = 0; n < v; n++) {
+        for (v_type i = 0; i < vs[col_sets[0].size()]; i++) {
+            for (v_type j = 0; j < vs[col_sets[1].size()]; j++) {
+                for (v_type k = 0; k < vs[col_sets[2].size()]; k++) {
+                    for (v_type l = 0; l < vs[col_sets[3].size()]; l++) {
+                        for (v_type m = 0; m < vs[col_sets[4].size()]; m++) {
+                            for (v_type n = 0; n < vs[col_sets[5].size()]; n++) {
                                 std::vector<v_type> s{i, j, k, l, m, n};
                                 vals.push_back(s);
+                                //interactions.push_back((col_sets[], s));
                             }
                         }
                     }
@@ -394,7 +405,7 @@ auto get_interactions(t_type t, k_type k, v_type v) {
     }
 
     // may have to delete later
-    std::vector<interaction_type> interactions;
+    //std::vector<interaction_type> interactions;
     for (const auto& col_set : col_sets) {
         for (const auto& val_set : vals) {
             interaction_type I = std::make_pair(col_set, val_set);
@@ -404,8 +415,8 @@ auto get_interactions(t_type t, k_type k, v_type v) {
     return interactions;
 }
 
-auto find_non_locating_sets(ca_type& A, t_type t, k_type k, v_type v, lambda_type lambda, unsigned int d) {
-    auto interactions = get_interactions(t, k, v);
+auto find_non_locating_sets(ca_type& A, t_type t, k_type k, v_type vs[], lambda_type lambda, unsigned int d) {
+    auto interactions = get_interactions(t, k, vs);
 
     // get all at most d;
     std::vector<d_set_type> d_sets;
@@ -591,7 +602,7 @@ auto lookup_or_assign_interaction_map(std::map<interaction_type, robin_hood::uno
     } 
 }
 
-int fitness(const ca_type& ind, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
+int fitness(const ca_type& ind, d_type d, t_type t, k_type k, v_type vs[], lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
     int score = 0;
     // value is sorted
     std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
@@ -622,7 +633,7 @@ int fitness(const ca_type& ind, d_type d, t_type t, k_type k, v_type v, lambda_t
     return score;
 }
 
-ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, k_type k, v_type v, lambda_type l) {
+ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, k_type k, v_type vs[], lambda_type l) {
     int val = rand() % 2;
     int n = p1.size();
     ca_type child;
@@ -656,24 +667,30 @@ ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, k_type k
     return child;
 }
 
-ca_type mutate(const ca_type& p1, d_type d, t_type t, k_type k, v_type v, lambda_type l) {
+ca_type mutate(const ca_type& p1, d_type d, t_type t, k_type k, v_type vs[], lambda_type l) {
     int val = rand() % 3;
     int n = p1.size();
     ca_type child = p1;
     if (val == 0) {
         auto rand_row = rand() % n;
         for (int col=0; col<p1[0].size(); col++) {
-            child[rand_row][col] = rand() % v;
+            // right here have to change for all v's
+            //child[rand_row][col] = rand() % v;
+            child[rand_row][col] = rand() % vs[col];
         }
     } else if (val == 1) {
         auto rand_col = rand() % k;
         for (int row=0; row<n; row++) {
-            child[row][rand_col] = rand() % v;
+            // right here might have to change for all v's?
+            //child[row][rand_col] = rand() % v;
+            child[row][rand_col] = rand() % vs[rand_col];
         }
     } else {
         auto rand_row = rand() % p1.size();
         auto rand_col = rand() % p1[0].size();
-        auto rand_val = rand() % v;
+        // over here again
+        //auto rand_val = rand() % v;
+        auto rand_val = rand() % vs[rand_col];
         child[rand_row][rand_col] = rand_val;
     }
     return child;
@@ -685,12 +702,10 @@ struct Ind_NonRecompute_Fitness {
 };
 
 
-
-
 // insert new parameter for the percentage of the locating array rows
 
 //ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
-ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
+ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type vs[], lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
 
     ca_type s;
     int pop_size = 100;
@@ -705,7 +720,7 @@ ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, c
     // each covering array is randomly generated in the population
     // ---- and the fitness is set to -1
     for (auto& elem : pop) {
-        elem.A = random_array(N, k, v);
+        elem.A = random_array(N, k, vs);
         elem.fitness = -1;
     }
 
@@ -723,7 +738,7 @@ ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, c
         for (auto& I : pop) {
             int f = I.fitness;
             if (f == -1) {
-                f = fitness(I.A, d, t, k, v, l, non_locating_pairs);
+                f = fitness(I.A, d, t, k, vs, l, non_locating_pairs);
                 I.fitness = f; 
             }
             
@@ -761,14 +776,14 @@ ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, c
             auto cross_percent = rand() % 10;
             auto mut_percent = rand() % 10;
             if (cross_percent == 0 && mut_percent < 3) {
-                auto new_ind = cross(p1.A,p2.A,d,t,k,v,l);
-                new_ind = mutate(new_ind,d,t,k,v,l);
+                auto new_ind = cross(p1.A,p2.A,d,t,k,vs,l);
+                new_ind = mutate(new_ind,d,t,k,vs,l);
                 Ind_NonRecompute_Fitness true_new_ind;
                 true_new_ind.A = new_ind;
                 true_new_ind.fitness = -1;
                 new_vec.push_back(true_new_ind);
             } else if (cross_percent == 0) {
-                auto new_ind = cross(p1.A,p2.A,d,t,k,v,l);
+                auto new_ind = cross(p1.A,p2.A,d,t,k,vs,l);
                 Ind_NonRecompute_Fitness true_new_ind;
                 true_new_ind.A = new_ind;
                 true_new_ind.fitness = -1;
@@ -793,7 +808,7 @@ ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type v, lambda_type l, c
 // insert new parameter
 // parameter for the percentage of completion of locating rows
 
-ca_type go(d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
+ca_type go(d_type d, t_type t, k_type k, v_type vs[], lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs) {
     int N = 3;
     
     bool succ_first = true;
@@ -804,7 +819,7 @@ ca_type go(d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vec
     while (true) {
 
         //auto pairType = try_N(N, d, t, k, v, l, non_locating_pairs);
-        result = try_N(N, d, t, k, v, l, non_locating_pairs);
+        result = try_N(N, d, t, k, vs, l, non_locating_pairs);
         //auto[first, second] = try_N(N,d,t,k,v,l, non_locating_pairs);
         if (succ_first &&  result.size() == 0) {
             return result;
@@ -833,7 +848,7 @@ ca_type go(d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vec
     int N_lo = N / 2;
     while (N_lo < N_hi) {
         int N_mid = (N_lo + N_hi) / 2;
-        auto result2 = try_N(N_mid, d, t, k, v, l, non_locating_pairs);
+        auto result2 = try_N(N_mid, d, t, k, vs, l, non_locating_pairs);
         if (result2.size() > 0) {
             N_hi = N_mid;
             result = result2;
@@ -845,183 +860,189 @@ ca_type go(d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vec
 }
 
 int main(int argc, char** argv) {
-    const bool LLL_instead_of_file = true;
-    k_type ks[] = {10};
-    //v_type vs[] = {1, 2, 3, 4, 5, 6};
+    const bool LLL_instead_of_file = false;
+    k_type ks[] = {97};
+    v_type vs[] = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,4,5,5,5,5,5,6,6};
 
-    for (t_type t=3; t <= 3; t++) {
+    for (t_type t=1; t <= 1; t++) {
         for (auto k : ks) {
             for (d_type d=1; d <= 1; d++) {
-                for (v_type v=4; v <= 4; v++) {
+                //for (v_type v=4; v <= 4; v++) {
                 //for (auto v: vs) {
-                    assert(d < v);
-                    for (lambda_type lambda=4; lambda <= 4; lambda++) {
+                    //assert(d < v);
+                for (lambda_type lambda=2; lambda <= 2; lambda++) {
 
-                        /* setting up variables */
-                        auto filename = "./evaluation/" + std::to_string(v) + "^" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda);
-                        //auto filename = "./evaluation/kang_custom";
-                        auto ext = ".csv";
-                        std::cout << "------------d=" << std::to_string(d) << " " << filename << "------------\n";
-                        ca_type A;
-                        // Setting up Variables
+                    /* setting up variables */
+                    //auto filename = "./evaluation/" + std::to_string(v) + "^" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda);
+                    auto filename = "./evaluation/" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda);
+                    filename = "./evaluation/Konishi_1";
+                    //auto filename = "./evaluation/kang_custom";
+                    auto ext = ".csv";
+                    std::cout << "------------d=" << std::to_string(d) << " " << filename << "------------\n";
+                    ca_type A;
+                    // Setting up Variables
 
-                        // CREATES INITIAL ARRAY FROM GIVEN FILE OR LAVACHE LOCAL LEMMA
-                        auto start = high_resolution_clock::now();
-                        if (LLL_instead_of_file) {
-                            A = LLL_gen(t,k,v,lambda);
-                            std::cout << "LLL done with " << A.size() << " rows.\n";
-                        } else {
-                            A = read_ca_from_cagen(filename + ext);
-                            std::cout << "Read file with " << A.size() << " rows.\n";
-                        }
+                    // CREATES INITIAL ARRAY FROM GIVEN FILE OR LAVACHE LOCAL LEMMA
+                    auto start = high_resolution_clock::now();
+                    /*
+                    if (LLL_instead_of_file) {
+                        A = LLL_gen(t,k,v,lambda);
+                        std::cout << "LLL done with " << A.size() << " rows.\n";
+                    } else {
+                        A = read_ca_from_cagen(filename + ext);
+                        std::cout << "Read file with " << A.size() << " rows.\n";
+                    }
+                    */
+                    A = read_ca_from_cagen(filename+ext);
+                    std::cout << "Read file with " << A.size() << " rows.\n";
 
-                        // Finds initial non_locating_pairs
-                        auto non_locating_pairs = find_non_locating_sets(A, t, k, v, lambda, d);
-                        std::cout << "There were " << non_locating_pairs.size() << " non-locating pairs\n";
-                        auto stop = high_resolution_clock::now();
+                    // Finds initial non_locating_pairs
+                    auto non_locating_pairs = find_non_locating_sets(A, t, k, vs, lambda, d);
+                    std::cout << "There were " << non_locating_pairs.size() << " non-locating pairs\n";
+                    auto stop = high_resolution_clock::now();
 
-                        auto smallest_GA_rows = std::numeric_limits<N_type>::max();
-                        auto ga_total_time = std::numeric_limits<int>::max();
-                        auto ga_start_time = high_resolution_clock::now();
-                        auto ga_end_time = high_resolution_clock::now();
-                        
+                    auto smallest_GA_rows = std::numeric_limits<N_type>::max();
+                    auto ga_total_time = std::numeric_limits<int>::max();
+                    auto ga_start_time = high_resolution_clock::now();
+                    auto ga_end_time = high_resolution_clock::now();
+                    
 
 /* KANG IMPLENTED MULTI-STAGE GENETIC ALGORITHM: also edited max fitness in try_N */
-                        // CALL GO AND START GENETIC ALGORITHM!!
-                        auto ga_rows = go(d,t,k,v,lambda,non_locating_pairs);
-                        auto total_GA_rows = ga_rows.size();
-                        std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
-                        auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
-                            if (rows_map.find(d_set) != rows_map.end()) {
-                                return rows_map[d_set];
-                            } else {
-                                robin_hood::unordered_set<N_type> the_rows;
-                                for (const auto& interaction : d_set) {
-                                    const auto& rows = rows_of_interaction(interaction,ga_rows);
-                                    the_rows.insert(rows.begin(), rows.end());
-                                }
-                                std::vector<int> vrows(the_rows.begin(), the_rows.end());
-                                std::sort(vrows.begin(), vrows.end());
-                                rows_map[d_set] = vrows;
-                                return vrows;
+                    // CALL GO AND START GENETIC ALGORITHM!!
+                    auto ga_rows = go(d,t,k,vs,lambda,non_locating_pairs);
+                    auto total_GA_rows = ga_rows.size();
+                    std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
+                    auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
+                        if (rows_map.find(d_set) != rows_map.end()) {
+                            return rows_map[d_set];
+                        } else {
+                            robin_hood::unordered_set<N_type> the_rows;
+                            for (const auto& interaction : d_set) {
+                                const auto& rows = rows_of_interaction(interaction,ga_rows);
+                                the_rows.insert(rows.begin(), rows.end());
                             }
-                        };
+                            std::vector<int> vrows(the_rows.begin(), the_rows.end());
+                            std::sort(vrows.begin(), vrows.end());
+                            rows_map[d_set] = vrows;
+                            return vrows;
+                        }
+                    };
 
-                        // Definition of non_locating_pairs type: std::vector<std::tuple<d_set_type, d_set_type, int>>
-                        // initializes the new non locating pairs
-                        std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
-                        // auto requirement = lambda - num_times_sep_already;
+                    // Definition of non_locating_pairs type: std::vector<std::tuple<d_set_type, d_set_type, int>>
+                    // initializes the new non locating pairs
+                    std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
+                    // auto requirement = lambda - num_times_sep_already;
+                    for (const auto& [dset_1, dset_2, num_required] : non_locating_pairs) {
+                        //auto requirement = lambda - num_times_sep_already;
+                        auto rows1 = rows_of_dset(dset_1);
+                        auto rows2 = rows_of_dset(dset_2);
+                        int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
+                        int diff = num_required - n;
+                        if (n < num_required) {
+                            new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, diff));
+                        }
+                    }
+                    non_locating_pairs = new_non_locating_pairs;
+                    
+                    // add rows to ga_rows size
+                    total_GA_rows += ga_rows.size();
+                    
+                    // While there are non_locating_pairs, run the GA
+                    // same thing as above in while loop
+                    while(non_locating_pairs.size() > 0){
+                        // CALL GO AND START GENETIC ALGORITHM!!
+                        auto ga_rows = go(d,t,k,vs,lambda,non_locating_pairs);
+                        //auto requirement = lambda - num_times_sep_already;
                         for (const auto& [dset_1, dset_2, num_required] : non_locating_pairs) {
                             //auto requirement = lambda - num_times_sep_already;
+
+                            std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
+                            auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
+                                if (rows_map.find(d_set) != rows_map.end()) {
+                                    return rows_map[d_set];
+                                } else {
+                                    robin_hood::unordered_set<N_type> the_rows;
+                                    for (const auto& interaction : d_set) {
+                                        const auto& rows = rows_of_interaction(interaction,ga_rows);
+                                        the_rows.insert(rows.begin(), rows.end());
+                                    }
+                                    std::vector<int> vrows(the_rows.begin(), the_rows.end());
+                                    std::sort(vrows.begin(), vrows.end());
+                                    rows_map[d_set] = vrows;
+                                    return vrows;
+                                }
+                            };
+
                             auto rows1 = rows_of_dset(dset_1);
                             auto rows2 = rows_of_dset(dset_2);
                             int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-                            int diff = num_required - n;
                             if (n < num_required) {
-                                new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, diff));
+                                new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, num_required -n));
+                                ga_end_time = high_resolution_clock::now();
                             }
                         }
+
                         non_locating_pairs = new_non_locating_pairs;
                         
                         // add rows to ga_rows size
                         total_GA_rows += ga_rows.size();
-                        
-                        // While there are non_locating_pairs, run the GA
-                        // same thing as above in while loop
-                        while(non_locating_pairs.size() > 0){
-                            // CALL GO AND START GENETIC ALGORITHM!!
-                            auto ga_rows = go(d,t,k,v,lambda,non_locating_pairs);
-                            //auto requirement = lambda - num_times_sep_already;
-                            for (const auto& [dset_1, dset_2, num_required] : non_locating_pairs) {
-                                //auto requirement = lambda - num_times_sep_already;
-
-                                std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
-                                auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
-                                    if (rows_map.find(d_set) != rows_map.end()) {
-                                        return rows_map[d_set];
-                                    } else {
-                                        robin_hood::unordered_set<N_type> the_rows;
-                                        for (const auto& interaction : d_set) {
-                                            const auto& rows = rows_of_interaction(interaction,ga_rows);
-                                            the_rows.insert(rows.begin(), rows.end());
-                                        }
-                                        std::vector<int> vrows(the_rows.begin(), the_rows.end());
-                                        std::sort(vrows.begin(), vrows.end());
-                                        rows_map[d_set] = vrows;
-                                        return vrows;
-                                    }
-                                };
-
-                                auto rows1 = rows_of_dset(dset_1);
-                                auto rows2 = rows_of_dset(dset_2);
-                                int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-                                if (n < num_required) {
-                                    new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, num_required -n));
-                                    ga_end_time = high_resolution_clock::now();
-                                }
-                            }
-
-                            non_locating_pairs = new_non_locating_pairs;
-                            
-                            // add rows to ga_rows size
-                            total_GA_rows += ga_rows.size();
-                            /*
-                            if (ga_rows.size() < smallest_GA_rows) {
-                                smallest_GA_rows = ga_rows.size();
-                                ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
-                            }
-                            */
-
-                        }
-                        ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
-// _________________ end of Kang implementation and running multi-stage genetic algorithm
-
                         /*
-                        // OG FUNCTION
-                        for (int ga_run = 0; ga_run < 1; ga_run++) {
-                            auto ga_start_time = high_resolution_clock::now();
-                            
-                            // CALL GO AND START GENETIC ALGORITHM!!
-                            auto ga_rows = go(d,t,k,v,lambda,non_locating_pairs);
-                            auto ga_end_time = high_resolution_clock::now();
-                            if (ga_rows.size() < smallest_GA_rows) {
-                                smallest_GA_rows = ga_rows.size();
-                                ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
-                            }
+                        if (ga_rows.size() < smallest_GA_rows) {
+                            smallest_GA_rows = ga_rows.size();
+                            ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
                         }
                         */
-                        
-                        auto stage1_diff = duration_cast<milliseconds>(stop-start).count();
-                        auto total_time = stage1_diff + ga_total_time;
 
-                        
-                        std::cout << "Total N=" << A.size() + smallest_GA_rows << ", time=" << total_time << "ms.\n";
-                        // std::ofstream out(write_filename);
-                        // out << std::to_string(diff.count()) << "ms\n";
-                        // // std::vector<std::tuple<d_set_type, d_set_type, int>> to_return;
-                        // for (auto&& [dset_1, dset_2, num] : non_locating_pairs) {
-                        //  auto s1 = d_set_to_str(dset_1);
-                        //  auto s2 = d_set_to_str(dset_2);
-                        //  auto to_write = s1 + s2 + std::to_string(num) + "\n";
-                        //  // std::cout << to_write << "\n";
-                        //  out << to_write;
-                        // }
-                        // out.close();
-
-                        // // write created CA out to file if using LLL
-                        // if (LLL_instead_of_file) {
-                        //     std::ofstream A_out("./LLL_outputs/t" + std::to_string(t) + "_k" + std::to_string(k) + "_v" + std::to_string(v) + "_l" + std::to_string(lambda) + ".txt");
-                        //     for (const auto& row : A) {
-                        //         for (const auto& elem : row) {
-                        //             A_out << elem << " ";
-                        //         }
-                        //         A_out << "\n";
-                        //     }
-                        //     A_out.close();
-                        // }
                     }
+                    ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
+// _________________ end of Kang implementation and running multi-stage genetic algorithm
+
+                    /*
+                    // OG FUNCTION
+                    for (int ga_run = 0; ga_run < 1; ga_run++) {
+                        auto ga_start_time = high_resolution_clock::now();
+                        
+                        // CALL GO AND START GENETIC ALGORITHM!!
+                        auto ga_rows = go(d,t,k,v,lambda,non_locating_pairs);
+                        auto ga_end_time = high_resolution_clock::now();
+                        if (ga_rows.size() < smallest_GA_rows) {
+                            smallest_GA_rows = ga_rows.size();
+                            ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
+                        }
+                    }
+                    */
+                    
+                    auto stage1_diff = duration_cast<milliseconds>(stop-start).count();
+                    auto total_time = stage1_diff + ga_total_time;
+
+                    
+                    std::cout << "Total N=" << A.size() + smallest_GA_rows << ", time=" << total_time << "ms.\n";
+                    // std::ofstream out(write_filename);
+                    // out << std::to_string(diff.count()) << "ms\n";
+                    // // std::vector<std::tuple<d_set_type, d_set_type, int>> to_return;
+                    // for (auto&& [dset_1, dset_2, num] : non_locating_pairs) {
+                    //  auto s1 = d_set_to_str(dset_1);
+                    //  auto s2 = d_set_to_str(dset_2);
+                    //  auto to_write = s1 + s2 + std::to_string(num) + "\n";
+                    //  // std::cout << to_write << "\n";
+                    //  out << to_write;
+                    // }
+                    // out.close();
+
+                    // // write created CA out to file if using LLL
+                    // if (LLL_instead_of_file) {
+                    //     std::ofstream A_out("./LLL_outputs/t" + std::to_string(t) + "_k" + std::to_string(k) + "_v" + std::to_string(v) + "_l" + std::to_string(lambda) + ".txt");
+                    //     for (const auto& row : A) {
+                    //         for (const auto& elem : row) {
+                    //             A_out << elem << " ";
+                    //         }
+                    //         A_out << "\n";
+                    //     }
+                    //     A_out.close();
+                    // }
                 }
             }
+            //}
         }
     }
 }
