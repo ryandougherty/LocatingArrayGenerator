@@ -809,8 +809,7 @@ ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type vs[], lambda_type l
     // FIX_THIS_SAM :: max possible fitness set to a percentage of the non_locating_pairs.size()
     // ----------- e.g. = non_locating_pairs.size() * 0.8;
     //auto max_possible_fitness = non_locating_pairs.size(); // * 0.8 ??
-    int max_possible_fitness = non_locating_pairs.size(); // * 0.8 ??
-    //int max_possible_fitness = non_locating_pairs.size() * 0.8; // * 0.8 ??
+    int max_possible_fitness = non_locating_pairs.size() * 0.8;
 
     // GENERATIONS 0 - 100
     for (int gen=0; gen<num_gens; gen++) {
@@ -822,7 +821,7 @@ ca_type try_N(N_type N, d_type d, t_type t, k_type k, v_type vs[], lambda_type l
                 I.fitness = f; 
             }
             
-            if (f == max_possible_fitness) {
+            if (f >= max_possible_fitness) {
                 // KANG ADDED CODE++++++
                 // returns the new set of non_locating_pairs
                 //new_non_locating_pairs = find_non_locating_sets(I.A, t, k, v, l, d);
@@ -1037,7 +1036,8 @@ int main(int argc, char** argv) {
                     // While there are non_locating_pairs, run the GA
                     // same thing as above in while loop
                     while(non_locating_pairs.size() > 0){
-                        std::cout << "timesss\n";
+
+                        std::cout << "New non_locating_pairs: " << new_non_locating_pairs.size() << "\n";
                         // CALL GO AND START GENETIC ALGORITHM!!
                         auto ga_rows = go(d,t,k,vs,lambda,non_locating_pairs);
                         //auto requirement = lambda - num_times_sep_already;
@@ -1071,6 +1071,7 @@ int main(int argc, char** argv) {
                         }
 
                         non_locating_pairs = new_non_locating_pairs;
+                        new_non_locating_pairs.clear();
                         
                         // add rows to ga_rows size
                         total_GA_rows += ga_rows.size();
