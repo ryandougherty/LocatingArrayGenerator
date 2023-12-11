@@ -312,7 +312,6 @@ auto get_interactions(t_type t, k_type k, v_type vs[]) {
         col_sets.push_back(to_add);
     }
 
-
     // Change up all of these for loops and implement this:
     //  std::vector<interaction_type> interactions;
     // loop for col sets
@@ -989,14 +988,21 @@ int main(int argc, char** argv) {
                     auto ga_total_time = std::numeric_limits<int>::max();
                     auto ga_start_time = high_resolution_clock::now();
                     auto ga_end_time = high_resolution_clock::now();
+
+                    ga_end_time = high_resolution_clock::now();
+                    N_type total_GA_rows = 0;
                     
 
 /* KANG IMPLENTED MULTI-STAGE GENETIC ALGORITHM: also edited max fitness in try_N */
                     // CALL GO AND START GENETIC ALGORITHM!!
+                    
+
+                    /*
                     auto ga_rows = go(d,t,k,vs,lambda,non_locating_pairs);
                     ga_end_time = high_resolution_clock::now();
                     auto total_GA_rows = ga_rows.size();
                     std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
+
                     auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
                         if (rows_map.find(d_set) != rows_map.end()) {
                             return rows_map[d_set];
@@ -1012,10 +1018,12 @@ int main(int argc, char** argv) {
                             return vrows;
                         }
                     };
+                    */
 
                     // Definition of non_locating_pairs type: std::vector<std::tuple<d_set_type, d_set_type, int>>
                     // initializes the new non locating pairs
                     std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
+                    /*
                     // auto requirement = lambda - num_times_sep_already;
                     for (const auto& [dset_1, dset_2, num_required] : non_locating_pairs) {
                         //auto requirement = lambda - num_times_sep_already;
@@ -1028,20 +1036,20 @@ int main(int argc, char** argv) {
                         }
                     }
                     non_locating_pairs = new_non_locating_pairs;
-                    std::cout << "New non_locating_pairs: " << new_non_locating_pairs.size() << "\n";
                     
                     // add rows to ga_rows size
                     total_GA_rows += ga_rows.size();
+                    */
                     
                     // While there are non_locating_pairs, run the GA
                     // same thing as above in while loop
                     while(non_locating_pairs.size() > 0){
 
-                        std::cout << "New non_locating_pairs: " << new_non_locating_pairs.size() << "\n";
+                        std::cout << "New non_locating_pairs: " << non_locating_pairs.size() << "\n";
                         // CALL GO AND START GENETIC ALGORITHM!!
                         auto ga_rows = go(d,t,k,vs,lambda,non_locating_pairs);
                         //auto requirement = lambda - num_times_sep_already;
-                        for (const auto& [dset_1, dset_2, num_required] : non_locating_pairs) {
+                        for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs) {
                             //auto requirement = lambda - num_times_sep_already;
 
                             std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
@@ -1064,9 +1072,8 @@ int main(int argc, char** argv) {
                             auto rows1 = rows_of_dset(dset_1);
                             auto rows2 = rows_of_dset(dset_2);
                             int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-                            if (n < num_required) {
-                                new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, num_required -n));
-                                ga_end_time = high_resolution_clock::now();
+                            if (num_times_sep_already < lambda) {
+                                new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, num_times_sep_already + n));
                             }
                         }
 
@@ -1083,6 +1090,7 @@ int main(int argc, char** argv) {
                         */
 
                     }
+                    ga_end_time = high_resolution_clock::now();
                     ga_total_time = duration_cast<milliseconds>(ga_end_time-ga_start_time).count();
 // _________________ end of Kang implementation and running multi-stage genetic algorithm
 
