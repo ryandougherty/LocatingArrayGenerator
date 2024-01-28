@@ -765,14 +765,14 @@ ca_type go(d_type d, t_type t, k_type k, v_type v, lambda_type l, const std::vec
 }
 
 int main(int argc, char** argv) {
-    const bool LLL_instead_of_file = true;
+    const bool LLL_instead_of_file = false;
     k_type ks[] = {10, 15};
-    for (t_type t=2; t <= 5; t++) {
+    for (t_type t=2; t <= 2; t++) {
         for (auto k : ks) {
-            for (d_type d=2; d <= 2; d++) {  
+            for (d_type d=1; d <= 1; d++) {  
                 for (v_type v=2; v <= 2; v++) {
-                    assert(d < v);
-                    for (lambda_type lambda=4; lambda <= 4; lambda++) {
+                    //assert(d < v);
+                    for (lambda_type lambda=3; lambda <= 3; lambda++) {
                         auto filename = "./evaluation/" + std::to_string(v) + "^" + std::to_string(k) + "-t" + std::to_string(t) + "_l" + std::to_string(lambda);
                         auto ext = ".csv";
                         std::cout << "------------d=" << std::to_string(d) << " " << filename << "------------\n";
