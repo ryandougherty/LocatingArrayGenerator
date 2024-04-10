@@ -1,5 +1,5 @@
 
-# LocatingArrayGenerator
+# LocAG: a fast Locating Array Generator
 ### Authors: Dr. Ryan Dougherty, CDT Dylan Green, CDT Hyunmook Kang, CDT Grace Kim, Dr. Stephanie Forrest
 ## Overview
 The purpose of this program is to generate a locating array. We use a two-stage approach, where the second uses a genetic algorithm.
