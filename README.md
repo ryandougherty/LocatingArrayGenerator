@@ -1,6 +1,6 @@
 
 # LocatingArrayGenerator
-### Authors: Dr. Ryan Dougherty, CDT Dylan Green, CDT Hyunmook Kang, CDT Grace Kim
+### Authors: Dr. Ryan Dougherty, CDT Dylan Green, CDT Hyunmook Kang, CDT Grace Kim, Dr. Stephanie Forrest
 ## Overview
 The purpose of this program is to return the number of rows needed to locate given inputs of covering arrays using a multistage genetic algorithm.
 
