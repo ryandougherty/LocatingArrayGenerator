@@ -20,4 +20,4 @@ Run the ```./LoCAG``` program after compilation by running the command: ```./Loc
 
 <strong>Covering Arrays (CAs)</strong> A formal model that guarantees all interactions of size at most a specified number,  $t$, appear at least a specified number, &lambda; times.
 
-<strong>Locating Arrays (LAs)</strong> - Test suites that can detect all covered interactions between test variables.
+<strong>Locating Arrays (LAs)</strong> - Test suites that can detect all covered interactions between test variables of size at most $d$.
