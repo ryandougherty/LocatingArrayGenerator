@@ -43,9 +43,10 @@ using ga_fitness_type = std::tuple<ga_individual_type, int, long long>;
 using namespace iter;
 using namespace std::chrono;
 
-auto rand_between_0_and_1() {
-    return rand() / (RAND_MAX+1.0);
-}
+std::mt19937_64 rng(0); // set seed
+std::uniform_real_distribution<double> unif(0, 1);
+std::uniform_int_distribution<int> ind_size(10, 30);
+std::uniform_int_distribution<int> any_int;
 
 auto interaction_to_str(const interaction_type& I) {
     std::string result = "(";
@@ -113,14 +114,11 @@ double calc_p(const int t, const int v) {
 }
 
 ca_type random_array(const N_type N, const k_type k, const vs_type& vs) {
-    std::random_device generator;
-    //std::uniform_int_distribution<int> distribution(0, vs - 1);
     ca_type to_return(N, std::vector<v_type>(k, 0));
     for (int row = 0; row < N; row++) {
         for (int col = 0; col < k; col++) {
             std::uniform_int_distribution<int> distribution(0, vs[col] - 1);
-            to_return[row][col] = distribution(generator);
-            //to_return[row][col] = distribution(generator);
+            to_return[row][col] = distribution(rng);
         }
     }
     return to_return;
@@ -505,7 +503,7 @@ auto read_ca_from_cagen(const std::string& filename, const vs_type& vs) {
         std::vector<v_type> ca_line;
         for (const auto& [col_idx, elem] : enumerate(things_in_line)) {
             if (elem == "*") {
-                ca_line.push_back(rand() % vs[col_idx]);
+                ca_line.push_back(any_int(rng) % vs[col_idx]);
             } else {
                 ca_line.push_back(std::stoi(elem));
             }
@@ -514,20 +512,6 @@ auto read_ca_from_cagen(const std::string& filename, const vs_type& vs) {
         result.push_back(ca_line);
     }
     return result;
-}
-
-template<typename Iter, typename RandomGenerator>
-Iter select_randomly(Iter start, Iter end, RandomGenerator& g) {
-    std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
-    std::advance(start, dis(g));
-    return start;
-}
-
-template<typename Iter>
-Iter select_randomly(Iter start, Iter end) {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    return select_randomly(start, end, gen);
 }
 
 auto lookup_or_assign_interaction_map(std::map<interaction_type, robin_hood::unordered_flat_set<int>>& rows_map, const interaction_type& interaction, const ca_type& ind) {
@@ -578,11 +562,11 @@ int fitness(const ca_type& ind, d_type d, t_type t, const vs_type& vs, lambda_ty
 }
 
 ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, const vs_type& vs, lambda_type l) {
-    int val = rand() % 2;
+    int val = any_int(rng) % 2;
     int n = p1.size();
     ca_type child;
     if (val == 0) {
-        auto rand_idx = rand() % p1.size();
+        auto rand_idx = any_int(rng) % p1.size();
         for (int i=0; i<rand_idx; i++) {
             child.push_back(p1[i]);
         }
@@ -590,11 +574,11 @@ ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, const vs
             child.push_back(p2[i]);
         }
     } else if (p1.size() != 1) {
-        auto rand_idx1 = rand() % (p1.size());
-        auto rand_idx2 = rand() % (p1.size());
+        auto rand_idx1 = any_int(rng) % (p1.size());
+        auto rand_idx2 = any_int(rng) % (p1.size());
         while (rand_idx1 == rand_idx2) {
-            rand_idx1 = rand() % (p1.size());
-            rand_idx2 = rand() % (p1.size());
+            rand_idx1 = any_int(rng) % (p1.size());
+            rand_idx2 = any_int(rng) % (p1.size());
         }
         auto lower = std::min(rand_idx1,rand_idx2);
         auto higher = std::max(rand_idx1,rand_idx2);
@@ -608,7 +592,7 @@ ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, const vs
             child.push_back(p1[i]);
         }
     } else {
-        val = rand() % 2;
+        val = any_int(rng) % 2;
         if (val == 0) {
             child = p1;
         } else {
@@ -619,23 +603,23 @@ ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, const vs
 }
 
 ca_type mutate(const ca_type& p1, d_type d, t_type t, const vs_type& vs, lambda_type l) {
-    int val = rand() % 3;
+    int val = any_int(rng) % 3;
     int n = p1.size();
     ca_type child = p1;
     if (val == 0) {
-        auto rand_row = rand() % n;
+        auto rand_row = any_int(rng) % n;
         for (int col=0; col<p1[0].size(); col++) {
-            child[rand_row][col] = rand() % vs[col];
+            child[rand_row][col] = any_int(rng) % vs[col];
         }
     } else if (val == 1) {
-        auto rand_col = rand() % vs.size();
+        auto rand_col = any_int(rng) % vs.size();
         for (int row=0; row<n; row++) {
-            child[row][rand_col] = rand() % vs[rand_col];
+            child[row][rand_col] = any_int(rng) % vs[rand_col];
         }
     } else {
-        auto rand_row = rand() % p1.size();
-        auto rand_col = rand() % p1[0].size();
-        auto rand_val = rand() % vs[rand_col];
+        auto rand_row = any_int(rng) % p1.size();
+        auto rand_col = any_int(rng) % p1[0].size();
+        auto rand_val = any_int(rng) % vs[rand_col];
         child[rand_row][rand_col] = rand_val;
     }
     return child;
@@ -697,14 +681,14 @@ ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, co
         new_vec.clear();
 
         while (new_vec.size() < pop_size / 2) {
-            auto idx1 = rand() % pop.size();
-            auto idx2 = rand() % pop.size();
+            auto idx1 = any_int(rng) % pop.size();
+            auto idx2 = any_int(rng) % pop.size();
 
             const auto& p1 = pop[idx1];
             const auto& p2 = pop[idx2];
 
-            auto cross_percent = rand() % 10;
-            auto mut_percent = rand() % 10;
+            auto cross_percent = any_int(rng) % 10;
+            auto mut_percent = any_int(rng) % 10;
             if (cross_percent == 0 && mut_percent < 3) {
                 auto new_ind = cross(p1.A,p2.A,d,t,vs,l);
                 new_ind = mutate(new_ind,d,t,vs,l);
@@ -731,8 +715,7 @@ ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, co
 
 ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& only_these_pairs) {
 
-    static std::mt19937_64 rng(0); // set seed
-    static std::uniform_real_distribution<double> unif(0, 1);
+
 
     ca_type empty;
     ca_type A = random_array(N, vs.size(), vs);
@@ -883,10 +866,9 @@ auto pareto_and_rest(std::vector<PercentGAFitnessInd> points) {
 
 auto generate_rand_percent_individual() {
     std::vector<double> percents;
-    int rand_length = rand() % 20 + 10; // between 10 and 30 stages
+    int rand_length = ind_size(rng); // between 10 and 30 stages
     for (int i=0; i<rand_length; i++) {
-        // terrible code but whatever
-        percents.push_back(rand_between_0_and_1());
+        percents.push_back(unif(rng));
     }
     std::sort(percents.begin(), percents.end());
     percents[0] = 0.001;
@@ -1071,11 +1053,11 @@ auto percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, con
         // crossover/mutate
         while (children.size() < pop_size/2) {
             // crossover 
-            auto rand_p1 = pop[rand() % pop.size()];
-            auto rand_p2 = pop[rand() % pop.size()];
-            auto rand_idx = rand() % std::min(rand_p1.percents.size(), rand_p2.percents.size());
+            auto rand_p1 = pop[any_int(rng) % pop.size()];
+            auto rand_p2 = pop[any_int(rng) % pop.size()];
+            auto rand_idx = any_int(rng) % std::min(rand_p1.percents.size(), rand_p2.percents.size());
             while (rand_idx == 0) {
-                rand_idx = rand() % std::min(rand_p1.percents.size(), rand_p2.percents.size());
+                rand_idx = any_int(rng) % std::min(rand_p1.percents.size(), rand_p2.percents.size());
             }
 
             PercentGAFitnessInd child;
@@ -1090,21 +1072,21 @@ auto percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, con
 
         // mutate
         for (auto& child : children) {
-            auto r = rand() % 10;
+            auto r = any_int(rng) % 10;
             if (r == 0) {
                 // split
-                auto rand_idx = rand() % (child.percents.size()-1); // ensure not the last index
-                auto rand_val = rand_between_0_and_1();
+                auto rand_idx = any_int(rng) % (child.percents.size()-1); // ensure not the last index
+                auto rand_val = unif(rng);
                 child.percents.insert(child.percents.begin() + rand_idx, rand_val);
             } else if (r == 1) {
                 // join
-                auto rand_idx = rand() % (child.percents.size()-1); // ensure not the last index 
+                auto rand_idx = any_int(rng) % (child.percents.size()-1); // ensure not the last index 
                 child.percents.erase(child.percents.begin() + rand_idx);
             } else if (r == 2) {
                 // mutate one entry randomly
-                auto rand_idx = rand() % (child.percents.size()-1); // ensure not the last index
+                auto rand_idx = any_int(rng) % (child.percents.size()-1); // ensure not the last index
                 // again terrible
-                child.percents[rand_idx] = rand_between_0_and_1();
+                child.percents[rand_idx] = unif(rng);
             }
 
             pop.push_back(child);
@@ -1158,7 +1140,7 @@ int main(int argc, char** argv) {
 
     for (d_type d = 1; d <= 1; d++) {
         for (t_type t = 2; t <= 2; t++) {
-            for (lambda_type lambda = 4; lambda <= 4; lambda++) {
+            for (lambda_type lambda = 1; lambda <= 4; lambda++) {
                 const std::string config_name = argv[1];
                 const auto& [vs, filename] = lookup_config_and_params(config_name, t, lambda);
 
@@ -1189,7 +1171,7 @@ int main(int argc, char** argv) {
                     break;
                 }
 
-                auto pareto = percent_GA(d,t,vs,lambda,non_locating_pairs,false);
+                auto pareto = percent_GA(d,t,vs,lambda,non_locating_pairs,true);
                 for (const auto& [percents, num_rows, time] : pareto) {
                     std::cout << "N total=" << first_stage_N + num_rows << ", Time total=" << first_stage_time + time << ", percents=";
                     print_vec(percents);
