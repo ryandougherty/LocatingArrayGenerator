@@ -1,3 +1,4 @@
+//Why do we want to add support for detecting arrays?
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -43,11 +44,13 @@ using ga_fitness_type = std::tuple<ga_individual_type, int, long long>;
 using namespace iter;
 using namespace std::chrono;
 
-std::mt19937_64 rng(0); // set seed
+// Initialize a random number generator with a fixed seed for reproducibility.
+std::mt19937_64 rng(0); 
 std::uniform_real_distribution<double> unif(0, 1);
 std::uniform_int_distribution<int> ind_size(10, 30);
 std::uniform_int_distribution<int> any_int;
 
+// Converts an interaction to a string for printing.
 auto interaction_to_str(const interaction_type& I) {
     std::string result = "(";
     for (auto& col : I.first) {
@@ -60,16 +63,19 @@ auto interaction_to_str(const interaction_type& I) {
     return result + ")";
 }
 
+// Prints an interaction to the console.
 void print_interaction(const interaction_type& I) {
     std::cout << interaction_to_str(I);
 }
 
+// Prints a d-set to the console.
 void print_d_set(const d_set_type& D) {
     for (const auto& I : D) {
         print_interaction(I);
     }
 }
 
+// Converts a d-set to a string for printing.
 auto d_set_to_str(const d_set_type& D) {
     std::string result;
     for (const auto& I : D) {
@@ -78,6 +84,7 @@ auto d_set_to_str(const d_set_type& D) {
     return result;
 }
 
+// Prints a combinatorial array (CA) to the console.
 void print_array(const ca_type& A) {
     for (const auto& row : A) {
         for (const auto& value : row) {
@@ -87,6 +94,7 @@ void print_array(const ca_type& A) {
     }
 }
 
+// Prints a vector of any type.
 template <typename T>
 void print_vec(std::vector<T> I) {
     for (const auto& elem : I) {
@@ -95,6 +103,7 @@ void print_vec(std::vector<T> I) {
 }
 
 
+// Calculates the number of combinations (n choose k).
 long long comb(unsigned n, unsigned k)
 {
     if (k > n) return 0;
@@ -109,10 +118,12 @@ long long comb(unsigned n, unsigned k)
     return result;
 }
 
+// Calculates the probability of a specific interaction.
 double calc_p(const int t, const int v) {
     return 1 / pow(v, t);
 }
 
+// Generates a random combinatorial array (CA).
 ca_type random_array(const N_type N, const k_type k, const vs_type& vs) {
     ca_type to_return(N, std::vector<v_type>(k, 0));
     for (int row = 0; row < N; row++) {
@@ -124,7 +135,7 @@ ca_type random_array(const N_type N, const k_type k, const vs_type& vs) {
     return to_return;
 }
 
-// Source: https://stackoverflow.com/questions/10405030/c-unordered-map-fail-when-used-with-a-vector-as-key
+// Hashers for different data types used in unordered maps and sets.
 struct VectorHasher {
     int operator()(const std::vector<v_type>& V) const {
         int hash = V.size();
@@ -162,6 +173,7 @@ struct DSetHasher {
     }
 };
 
+// Finds the first combination of columns that is not fully covered.
 auto first_uncovered_cols(ca_type A, const t_type t, const k_type k, const vs_type& vs, const lambda_type lambda) {
     std::vector<v_type> row_in_A(t, 0);
     std::vector<k_type> cols_to_return;
@@ -198,6 +210,7 @@ auto first_uncovered_cols(ca_type A, const t_type t, const k_type k, const vs_ty
     return std::vector<k_type>();
 }
 
+// Finds the rows in an array where a specific interaction appears.
 auto rows_of_interaction(const interaction_type& I, const ca_type& A) {
     const auto& cols = I.first;
     const auto& vals = I.second;
@@ -217,6 +230,7 @@ auto rows_of_interaction(const interaction_type& I, const ca_type& A) {
     return rows_I_appears;
 }
 
+// Calculates the size of the symmetric difference of two sorted ranges.
 template <class InputIterator1, class InputIterator2>
 int size_of_symmetric_difference(InputIterator1 first1, InputIterator1 last1,
     InputIterator2 first2, InputIterator2 last2)
@@ -233,7 +247,7 @@ int size_of_symmetric_difference(InputIterator1 first1, InputIterator1 last1,
     }
 }
 
-// implemented input of v_type array / maybe vector? nah probably array
+// Generates all possible interactions for given parameters.
 auto get_interactions(const t_type t, const vs_type& vs, bool t_bar) {
     // creates COL SETS don't really need to touch
     auto lb = t;
@@ -338,148 +352,8 @@ auto get_interactions(const t_type t, const vs_type& vs, bool t_bar) {
     }
     return interactions;
 }
-bool is_subset(const std::vector<int>& a, const std::vector<int>& b) {
-    return std::includes(b.begin(), b.end(), a.begin(), a.end());
-}
 
-// auto find_non_detecting_sets(const ca_type& A, t_type t, const vs_type& vs, lambda_type lambda, d_type d, bool d_bar, bool t_bar) {
-//     // This part of the function for getting interactions and d-sets remains the same.
-//     auto interactions = get_interactions(t, vs, t_bar);
-//     std::vector<d_set_type> d_sets;
-//     auto lower_lim = d;
-//     if (d_bar) {
-//         lower_lim = 1;
-//     }
-//     for (int i=lower_lim; i<=d; i++) {
-//         auto to_add = combinations(interactions, d);
-//         for (auto& individual_d_set : to_add) {
-//             d_set_type inner_d_set;
-//             for (auto& interaction : individual_d_set) {
-//                 inner_d_set.push_back(interaction);
-//             }
-//             d_sets.push_back(inner_d_set);
-//         }
-//     }
-
-//     // This part for getting rows for each interaction also remains the same.
-//     // robin_hood::unordered_map<interaction_type, robin_hood::unordered_set<int>, InteractionHasher> interaction_to_row_map;
-//     // ... (keep the existing code for populating interaction_to_row_map)
-//     robin_hood::unordered_map<interaction_type, robin_hood::unordered_set<int>, InteractionHasher> interaction_to_row_map;
-//     for (const auto& interaction : interactions) {
-//         auto rows = rows_of_interaction(interaction, A);
-//         interaction_to_row_map[interaction] = rows;
-//     }
-
-
-//     // The logic for finding pairs needs to change
-//     std::vector<std::tuple<d_set_type, d_set_type, int>> to_return;
-//     std::cout << "Ready to look at pairs for detecting arrays...\n";
-
-//     for (size_t i = 0; i < d_sets.size(); ++i) {
-//         for (size_t j = i + 1; j < d_sets.size(); ++j) {
-//             const auto& d_set1 = d_sets[i];
-//             const auto& d_set2 = d_sets[j];
-
-//             // Get the rows for each d-set
-//             // std::vector<int> rows1, rows2;
-//             // ... (your logic to get rows for d_set1 and d_set2)
-//             // Get the rows for d_set1
-//             robin_hood::unordered_set<int> row_set1;
-//             for (const auto& interaction : d_set1) {
-//                 const auto& rows = interaction_to_row_map[interaction];
-//                 row_set1.insert(rows.begin(), rows.end());
-//             }
-//             std::vector<int> rows1(row_set1.begin(), row_set1.end());
-//             std::sort(rows1.begin(), rows1.end());
-
-//             // Get the rows for d_set2
-//             robin_hood::unordered_set<int> row_set2;
-//             for (const auto& interaction : d_set2) {
-//                 const auto& rows = interaction_to_row_map[interaction];
-//                 row_set2.insert(rows.begin(), rows.end());
-//             }
-//             std::vector<int> rows2(row_set2.begin(), row_set2.end());
-//             std::sort(rows2.begin(), rows2.end());
-//             // Check for subset relationship
-//             if (is_subset(rows1, rows2) || is_subset(rows2, rows1)) {
-//                 to_return.push_back(std::make_tuple(d_set1, d_set2, 0)); // The '0' is a placeholder
-//             }
-//         }
-//     }
-
-//     return to_return;
-// }
-auto find_non_detecting_sets(const ca_type& A, t_type t, const vs_type& vs, lambda_type lambda, d_type d, bool d_bar, bool t_bar) {
-    auto interactions = get_interactions(t, vs, t_bar);
-
-    std::vector<d_set_type> d_sets;
-    auto lower_lim = d;
-    if (d_bar) {
-        lower_lim = 1;
-    }
-    for (int i = lower_lim; i <= d; i++) {
-        auto to_add = combinations(interactions, d);
-        for (auto& individual_d_set : to_add) {
-            d_set_type inner_d_set;
-            for (auto& interaction : individual_d_set) {
-                inner_d_set.push_back(interaction);
-            }
-            d_sets.push_back(inner_d_set);
-        }
-    }
-
-    robin_hood::unordered_map<interaction_type, robin_hood::unordered_set<int>, InteractionHasher> interaction_to_row_map;
-    for (const auto& interaction : interactions) {
-        auto rows = rows_of_interaction(interaction, A);
-        interaction_to_row_map[interaction] = rows;
-    }
-
-    std::map<int, std::vector<std::pair<d_set_type, std::vector<int>>>> d_sets_by_row_count;
-
-    std::cout << "Grouping d-sets by row count...\n";
-    for (const auto& d_set : d_sets) {
-        robin_hood::unordered_set<int> the_rows;
-        for (const auto& interaction : d_set) {
-            const auto& rows = interaction_to_row_map[interaction];
-            the_rows.insert(rows.begin(), rows.end());
-        }
-        int n = the_rows.size();
-        std::vector<int> vrows(the_rows.begin(), the_rows.end());
-        std::sort(vrows.begin(), vrows.end());
-        d_sets_by_row_count[n].push_back({d_set, vrows});
-    }
-
-    std::vector<std::tuple<d_set_type, d_set_type, int>> to_return;
-    std::cout << "Ready to look at pairs for detecting arrays...\n";
-
-    for (auto it1 = d_sets_by_row_count.begin(); it1 != d_sets_by_row_count.end(); ++it1) {
-        for (auto it2 = it1; it2 != d_sets_by_row_count.end(); ++it2) {
-            const auto& group1 = it1->second;
-            const auto& group2 = it2->second;
-
-            if (it1 == it2) { // Same size group
-                for (size_t i = 0; i < group1.size(); ++i) {
-                    for (size_t j = i + 1; j < group1.size(); ++j) {
-                        if (group1[i].second == group1[j].second) { // Identical row sets
-                            to_return.push_back({group1[i].first, group1[j].first, 0});
-                        }
-                    }
-                }
-            } else { // Different size groups
-                for (const auto& pair1 : group1) {
-                    for (const auto& pair2 : group2) {
-                        // Check if the smaller is a subset of the larger
-                        if (is_subset(pair1.second, pair2.second)) {
-                            to_return.push_back({pair1.first, pair2.first, 0});
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return to_return;
-}
-
+// Finds all pairs of d-sets that are not located by the given array.
 auto find_non_locating_sets(const ca_type& A, t_type t, const vs_type& vs, lambda_type lambda, d_type d, bool d_bar, bool t_bar) {
     auto interactions = get_interactions(t, vs, t_bar);
 
@@ -627,6 +501,7 @@ auto find_non_locating_sets(const ca_type& A, t_type t, const vs_type& vs, lambd
     return to_return;
 }
 
+// Reads a combinatorial array from a CSV file.
 auto read_ca_from_cagen(const std::string& filename, const vs_type& vs) {
     std::ifstream file(filename);
     std::string line;
@@ -655,6 +530,7 @@ auto read_ca_from_cagen(const std::string& filename, const vs_type& vs) {
     return result;
 }
 
+// Looks up or assigns an interaction to a map of rows.
 auto lookup_or_assign_interaction_map(std::map<interaction_type, robin_hood::unordered_flat_set<int>>& rows_map, const interaction_type& interaction, const ca_type& ind) {
     if (rows_map.find(interaction) != rows_map.end()) {
         const auto& rows = rows_map[interaction];
@@ -666,38 +542,8 @@ auto lookup_or_assign_interaction_map(std::map<interaction_type, robin_hood::uno
     } 
 }
 
-// int fitness_detecting(const ca_type& ind, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_detecting_pairs, const int& threshold) {
-//     int score = 0;
-
-//     std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
-//     auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
-//         if (rows_map.find(d_set) != rows_map.end()) {
-//             return rows_map[d_set];
-//         } else {
-//             robin_hood::unordered_set<N_type> the_rows;
-//             for (const auto& interaction : d_set) {
-//                 const auto& rows = rows_of_interaction(interaction,ind);
-//                 the_rows.insert(rows.begin(), rows.end());
-//             }
-//             std::vector<int> vrows(the_rows.begin(), the_rows.end());
-//             std::sort(vrows.begin(), vrows.end());
-//             rows_map[d_set] = vrows;
-//             return vrows;
-//         }
-//     };
-
-//     for (const auto& [dset_1, dset_2, _] : non_detecting_pairs) {
-//         auto rows1 = rows_of_dset(dset_1);
-//         auto rows2 = rows_of_dset(dset_2);
-      
-//         if (!is_subset(rows1, rows2) && !is_subset(rows2, rows1)) {
-//             score += 1;
-//         }
-//     }
-//     return score;
-// }
-
-int fitness(const ca_type& ind, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, const int& threshold, bool is_detecting) {
+// Calculates the fitness of a given array, based on how many non-locating pairs it separates.
+int fitness(const ca_type& ind, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, const int& threshold) {
     int score = 0;
     // value is sorted
     std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
@@ -716,39 +562,24 @@ int fitness(const ca_type& ind, d_type d, t_type t, const vs_type& vs, lambda_ty
             return vrows;
         }
     };
-    if (is_detecting) {
-        for (const auto& [dset_1, dset_2, _] : non_locating_pairs) {
-            auto rows1 = rows_of_dset(dset_1);
-            auto rows2 = rows_of_dset(dset_2);
-        
-            if (!is_subset(rows1, rows2) && !is_subset(rows2, rows1)) {
-                score += 1;
-            }
-
-            if (score >= threshold) {
-                return threshold + 1;
-            }
+    for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs) {
+        auto requirement = l - num_times_sep_already;
+        auto rows1 = rows_of_dset(dset_1);
+        auto rows2 = rows_of_dset(dset_2);
+        int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
+      
+        if (n >= requirement) {
+            score += 1;
         }
-    }
-    else {
-        for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs) {
-            auto requirement = l - num_times_sep_already;
-            auto rows1 = rows_of_dset(dset_1);
-            auto rows2 = rows_of_dset(dset_2);
-            int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-        
-            if (n >= requirement) {
-                score += 1;
-            }
 
-            if (score >= threshold) {
-                return threshold+1;
-            }
+        if (score >= threshold) {
+            return threshold+1;
         }
     }
     return score;
 }
 
+// Performs a crossover operation on two parent arrays to create a child array.
 ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, const vs_type& vs, lambda_type l) {
     int val = any_int(rng) % 2;
     int n = p1.size();
@@ -790,6 +621,7 @@ ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, const vs
     return child;
 }
 
+// Mutates a given array by making random changes to its rows or columns.
 ca_type mutate(const ca_type& p1, d_type d, t_type t, const vs_type& vs, lambda_type l) {
     int val = any_int(rng) % 3;
     int n = p1.size();
@@ -813,11 +645,13 @@ ca_type mutate(const ca_type& p1, d_type d, t_type t, const vs_type& vs, lambda_
     return child;
 }
 
+// A helper struct for a genetic algorithm individual.
 struct Ind_NonRecompute_Fitness {
     ca_type A;
     int fitness;
 };
 
+// A helper struct for a genetic algorithm individual's fitness.
 struct PercentGAFitnessInd {
     std::vector<double> percents;
     int N = -1;
@@ -826,7 +660,8 @@ struct PercentGAFitnessInd {
     bool operator==(PercentGAFitnessInd const&) const = default;
 };
 
-ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, double percent, bool is_detecting) {
+// Tries to find a locating array of size N using a genetic algorithm.
+ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, double percent) {
 
     ca_type s;
     int pop_size = 100;
@@ -847,7 +682,7 @@ ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, co
         for (auto& I : pop) {
             int f = I.fitness;
             if (f == -1) {
-                f = fitness(I.A, d, t, vs, l, non_locating_pairs, max_possible_fitness, is_detecting);
+                f = fitness(I.A, d, t, vs, l, non_locating_pairs, max_possible_fitness);
                 I.fitness = f; 
             }
             if (f >= max_possible_fitness) {
@@ -901,7 +736,8 @@ ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, co
 
 
 
-ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& only_these_pairs, bool is_detecting) {
+// Tries to find a locating array of size N using a simulated annealing algorithm.
+ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& only_these_pairs) {
 
 
 
@@ -913,14 +749,14 @@ ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l,
 
     auto required_fitness = only_these_pairs.size();
 
-    auto f = fitness(A, d, t, vs, l, only_these_pairs, required_fitness, is_detecting);
+    auto f = fitness(A, d, t, vs, l, only_these_pairs, required_fitness);
     for (int it=0; it<num_iter; it++) {
         
         if (f >= required_fitness) {
             return A;
         }
         auto A_prime = mutate(A, d, t, vs, l);
-        auto f_prime = fitness(A_prime, d, t, vs, l, only_these_pairs, required_fitness, is_detecting);
+        auto f_prime = fitness(A_prime, d, t, vs, l, only_these_pairs, required_fitness);
         // std::cout << "req=" << required_fitness << ", got=" << f_prime << "\n";
         auto diff = f_prime - f;
         if (f_prime >= f) {
@@ -949,10 +785,8 @@ ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l,
 
 
 
-// insert new parameter
-// parameter for the percentage of completion of locating rows
-
-ca_type go(const d_type& d, const t_type& t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, const double& percent, bool is_detecting) {
+// The main function that orchestrates the staged locating array generation process.
+ca_type go(const d_type& d, const t_type& t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, const double& percent) {
     
     
     bool succ_first = true;
@@ -968,7 +802,7 @@ ca_type go(const d_type& d, const t_type& t, const vs_type& vs, const lambda_typ
 
     while (true) {
 
-        result = try_N_SA(N, d, t, vs, l, only_these_pairs, is_detecting);
+        result = try_N_SA(N, d, t, vs, l, only_these_pairs);
         if (succ_first &&  result.size() > 0) {
             return result;
         }
@@ -984,7 +818,7 @@ ca_type go(const d_type& d, const t_type& t, const vs_type& vs, const lambda_typ
     int N_lo = N / 2;
     while (N_lo < N_hi) {
         int N_mid = (N_lo + N_hi) / 2;
-        auto result2 = try_N_SA(N_mid, d, t, vs, l, only_these_pairs, is_detecting);
+        auto result2 = try_N_SA(N_mid, d, t, vs, l, only_these_pairs);
         if (result2.size() > 0) {
             N_hi = N_mid;
             result = result2;
@@ -995,6 +829,7 @@ ca_type go(const d_type& d, const t_type& t, const vs_type& vs, const lambda_typ
     return result;
 }
 
+// Parses the vector of symbol counts from a string representation.
 auto parse_vs(const std::vector<std::string>& exp_params) {
     vs_type new_params;
     for (const auto& str : exp_params) {
@@ -1011,11 +846,13 @@ auto parse_vs(const std::vector<std::string>& exp_params) {
 
 
 
+// Determines if one solution "dominates" another in a Pareto sense.
 bool dominates(const PercentGAFitnessInd& ind, const PercentGAFitnessInd& other) {
     return (ind.N <= other.N && 
         ind.time <= other.time);
 }
 
+// Finds the Pareto front and the dominated points from a set of solutions.
 auto pareto_and_rest(std::vector<PercentGAFitnessInd> points) {
     int candidate_ind_number = 0;
     std::vector<PercentGAFitnessInd> dominated_pts;
@@ -1052,6 +889,7 @@ auto pareto_and_rest(std::vector<PercentGAFitnessInd> points) {
 
 
 
+// Generates a random "individual" for the genetic algorithm.
 auto generate_rand_percent_individual() {
     std::vector<double> percents;
     int rand_length = ind_size(rng); // between 10 and 30 stages
@@ -1068,7 +906,8 @@ auto generate_rand_percent_individual() {
 
 
 
-auto percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, bool use_default_percents, bool is_detecting) {
+// Performs the main genetic algorithm optimization to find the best sequence of percentages for staged SA.
+auto percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, bool use_default_percents) {
 
     if (use_default_percents) {
         const std::vector<double> percents = {0.021576,0.021576,0.022644,0.030792,0.090424,0.071014,0.083679,0.172455,0.220123,0.415283,1.000000};
@@ -1079,69 +918,34 @@ auto percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, con
         for (const auto& percent : percents) { 
             std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
 
-            auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent, is_detecting);
+            auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent);
             num_rows += ga_rows.size();
-            // *** START OF THE FIX ***
-            // This block now correctly updates the list of remaining pairs for both modes.
-            
-            // Define a helper lambda to get rows for a d-set within the generated array
-            std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map_for_update;
-            auto rows_of_dset_in_ga = [&](const d_set_type& d_set) {
-                if (rows_map_for_update.count(d_set)) {
-                    return rows_map_for_update.at(d_set);
-                }
-                robin_hood::unordered_set<N_type> the_rows;
-                for (const auto& interaction : d_set) {
-                    const auto& rows = rows_of_interaction(interaction, ga_rows);
-                    the_rows.insert(rows.begin(), rows.end());
-                }
-                std::vector<int> vrows(the_rows.begin(), the_rows.end());
-                std::sort(vrows.begin(), vrows.end());
-                rows_map_for_update[d_set] = vrows;
-                return vrows;
-            };
 
             for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs_copy) {
-                auto rows1 = rows_of_dset_in_ga(dset_1);
-                auto rows2 = rows_of_dset_in_ga(dset_2);
+                std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
+                auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
+                    if (rows_map.find(d_set) != rows_map.end()) {
+                        return rows_map[d_set];
+                    } else {
+                        robin_hood::unordered_set<N_type> the_rows;
+                        for (const auto& interaction : d_set) {
+                            const auto& rows = rows_of_interaction(interaction,ga_rows);
+                            the_rows.insert(rows.begin(), rows.end());
+                        }
+                        std::vector<int> vrows(the_rows.begin(), the_rows.end());
+                        std::sort(vrows.begin(), vrows.end());
+                        rows_map[d_set] = vrows;
+                        return vrows;
+                    }
+                }; 
 
-                if (is_detecting) {
-                    // For detecting, if they are no longer subsets, the pair is fixed.
-                    if (is_subset(rows1, rows2) || is_subset(rows2, rows1)) {
-                        new_non_locating_pairs.push_back({dset_1, dset_2, 0});
-                    }
-                } else { // Locating logic
-                    int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-                    if (num_times_sep_already + n < l) {
-                        new_non_locating_pairs.push_back({dset_1, dset_2, num_times_sep_already + n});
-                    }
+                auto rows1 = rows_of_dset(dset_1);
+                auto rows2 = rows_of_dset(dset_2);
+                int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
+                if (num_times_sep_already + n < l) {
+                    new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, num_times_sep_already + n));
                 }
             }
-            // for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs_copy) {
-            //     std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
-            //     auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
-            //         if (rows_map.find(d_set) != rows_map.end()) {
-            //             return rows_map[d_set];
-            //         } else {
-            //             robin_hood::unordered_set<N_type> the_rows;
-            //             for (const auto& interaction : d_set) {
-            //                 const auto& rows = rows_of_interaction(interaction,ga_rows);
-            //                 the_rows.insert(rows.begin(), rows.end());
-            //             }
-            //             std::vector<int> vrows(the_rows.begin(), the_rows.end());
-            //             std::sort(vrows.begin(), vrows.end());
-            //             rows_map[d_set] = vrows;
-            //             return vrows;
-            //         }
-            //     }; 
-
-            //     auto rows1 = rows_of_dset(dset_1);
-            //     auto rows2 = rows_of_dset(dset_2);
-            //     int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-            //     if (num_times_sep_already + n < l) {
-            //         new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, num_times_sep_already + n));
-            //     }
-            // }
 
             non_locating_pairs_copy = new_non_locating_pairs;
 
@@ -1197,7 +1001,7 @@ auto percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, con
 
                     std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
 
-                    auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent, is_detecting);
+                    auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent);
                     num_rows += ga_rows.size();
 
                     for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs_copy) {
@@ -1320,8 +1124,7 @@ auto percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, con
 }
 
 
-// the reason these are not all ascending order of # levels is that we did this
-//          before critical thinking was invented.
+// A map of predefined system configurations to their parameter values.
 const std::unordered_map<std::string, std::vector<std::string>> configs {
     {"Apache", {"2^158", "3^8", "4^4", "5^1", "6^1"}},
     {"Bugzilla", {"2^49", "3^1", "4^2"}},
@@ -1335,6 +1138,7 @@ const std::unordered_map<std::string, std::vector<std::string>> configs {
     {"Wireless", {"5^9", "4^5", "3^7", "2^3"}}
 };
 
+// Looks up a configuration's parameters and the corresponding file path.
 auto lookup_config_and_params(const std::string& config_name, const t_type t, const lambda_type lambda) {
 
     std::string prefix = "./evaluation/";
@@ -1352,15 +1156,14 @@ auto lookup_config_and_params(const std::string& config_name, const t_type t, co
     
 }
 
+// Main function to run the locating array generation.
 int main(int argc, char** argv) {
 
-    if (argc != 3) {
-        std::cerr << "Usage: ./LocAG <name of config> <array_type>\n";
-        std::cerr << "array_type can be 'locating' or 'detecting'\n";
+    if (argc != 2) {
+        std::cerr << "Usage: ./LocAG <name of config>\n";
         return -1;
     }
 
-    std::string array_type = argv[2];
     
 
     for (d_type d = 1; d <= 1; d++) {
@@ -1371,7 +1174,6 @@ int main(int argc, char** argv) {
 
                 const bool d_bar = true;
                 const bool t_bar = true;
-                bool is_detecting = false;
 
                 assert(d < *std::min_element(vs.begin(), vs.end()));
 
@@ -1382,33 +1184,22 @@ int main(int argc, char** argv) {
                 // std::cout << "Read file with " << A.size() << " rows.\n";
 
                 // Finds initial non_locating_pairs
-                std::vector<std::tuple<d_set_type, d_set_type, int>> non_valid_pairs;
-                if (array_type == "locating") {
-                    non_valid_pairs = find_non_locating_sets(A, t, vs, lambda, d, d_bar, t_bar);
-                }
-                else if (array_type == "detecting") {
-                    is_detecting = true;
-                    non_valid_pairs = find_non_detecting_sets(A, t, vs, lambda, d, d_bar, t_bar);
-                }
-                else {
-                    std::cerr << "Array type " + array_type + " is not valid.\n";
-                    return -1;
-                }
+                auto non_locating_pairs = find_non_locating_sets(A, t, vs, lambda, d, d_bar, t_bar);
                 auto stop = high_resolution_clock::now();
                 auto first_stage_N = A.size();
                 auto first_stage_time = duration_cast<milliseconds>(stop-start).count();
 
                 std::cout << "First Stage N=" << first_stage_N << ", Time=" << first_stage_time << "\n"; 
 
-                std::cout << "There are " << non_valid_pairs.size() << " remaining non-locating pairs\n";
+                std::cout << "There are " << non_locating_pairs.size() << " remaining non-locating pairs\n";
 
                 /* ------------------------------------- Stage 2: GA ------------------------------ */
 
-                if (non_valid_pairs.size() == 0) {
+                if (non_locating_pairs.size() == 0) {
                     break;
                 }
 
-                auto pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,true, is_detecting);
+                auto pareto = percent_GA(d,t,vs,lambda,non_locating_pairs,true);
                 for (const auto& [percents, num_rows, time] : pareto) {
                     std::cout << "N total=" << first_stage_N + num_rows << ", Time total=" << first_stage_time + time << ", percents=";
                     print_vec(percents);
