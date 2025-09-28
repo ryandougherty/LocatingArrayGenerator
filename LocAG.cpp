@@ -409,6 +409,33 @@ bool is_subset(const std::vector<int>& a, const std::vector<int>& b) {
 
 //     return to_return;
 // }
+
+// A helper function for explicit and safe comparison of interaction_type objects
+bool compare_interactions(const interaction_type& a, const interaction_type& b) {
+    // First, compare the size of the column vectors
+    if (a.first.size() < b.first.size()) return true;
+    if (a.first.size() > b.first.size()) return false;
+
+    // If sizes are the same, compare the column vector elements
+    for (size_t i = 0; i < a.first.size(); ++i) {
+        if (a.first[i] < b.first[i]) return true;
+        if (a.first[i] > b.first[i]) return false;
+    }
+
+    // If column vectors are identical, compare the size of the value vectors
+    if (a.second.size() < b.second.size()) return true;
+    if (a.second.size() > b.second.size()) return false;
+
+    // If value vector sizes are the same, compare their elements
+    for (size_t i = 0; i < a.second.size(); ++i) {
+        if (a.second[i] < b.second[i]) return true;
+        if (a.second[i] > b.second[i]) return false;
+    }
+
+    // If they are identical, return false
+    return false;
+}
+
 auto find_non_detecting_sets(const ca_type& A, t_type t, const vs_type& vs, lambda_type lambda, d_type d, bool d_bar, bool t_bar) {
     auto interactions = get_interactions(t, vs, t_bar);
 
@@ -461,11 +488,22 @@ auto find_non_detecting_sets(const ca_type& A, t_type t, const vs_type& vs, lamb
                 for (size_t i = 0; i < group1.size(); ++i) {
                     for (size_t j = i + 1; j < group1.size(); ++j) {
                         if (group1[i].second == group1[j].second) { // Identical row sets
-                            to_return.push_back({group1[i].first, group1[j].first, 0});
+                            auto d_set1 = group1[i].first;
+                            auto d_set2 = group1[j].first;
+
+                            // Sort using the new, explicit comparison function
+                            std::sort(d_set1.begin(), d_set1.end(), compare_interactions);
+                            std::sort(d_set2.begin(), d_set2.end(), compare_interactions);
+
+                            // Only add the pair if they are not permutations of each other
+                            if (d_set1 != d_set2) {
+                                to_return.push_back({group1[i].first, group1[j].first, 0});
+                            }
                         }
                     }
                 }
-            } else { // Different size groups
+            }
+            else { // Different size groups
                 for (const auto& pair1 : group1) {
                     for (const auto& pair2 : group2) {
                         // Check if the smaller is a subset of the larger
@@ -716,34 +754,18 @@ int fitness(const ca_type& ind, d_type d, t_type t, const vs_type& vs, lambda_ty
             return vrows;
         }
     };
-    if (is_detecting) {
-        for (const auto& [dset_1, dset_2, _] : non_locating_pairs) {
-            auto rows1 = rows_of_dset(dset_1);
-            auto rows2 = rows_of_dset(dset_2);
+    for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs) {
+        auto requirement = (is_detecting ? 1 : l) - num_times_sep_already;
+        auto rows1 = rows_of_dset(dset_1);
+        auto rows2 = rows_of_dset(dset_2);
+        int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
         
-            if (!is_subset(rows1, rows2) && !is_subset(rows2, rows1)) {
-                score += 1;
-            }
-
-            if (score >= threshold) {
-                return threshold + 1;
-            }
+        if (n >= requirement) {
+            score += 1;
         }
-    }
-    else {
-        for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs) {
-            auto requirement = l - num_times_sep_already;
-            auto rows1 = rows_of_dset(dset_1);
-            auto rows2 = rows_of_dset(dset_2);
-            int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-        
-            if (n >= requirement) {
-                score += 1;
-            }
 
-            if (score >= threshold) {
-                return threshold+1;
-            }
+        if (score >= threshold) {
+            return threshold + 1;
         }
     }
     return score;
@@ -1105,16 +1127,11 @@ auto percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, con
                 auto rows1 = rows_of_dset_in_ga(dset_1);
                 auto rows2 = rows_of_dset_in_ga(dset_2);
 
-                if (is_detecting) {
-                    // For detecting, if they are no longer subsets, the pair is fixed.
-                    if (is_subset(rows1, rows2) || is_subset(rows2, rows1)) {
-                        new_non_locating_pairs.push_back({dset_1, dset_2, 0});
-                    }
-                } else { // Locating logic
-                    int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-                    if (num_times_sep_already + n < l) {
-                        new_non_locating_pairs.push_back({dset_1, dset_2, num_times_sep_already + n});
-                    }
+                int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
+                auto required_separation = is_detecting ? 1 : l;
+
+                if (num_times_sep_already + n < required_separation) {
+                    new_non_locating_pairs.push_back({dset_1, dset_2, num_times_sep_already + n});
                 }
             }
             // for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs_copy) {
@@ -1333,6 +1350,7 @@ const std::unordered_map<std::string, std::vector<std::string>> configs {
     {"SPINV", {"2^42", "3^2", "4^11"}},
     {"TCAS", {"2^7", "3^2", "4^1", "10^4"}},
     {"Wireless", {"5^9", "4^5", "3^7", "2^3"}}
+    //other papers with these for comparison***
 };
 
 auto lookup_config_and_params(const std::string& config_name, const t_type t, const lambda_type lambda) {
