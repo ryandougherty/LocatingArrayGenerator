@@ -1,0 +1,68 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/SPINS/SPINS_2_1.csv------------
+Grouping d-sets by row count...
+Ready to look at pairs for detecting arrays...
+First Stage N=8646, Time=172
+There are 1984 remaining non-locating pairs
+Added 3rows, there are 796 remaining pairs
+Added 7rows, there are 284 remaining pairs
+Added 9rows, there are 194 remaining pairs
+Added 11rows, there are 140 remaining pairs
+Added 13rows, there are 80 remaining pairs
+Added 15rows, there are 43 remaining pairs
+Added 16rows, there are 32 remaining pairs
+Added 18rows, there are 17 remaining pairs
+Added 19rows, there are 12 remaining pairs
+Added 20rows, there are 2 remaining pairs
+N total=8667, Time total=296, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/SPINS/SPINS_2_2.csv------------
+Grouping d-sets by row count...
+Ready to look at pairs for detecting arrays...
+First Stage N=0, Time=276
+There are 538203 remaining non-locating pairs
+Added 6rows, there are 67584 remaining pairs
+Added 16rows, there are 3878 remaining pairs
+Added 20rows, there are 1865 remaining pairs
+Added 24rows, there are 802 remaining pairs
+Added 29rows, there are 349 remaining pairs
+Added 32rows, there are 209 remaining pairs
+Added 35rows, there are 127 remaining pairs
+Added 37rows, there are 84 remaining pairs
+Added 40rows, there are 42 remaining pairs
+Added 43rows, there are 15 remaining pairs
+N total=47, Time total=11453, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/SPINS/SPINS_2_3.csv------------
+Grouping d-sets by row count...
+Ready to look at pairs for detecting arrays...
+First Stage N=0, Time=273
+There are 538203 remaining non-locating pairs
+Added 6rows, there are 70427 remaining pairs
+Added 17rows, there are 2965 remaining pairs
+Added 22rows, there are 1137 remaining pairs
+Added 25rows, there are 583 remaining pairs
+Added 29rows, there are 247 remaining pairs
+Added 33rows, there are 136 remaining pairs
+Added 36rows, there are 72 remaining pairs
+Added 39rows, there are 34 remaining pairs
+Added 42rows, there are 19 remaining pairs
+Added 45rows, there are 5 remaining pairs
+N total=48, Time total=11149, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/SPINS/SPINS_2_4.csv------------
+Grouping d-sets by row count...
+Ready to look at pairs for detecting arrays...
+First Stage N=0, Time=276
+There are 538203 remaining non-locating pairs
+Added 6rows, there are 70241 remaining pairs
+Added 16rows, there are 3975 remaining pairs
+Added 21rows, there are 1613 remaining pairs
+Added 25rows, there are 752 remaining pairs
+Added 31rows, there are 242 remaining pairs
+Added 35rows, there are 117 remaining pairs
+Added 39rows, there are 47 remaining pairs
+Added 43rows, there are 25 remaining pairs
+Added 47rows, there are 9 remaining pairs
+Added 51rows, there are 4 remaining pairs
+N total=55, Time total=8713, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+

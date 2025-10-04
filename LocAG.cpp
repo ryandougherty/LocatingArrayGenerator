@@ -151,13 +151,14 @@ auto lookup_config_and_params(const std::string& config_name, const t_type t, co
 
 int main(int argc, char** argv) {
 
-    if (argc != 3) {
-        std::cerr << "Usage: ./LocAG <name of config> <array_type>\n";
+    if (argc != 4) {
+        std::cerr << "Usage: ./LocAG <name of config> <array_type> <execution_policy>\n";
         std::cerr << "array_type can be 'locating' or 'detecting'\n";
         return -1;
     }
 
     std::string array_type = argv[2];
+    const std::string policy = argv[3];
     
 
     for (d_type d = 1; d <= 1; d++) {
@@ -205,7 +206,7 @@ int main(int argc, char** argv) {
                     break;
                 }
 
-                auto pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,true, is_detecting);
+                auto pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,true, is_detecting, policy);
                 for (const auto& [percents, num_rows, time] : pareto) {
                     std::cout << "N total=" << first_stage_N + num_rows << ", Time total=" << first_stage_time + time << ", percents=";
                     print_vec(percents);
