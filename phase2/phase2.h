@@ -1,4 +1,5 @@
 #pragma once
+#include <random>
 
 struct PercentGAFitnessInd {
     std::vector<double> percents;

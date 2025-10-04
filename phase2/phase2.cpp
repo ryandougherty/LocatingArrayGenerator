@@ -1,6 +1,7 @@
 #include "../utils/utils.h"
 #include "phase2.h"
 #include "../phase1/phase1.h"
+#include <execution>
 
 int fitness(const ca_type& ind, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, const int& threshold, bool is_detecting) {
     int score = 0;
@@ -38,7 +39,7 @@ int fitness(const ca_type& ind, d_type d, t_type t, const vs_type& vs, lambda_ty
     return score;
 }
 
-ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, const vs_type& vs, lambda_type l) {
+ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, const vs_type& vs, lambda_type l, std::mt19937& rng) {
     int val = any_int(rng) % 2;
     int n = p1.size();
     ca_type child;
@@ -79,7 +80,7 @@ ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, const vs
     return child;
 }
 
-ca_type mutate(const ca_type& p1, d_type d, t_type t, const vs_type& vs, lambda_type l) {
+ca_type mutate(const ca_type& p1, d_type d, t_type t, const vs_type& vs, lambda_type l, std::mt19937& rng) {
     int val = any_int(rng) % 3;
     int n = p1.size();
     ca_type child = p1;
@@ -107,7 +108,7 @@ struct Ind_NonRecompute_Fitness {
     int fitness;
 };
 
-ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, double percent, bool is_detecting) {
+ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, double percent, bool is_detecting, std::mt19937& rng) {
 
     ca_type s;
     int pop_size = 100;
@@ -159,14 +160,14 @@ ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, co
             auto cross_percent = any_int(rng) % 10;
             auto mut_percent = any_int(rng) % 10;
             if (cross_percent == 0 && mut_percent < 3) {
-                auto new_ind = cross(p1.A,p2.A,d,t,vs,l);
-                new_ind = mutate(new_ind,d,t,vs,l);
+                auto new_ind = cross(p1.A,p2.A,d,t,vs,l, rng);
+                new_ind = mutate(new_ind,d,t,vs,l, rng);
                 Ind_NonRecompute_Fitness true_new_ind;
                 true_new_ind.A = new_ind;
                 true_new_ind.fitness = -1;
                 new_vec.push_back(true_new_ind);
             } else if (cross_percent == 0) {
-                auto new_ind = cross(p1.A,p2.A,d,t,vs,l);
+                auto new_ind = cross(p1.A,p2.A,d,t,vs,l, rng);
                 Ind_NonRecompute_Fitness true_new_ind;
                 true_new_ind.A = new_ind;
                 true_new_ind.fitness = -1;
@@ -182,7 +183,7 @@ ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, co
 
 
 
-ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& only_these_pairs, bool is_detecting) {
+ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& only_these_pairs, bool is_detecting, std::mt19937& rng) {
 
 
 
@@ -200,7 +201,7 @@ ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l,
         if (f >= required_fitness) {
             return A;
         }
-        auto A_prime = mutate(A, d, t, vs, l);
+        auto A_prime = mutate(A, d, t, vs, l, rng);
         auto f_prime = fitness(A_prime, d, t, vs, l, only_these_pairs, required_fitness, is_detecting);
         // std::cout << "req=" << required_fitness << ", got=" << f_prime << "\n";
         auto diff = f_prime - f;
@@ -233,7 +234,7 @@ ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l,
 // insert new parameter
 // parameter for the percentage of completion of locating rows
 
-ca_type go(const d_type& d, const t_type& t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, const double& percent, bool is_detecting) {
+ca_type go(const d_type& d, const t_type& t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, const double& percent, bool is_detecting, std::mt19937& rng) {
     
     
     bool succ_first = true;
@@ -249,7 +250,7 @@ ca_type go(const d_type& d, const t_type& t, const vs_type& vs, const lambda_typ
 
     while (true) {
 
-        result = try_N_SA(N, d, t, vs, l, only_these_pairs, is_detecting);
+        result = try_N_SA(N, d, t, vs, l, only_these_pairs, is_detecting, rng);
         if (succ_first &&  result.size() > 0) {
             return result;
         }
@@ -265,7 +266,7 @@ ca_type go(const d_type& d, const t_type& t, const vs_type& vs, const lambda_typ
     int N_lo = N / 2;
     while (N_lo < N_hi) {
         int N_mid = (N_lo + N_hi) / 2;
-        auto result2 = try_N_SA(N_mid, d, t, vs, l, only_these_pairs, is_detecting);
+        auto result2 = try_N_SA(N_mid, d, t, vs, l, only_these_pairs, is_detecting, rng);
         if (result2.size() > 0) {
             N_hi = N_mid;
             result = result2;
@@ -330,6 +331,7 @@ auto generate_rand_percent_individual() {
 std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, bool use_default_percents, bool is_detecting) {
 
     if (use_default_percents) {
+        std::mt19937 main_rng(std::random_device{}());
         const std::vector<double> percents = {0.021576,0.021576,0.022644,0.030792,0.090424,0.071014,0.083679,0.172455,0.220123,0.415283,1.000000};
 //{0.001000,0.002625,0.010040,0.017456,0.631592,0.094666,0.151855,0.167999,0.172241,1.000000};
         auto non_locating_pairs_copy = non_locating_pairs;
@@ -338,7 +340,7 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
         for (const auto& percent : percents) { 
             std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
 
-            auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent, is_detecting);
+            auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent, is_detecting, main_rng);
             num_rows += ga_rows.size();
             // *** START OF THE FIX ***
             // This block now correctly updates the list of remaining pairs for both modes.
@@ -431,69 +433,72 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
 
         std::cout << "Generation #" << gen << "\n";
 
-        std::vector<PercentGAFitnessInd> fitnesses;
-        int individual = 0;
-        for (auto& I : pop) {
-            // std::cout << "Fitness for individual #" << individual << ": ";
+        // This is the main change: We use std::for_each with a parallel policy
+        // to calculate the fitness for every individual in the population concurrently.
+        std::for_each(std::execution::par, pop.begin(), pop.end(), 
+            [&](PercentGAFitnessInd& I) {
             
-
-            int num_rows = 0;
-            long long ind_total_time = 0;
+            // If fitness is already known, we can skip this individual.
             if (I.N != -1 && I.time != -1) {
-                num_rows = I.N;
-                ind_total_time = I.time;
-            } else {
-                auto percents = I.percents;
-                auto non_locating_pairs_copy = non_locating_pairs;
-
-                auto start = high_resolution_clock::now();
-                for (const auto& percent : percents) { 
-
-                    std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
-
-                    auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent, is_detecting);
-                    num_rows += ga_rows.size();
-
-                    for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs_copy) {
-                        std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
-                        auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
-                            if (rows_map.find(d_set) != rows_map.end()) {
-                                return rows_map[d_set];
-                            } else {
-                                robin_hood::unordered_set<N_type> the_rows;
-                                for (const auto& interaction : d_set) {
-                                    const auto& rows = rows_of_interaction(interaction,ga_rows);
-                                    the_rows.insert(rows.begin(), rows.end());
-                                }
-                                std::vector<int> vrows(the_rows.begin(), the_rows.end());
-                                std::sort(vrows.begin(), vrows.end());
-                                rows_map[d_set] = vrows;
-                                return vrows;
-                            }
-                        }; 
-
-                        auto rows1 = rows_of_dset(dset_1);
-                        auto rows2 = rows_of_dset(dset_2);
-                        int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-                        if (num_times_sep_already + n < l) {
-                            new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, num_times_sep_already + n));
-                        }
-                    }
-
-                    non_locating_pairs_copy = new_non_locating_pairs;
-                    new_non_locating_pairs.clear();
-                }
-                auto stop = high_resolution_clock::now();
-                ind_total_time = duration_cast<milliseconds>(stop-start).count();
-                I.N = num_rows;
-                I.time = ind_total_time;
+                return;
             }
-            // std::cout << individual << "," << num_rows << "," << ind_total_time << ",I=";
-            individual++;
-            // print_vec(I.percents);
-            // std::cout << "\n";
-            fitnesses.push_back(I);
-        }
+
+            // CRITICAL: Each thread must have its own private random number generator
+            // to prevent data races. We seed it with a true hardware random device.
+            std::mt19937 thread_rng(std::random_device{}());
+            
+            long long num_rows = 0;
+            auto non_locating_pairs_copy = non_locating_pairs;
+
+            auto start = high_resolution_clock::now();
+            for (const auto& percent : I.percents) { 
+                std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
+
+                // Pass the thread-local RNG down the call stack.
+                auto ga_rows = go(d, t, vs, l, non_locating_pairs_copy, percent, is_detecting, thread_rng);
+                num_rows += ga_rows.size();
+
+                // This logic is safe because all variables are local to this thread's execution.
+                std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map_for_update;
+                auto rows_of_dset_in_ga = [&](const d_set_type& d_set) {
+                    if (rows_map_for_update.count(d_set)) {
+                        return rows_map_for_update.at(d_set);
+                    }
+                    robin_hood::unordered_set<N_type> the_rows;
+                    for (const auto& interaction : d_set) {
+                        const auto& rows = rows_of_interaction(interaction, ga_rows);
+                        the_rows.insert(rows.begin(), rows.end());
+                    }
+                    std::vector<int> vrows(the_rows.begin(), the_rows.end());
+                    std::sort(vrows.begin(), vrows.end());
+                    rows_map_for_update[d_set] = vrows;
+                    return vrows;
+                };
+
+                for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs_copy) {
+                    auto rows1 = rows_of_dset_in_ga(dset_1);
+                    auto rows2 = rows_of_dset_in_ga(dset_2);
+                    int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
+                    auto required_separation = is_detecting ? 1 : l;
+                    if (num_times_sep_already + n < required_separation) {
+                        new_non_locating_pairs.push_back({dset_1, dset_2, num_times_sep_already + n});
+                    }
+                }
+                non_locating_pairs_copy = new_non_locating_pairs;
+            }
+            auto stop = high_resolution_clock::now();
+
+            // Update the individual's computed fitness values. This is thread-safe
+            // because each thread is writing to a different individual 'I'.
+            I.N = num_rows;
+            I.time = duration_cast<milliseconds>(stop-start).count();
+        });
+
+        // After the parallel loop finishes, 'pop' is fully updated.
+        // We now copy it to 'fitnesses' to proceed with selection.
+        std::vector<PercentGAFitnessInd> fitnesses = pop;
+
+        // The rest of your genetic algorithm (selection, crossover, mutation) remains the same.
         auto target_size = pop_size/2;
         auto [pareto, rest] = pareto_and_rest(fitnesses);
         for (auto& [percents, N, time] : pareto) {
@@ -503,7 +508,7 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
         }
         std::vector<PercentGAFitnessInd> new_pop(pareto.begin(), pareto.end());
 
-        result = pareto; // save results each time
+        result = pareto;
 
         while (new_pop.size() < target_size) {
             for (auto& elem : pareto) {
