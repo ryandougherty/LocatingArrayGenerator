@@ -170,6 +170,7 @@ int main(int argc, char** argv) {
                 const bool d_bar = true;
                 const bool t_bar = true;
                 bool is_detecting = false;
+                const int X = 10;
 
                 assert(d < *std::min_element(vs.begin(), vs.end()));
 
@@ -182,11 +183,11 @@ int main(int argc, char** argv) {
                 // Finds initial non_locating_pairs
                 std::vector<std::tuple<d_set_type, d_set_type, int>> non_valid_pairs;
                 if (array_type == "locating") {
-                    non_valid_pairs = find_non_locating_sets(A, t, vs, lambda, d, d_bar, t_bar);
+                    non_valid_pairs = find_non_locating_sets(A, t, vs, lambda, d, d_bar, t_bar, X);
                 }
                 else if (array_type == "detecting") {
                     is_detecting = true;
-                    non_valid_pairs = find_non_detecting_sets(A, t, vs, lambda, d, d_bar, t_bar);
+                    non_valid_pairs = find_non_detecting_sets(A, t, vs, lambda, d, d_bar, t_bar, X);
                 }
                 else {
                     std::cerr << "Array type " + array_type + " is not valid.\n";
