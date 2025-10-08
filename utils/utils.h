@@ -58,15 +58,19 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T1, T2>& p) {
 long long comb(unsigned n, unsigned k);
 double calc_p(const int t, const int v);
 ca_type random_array(const N_type N, const k_type k, const vs_type& vs);
+
+// Templated VectorHasher to work with any vector type
 struct VectorHasher {
-    int operator()(const std::vector<v_type>& V) const {
+    template <typename T>
+    int operator()(const std::vector<T>& V) const {
         int hash = V.size();
-        for (auto& i : V) {
+        for(auto const &i : V) {
             hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
         }
         return hash;
     }
 };
+
 struct InteractionHasher {
     int operator()(const interaction_type& V) const {
         int hash = V.first.size();

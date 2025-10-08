@@ -12,9 +12,9 @@ bool is_subset(const std::vector<int>& a, const std::vector<int>& b);
 
 // A helper function for explicit and safe comparison of interaction_type objects
 
-std::vector<std::tuple<d_set_type, d_set_type, int>> find_non_detecting_sets(const ca_type& A, t_type t, const vs_type& vs, lambda_type lambda, d_type d, bool d_bar, bool t_bar);
+std::vector<std::tuple<d_set_type, d_set_type, int>> find_non_detecting_sets(const ca_type& A, t_type t, const vs_type& vs, lambda_type lambda, d_type d, bool d_bar, bool t_bar, int X);
 
-std::vector<std::tuple<d_set_type, d_set_type, int>> find_non_locating_sets(const ca_type& A, t_type t, const vs_type& vs, lambda_type lambda, d_type d, bool d_bar, bool t_bar);
+std::vector<std::tuple<d_set_type, d_set_type, int>> find_non_locating_sets(const ca_type& A, t_type t, const vs_type& vs, lambda_type lambda, d_type d, bool d_bar, bool t_bar, int X);
 
 robin_hood::unordered_flat_set<int> rows_of_interaction(const interaction_type& I, const ca_type& A);
 
