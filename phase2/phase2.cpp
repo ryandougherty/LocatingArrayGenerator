@@ -337,7 +337,9 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
         auto non_locating_pairs_copy = non_locating_pairs;
         int num_rows = 0;
         auto start = high_resolution_clock::now();
-        for (const auto& percent : percents) { 
+        // for (const auto& percent : percents) { 
+        std::for_each(std::execution::par, percents.begin(), percents.end(), 
+            [&](const auto& percent) {
             std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
 
             auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent, is_detecting, main_rng);
@@ -373,31 +375,6 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
                     new_non_locating_pairs.push_back({dset_1, dset_2, num_times_sep_already + n});
                 }
             }
-            // for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs_copy) {
-            //     std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
-            //     auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
-            //         if (rows_map.find(d_set) != rows_map.end()) {
-            //             return rows_map[d_set];
-            //         } else {
-            //             robin_hood::unordered_set<N_type> the_rows;
-            //             for (const auto& interaction : d_set) {
-            //                 const auto& rows = rows_of_interaction(interaction,ga_rows);
-            //                 the_rows.insert(rows.begin(), rows.end());
-            //             }
-            //             std::vector<int> vrows(the_rows.begin(), the_rows.end());
-            //             std::sort(vrows.begin(), vrows.end());
-            //             rows_map[d_set] = vrows;
-            //             return vrows;
-            //         }
-            //     }; 
-
-            //     auto rows1 = rows_of_dset(dset_1);
-            //     auto rows2 = rows_of_dset(dset_2);
-            //     int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-            //     if (num_times_sep_already + n < l) {
-            //         new_non_locating_pairs.push_back(std::make_tuple(dset_1, dset_2, num_times_sep_already + n));
-            //     }
-            // }
 
             non_locating_pairs_copy = new_non_locating_pairs;
 
@@ -407,7 +384,7 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
 
             std::cout << "Added " << num_rows << "rows, there are " << non_locating_pairs_copy.size() << " remaining pairs\n";
             new_non_locating_pairs.clear();
-        }
+        });
         auto stop = high_resolution_clock::now();
         auto total_time = duration_cast<milliseconds>(stop-start).count();
         std::vector<PercentGAFitnessInd> result;
