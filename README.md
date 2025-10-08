@@ -10,7 +10,8 @@ The program will append rows for non locating pairs from a given covering array 
 
 To compile the program use the command navigate to the location of :
 ```
-g++ -std=c++20 -O3 LocAG.cpp -o ./LocAG
+<!-- g++ -std=c++20 -O3 LocAG.cpp -o ./LocAG -->
+g++ -std=c++20 -O3 LocAG.cpp phase1/phase1.cpp phase2/phase2.cpp utils/utils.cpp -o ./LocAG -ltbb
 ```
 #### Running the Program
 Run the ```./LoCAG``` program after compilation by running the command: ```./LocAG <name of config>```. The names of real-world systems we have modeled are in the ```LocAG.cpp``` file. 
