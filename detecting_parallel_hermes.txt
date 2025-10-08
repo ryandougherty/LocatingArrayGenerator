@@ -1,0 +1,70 @@
+Usage: ./LocAG <name of config> <array_type> <execution_policy>
+array_type can be 'locating' or 'detecting'
+------------d=1, t=2, lambda=1, filename=./evaluation/Mobile/Mobile_2_1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=157, Time=787
+There are 2956241 remaining non-locating pairs
+Added 192rows, there are 15757 remaining pairs
+Added 216rows, there are 9114 remaining pairs
+Added 242rows, there are 4533 remaining pairs
+Added 258rows, there are 3066 remaining pairs
+Added 341rows, there are 301 remaining pairs
+Added 348rows, there are 227 remaining pairs
+Added 355rows, there are 178 remaining pairs
+Added 366rows, there are 98 remaining pairs
+Added 372rows, there are 77 remaining pairs
+Added 393rows, there are 29 remaining pairs
+N total=558, Time total=154285, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/Mobile/Mobile_2_2.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=255, Time=239
+There are 414142 remaining non-locating pairs
+Added 147rows, there are 9272 remaining pairs
+Added 190rows, there are 3449 remaining pairs
+Added 217rows, there are 1842 remaining pairs
+Added 243rows, there are 907 remaining pairs
+Added 271rows, there are 425 remaining pairs
+Added 282rows, there are 304 remaining pairs
+Added 290rows, there are 251 remaining pairs
+Added 300rows, there are 157 remaining pairs
+Added 320rows, there are 72 remaining pairs
+Added 331rows, there are 36 remaining pairs
+N total=601, Time total=24361, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/Mobile/Mobile_2_3.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=357, Time=262
+There are 114723 remaining non-locating pairs
+Added 145rows, there are 4175 remaining pairs
+Added 179rows, there are 2037 remaining pairs
+Added 203rows, there are 1171 remaining pairs
+Added 216rows, there are 924 remaining pairs
+Added 260rows, there are 377 remaining pairs
+Added 271rows, there are 239 remaining pairs
+Added 280rows, there are 169 remaining pairs
+Added 292rows, there are 87 remaining pairs
+Added 296rows, there are 62 remaining pairs
+Added 303rows, there are 29 remaining pairs
+N total=672, Time total=9533, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/Mobile/Mobile_2_4.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=448, Time=309
+There are 53131 remaining non-locating pairs
+Added 104rows, there are 5362 remaining pairs
+Added 140rows, there are 2315 remaining pairs
+Added 146rows, there are 1956 remaining pairs
+Added 162rows, there are 1439 remaining pairs
+Added 214rows, there are 445 remaining pairs
+Added 228rows, there are 320 remaining pairs
+Added 236rows, there are 246 remaining pairs
+Added 262rows, there are 140 remaining pairs
+Added 287rows, there are 64 remaining pairs
+Added 301rows, there are 26 remaining pairs
+N total=757, Time total=5155, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
