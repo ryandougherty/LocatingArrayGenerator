@@ -154,6 +154,7 @@ int main(int argc, char** argv) {
     if (argc != 4) {
         std::cerr << "Usage: ./LocAG <name of config> <array_type> <execution_policy>\n";
         std::cerr << "array_type can be 'locating' or 'detecting'\n";
+        std::cerr << "execution_policy can be 'serial' or 'parallel'\n";
         return -1;
     }
 
@@ -207,7 +208,7 @@ int main(int argc, char** argv) {
                     break;
                 }
 
-                auto pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,true, is_detecting);
+                auto pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,true, is_detecting, policy);
                 for (const auto& [percents, num_rows, time] : pareto) {
                     std::cout << "N total=" << first_stage_N + num_rows << ", Time total=" << first_stage_time + time << ", percents=";
                     print_vec(percents);

@@ -188,9 +188,7 @@ robin_hood::unordered_flat_set<int> rows_of_d_set(const d_set_type& d_set, const
     return the_rows;
 }
 
-std::vector<std::tuple<d_set_type, d_set_type, int>> find_non_detecting_sets(
-    const ca_type& A, t_type t, const vs_type& vs, 
-    lambda_type lambda, d_type d, bool d_bar, bool t_bar, int X) {
+std::vector<std::tuple<d_set_type, d_set_type, int>> find_non_detecting_sets( const ca_type& A, t_type t, const vs_type& vs, lambda_type lambda, d_type d, bool d_bar, bool t_bar, int X) {
     
     auto interactions = get_interactions(t, vs, t_bar);
 

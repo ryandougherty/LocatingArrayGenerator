@@ -328,7 +328,17 @@ auto generate_rand_percent_individual() {
     return result;
 }
 
-std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, bool use_default_percents, bool is_detecting) {
+// std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, bool use_default_percents, bool is_detecting, std:string policy) {
+template<typename Policy>
+auto run_ga_with_policy(
+    Policy policy,
+    d_type d, 
+    t_type t, 
+    const vs_type& vs, 
+    lambda_type l, 
+    const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, 
+    bool use_default_percents, 
+    bool is_detecting) {
 
     if (use_default_percents) {
         std::mt19937 main_rng(std::random_device{}());
@@ -337,9 +347,9 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
         auto non_locating_pairs_copy = non_locating_pairs;
         int num_rows = 0;
         auto start = high_resolution_clock::now();
-        // for (const auto& percent : percents) { 
-        std::for_each(std::execution::par, percents.begin(), percents.end(), 
-            [&](const auto& percent) {
+        for (const auto& percent : percents) { 
+        // std::for_each(std::execution::par, percents.begin(), percents.end(), 
+            // [&](const auto& percent) {
             std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
 
             auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent, is_detecting, main_rng);
@@ -382,9 +392,9 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
                 break;
             }
 
-            std::cout << "Added " << num_rows << "rows, there are " << non_locating_pairs_copy.size() << " remaining pairs\n";
+            std::cout << "Added " << num_rows << " rows, there are " << non_locating_pairs_copy.size() << " remaining pairs\n";
             new_non_locating_pairs.clear();
-        });
+        }
         auto stop = high_resolution_clock::now();
         auto total_time = duration_cast<milliseconds>(stop-start).count();
         std::vector<PercentGAFitnessInd> result;
@@ -412,7 +422,7 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
 
         // This is the main change: We use std::for_each with a parallel policy
         // to calculate the fitness for every individual in the population concurrently.
-        std::for_each(std::execution::par, pop.begin(), pop.end(), 
+        std::for_each(policy, pop.begin(), pop.end(), 
             [&](PercentGAFitnessInd& I) {
             
             // If fitness is already known, we can skip this individual.
@@ -553,4 +563,12 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
     }
 
     return result;
+}
+
+std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, bool use_default_percents, bool is_detecting, const std::string& execution_policy) {
+    if (execution_policy == "parallel") {
+        return run_ga_with_policy(std::execution::par, d, t, vs, l, non_locating_pairs, use_default_percents, is_detecting);
+    } else {
+        return run_ga_with_policy(std::execution::seq, d, t, vs, l, non_locating_pairs, use_default_percents, is_detecting);
+    }
 }
