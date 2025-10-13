@@ -1,0 +1,68 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/Mobile/Mobile_2_1.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=157, Time=1740
+There are 143227 remaining non-locating pairs
+Added 115rows, there are 6669 remaining pairs
+Added 179rows, there are 1202 remaining pairs
+Added 192rows, there are 825 remaining pairs
+Added 200rows, there are 680 remaining pairs
+Added 215rows, there are 451 remaining pairs
+Added 227rows, there are 307 remaining pairs
+Added 237rows, there are 242 remaining pairs
+Added 262rows, there are 114 remaining pairs
+Added 274rows, there are 75 remaining pairs
+Added 282rows, there are 41 remaining pairs
+N total=464, Time total=13045, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/Mobile/Mobile_2_2.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=255, Time=484
+There are 905 remaining non-locating pairs
+Added 40rows, there are 681 remaining pairs
+Added 73rows, there are 474 remaining pairs
+Added 89rows, there are 384 remaining pairs
+Added 116rows, there are 265 remaining pairs
+Added 180rows, there are 82 remaining pairs
+Added 188rows, there are 70 remaining pairs
+Added 196rows, there are 59 remaining pairs
+Added 208rows, there are 41 remaining pairs
+Added 220rows, there are 28 remaining pairs
+Added 233rows, there are 12 remaining pairs
+N total=518, Time total=966, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/Mobile/Mobile_2_3.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=357, Time=276
+There are 266 remaining non-locating pairs
+Added 26rows, there are 172 remaining pairs
+Added 29rows, there are 162 remaining pairs
+Added 78rows, there are 84 remaining pairs
+Added 111rows, there are 48 remaining pairs
+Added 113rows, there are 44 remaining pairs
+Added 115rows, there are 38 remaining pairs
+Added 137rows, there are 23 remaining pairs
+Added 139rows, there are 20 remaining pairs
+Added 144rows, there are 13 remaining pairs
+Added 148rows, there are 7 remaining pairs
+N total=518, Time total=422, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/Mobile/Mobile_2_4.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=448, Time=227
+There are 13 remaining non-locating pairs
+Added 1rows, there are 13 remaining pairs
+Added 2rows, there are 13 remaining pairs
+Added 3rows, there are 13 remaining pairs
+Added 4rows, there are 13 remaining pairs
+Added 17rows, there are 11 remaining pairs
+Added 18rows, there are 11 remaining pairs
+Added 19rows, there are 11 remaining pairs
+Added 21rows, there are 9 remaining pairs
+Added 32rows, there are 6 remaining pairs
+Added 42rows, there are 4 remaining pairs
+N total=493, Time total=253, percents=0.021576, 0.021576, 0.022644, 0.030792, 0.090424, 0.071014, 0.083679, 0.172455, 0.220123, 0.415283, 1, 
+
