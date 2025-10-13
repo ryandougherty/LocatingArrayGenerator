@@ -207,7 +207,7 @@ int main(int argc, char** argv) {
                     break;
                 }
 
-                auto pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,true, is_detecting);
+                auto pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,false, is_detecting);
                 for (const auto& [percents, num_rows, time] : pareto) {
                     std::cout << "N total=" << first_stage_N + num_rows << ", Time total=" << first_stage_time + time << ", percents=";
                     print_vec(percents);

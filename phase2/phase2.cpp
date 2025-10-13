@@ -337,9 +337,9 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
         auto non_locating_pairs_copy = non_locating_pairs;
         int num_rows = 0;
         auto start = high_resolution_clock::now();
-        // for (const auto& percent : percents) { 
-        std::for_each(std::execution::par, percents.begin(), percents.end(), 
-            [&](const auto& percent) {
+        for (const auto& percent : percents) { 
+        //std::for_each(std::execution::par, percents.begin(), percents.end(), 
+         //   [&](const auto& percent) {
             std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
 
             auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent, is_detecting, main_rng);
@@ -378,13 +378,13 @@ std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& v
 
             non_locating_pairs_copy = new_non_locating_pairs;
 
-            if (non_locating_pairs_copy.size() == 0) {
-                break;
-            }
+            if (non_locating_pairs_copy.size() != 0) {
+            //    break;
 
             std::cout << "Added " << num_rows << "rows, there are " << non_locating_pairs_copy.size() << " remaining pairs\n";
             new_non_locating_pairs.clear();
-        });
+            }
+        }//);
         auto stop = high_resolution_clock::now();
         auto total_time = duration_cast<milliseconds>(stop-start).count();
         std::vector<PercentGAFitnessInd> result;
