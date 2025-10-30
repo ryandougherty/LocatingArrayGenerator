@@ -7,6 +7,7 @@
 #include <chrono>
 #include <random>
 #include <iostream>
+#include <fstream>
 
 using N_type = int;
 using d_type = uint8_t;
@@ -98,3 +99,13 @@ struct DSetHasher {
         return hash;
     }
 };
+
+/**
+ * @brief Saves a covering array to a CSV file.
+ *
+ * @param A The array (ca_type) to save.
+ * @param filename The name of the file to create (e.g., "output.csv").
+ */
+void save_array_to_csv(const ca_type& A, const std::string& filename);
+
+long long combinations(int n, int k);

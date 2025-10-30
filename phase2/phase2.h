@@ -1,10 +1,12 @@
 #pragma once
 #include <random>
+#include "../LocAG.h"
 
 struct PercentGAFitnessInd {
     std::vector<double> percents;
     int N = -1;
     long long time = -1;
+    ca_type generated_rows;
 
     bool operator==(PercentGAFitnessInd const&) const = default;
 };
