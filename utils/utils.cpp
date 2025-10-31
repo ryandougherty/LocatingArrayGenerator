@@ -9,6 +9,7 @@
 #include "utils.h"
 #include <fstream>
 #include <iostream> // For std::cerr
+#include <limits>
 
 // --- Global Random Number Generation ---
 // A single global RNG, seeded with 0 for reproducible results.
@@ -187,19 +188,51 @@ void save_array_to_csv(const ca_type& A, const std::string& filename) {
     output_file.close();
 }
 
-long long combinations(int n, int k) {
-    if (k < 0 || k > n) {
-        return 0;
+void print_array(std::vector<std::vector<int>> &array) {
+	for (unsigned int i = 0; i < array.size(); i++) {
+		for (unsigned int j = 0; j < array[i].size(); j++) {
+			std::cout << array[i][j];
+		}
+		std::cout << std::endl;
+	}
+}
+
+void write_to_file(std::vector<std::vector<int>> &array, std::string file_name) {
+	std::ofstream output_file(file_name);
+	for (unsigned int i = 0; i < array.size(); i++) {
+		for (unsigned int j = 0; j < array[i].size(); j++) {
+			output_file << array[i][j];
+		}
+		output_file << std::endl;
+	}
+	output_file.close();
+}
+
+/**
+ * @brief Calculates the binomial coefficient C(n, k) or "n choose k".
+ */
+namespace math {
+    long long combinations(int n, int k) {
+        if (k < 0 || k > n) {
+            return 0;
+        }
+        if (k == 0 || k == n) {
+            return 1;
+        }
+        // Take advantage of symmetry C(n, k) = C(n, n-k)
+        if (k > n / 2) {
+            k = n - k;
+        }
+        
+        long long res = 1;
+        for (int i = 1; i <= k; ++i) {
+            if (res > std::numeric_limits<long long>::max() / (n - i + 1)) {
+                // Handle potential overflow
+                std::cerr << "Warning: Overflow in combinations(" << n << ", " << k << ")" << std::endl;
+                return std::numeric_limits<long long>::max();
+            }
+            res = res * (n - i + 1) / i;
+        }
+        return res;
     }
-    if (k == 0 || k == n) {
-        return 1;
-    }
-    if (k > n / 2) {
-        k = n - k;
-    }
-    long long res = 1;
-    for (int i = 1; i <= k; ++i) {
-        res = res * (n - i + 1) / i;
-    }
-    return res;
 }

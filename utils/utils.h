@@ -37,6 +37,8 @@ void print_interaction(const interaction_type& I);
 void print_d_set(const d_set_type& D);
 auto d_set_to_str(const d_set_type& D);
 void print_array(const ca_type& A);
+void print_array(std::vector<std::vector<int>> &array);
+void write_to_file(std::vector<std::vector<int>> &array, std::string file_name);
 
 template <typename T>
 void print_vec(const std::vector<T>& vec) {
@@ -108,4 +110,11 @@ struct DSetHasher {
  */
 void save_array_to_csv(const ca_type& A, const std::string& filename);
 
-long long combinations(int n, int k);
+/**
+ * @brief Calculates the binomial coefficient C(n, k) or "n choose k".
+ *
+ * Used by the Conditional Expectation algorithm for probability calculations.
+ */
+namespace math {
+	long long combinations(int n, int k);
+}
