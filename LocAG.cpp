@@ -81,7 +81,7 @@ auto first_uncovered_cols(ca_type A, const t_type t, const k_type k, const vs_ty
         
         // Project each row onto the selected columns
         for (const auto& row : A) {
-            for (int i = 0; i < cols.size(); i++) {
+            for (size_t i = 0; i < cols.size(); i++) {
                 row_in_A[i] = row[cols[i]];
             }
             // Increment the count for this specific tuple
@@ -279,7 +279,7 @@ int main(int argc, char** argv) {
 
     std::string array_type = argv[2];
     const std::string policy = argv[4]; // "serial" or "parallel"
-    if (strcmp(argv[3],"density")) {
+    if (strcmp(argv[3],"density") == 0) {
         algorithm_type = "density";
     }
     
@@ -352,9 +352,8 @@ int main(int argc, char** argv) {
                     pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,false, is_detecting, policy);
                     
                     }
-                }
                 else {
-
+                    pareto = ph
                 }
                 // Print the results from the Pareto front
                 // Each result is a trade-off between (total rows) and (total time)
@@ -384,10 +383,10 @@ int main(int argc, char** argv) {
                     
                     pareto_solution_index++;
             }
-        }
+        
     }
-    
-
+}
+        }
 }
 
 // --- Research/Todo Comments ---
