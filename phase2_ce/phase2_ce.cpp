@@ -30,40 +30,51 @@ double getUncoverProb(int needed, int remainingRows, double p) {
 double calculateTotalExpectedUncovered(LocatingArray *array, const std::vector<v_type>& partialRow, int M, int N) {
 	double totalExpected = 0.0;
 	
-	double p_base = std::pow(1.0 / array->v, array->t);
 	int remainingRows = N - M - 1; 
 
-	// --- USE THE OBJECT'S MAP ---
 	for (auto const& [interaction, needed] : array->uncovered_interactions) {
-		
-		int unfixedColsInT = 0;
+		double correct_p_base = 1.0;
+		for (auto col_idx : interaction.first) {
+			// Check for valid level to prevent division by zero
+			if (array->vs[col_idx] > 0) { 
+				correct_p_base *= (1.0 / array->vs[col_idx]);
+			} else {
+				correct_p_base = 0.0; // Cannot be covered if level is 0
+				break;
+			}
+		}
 		bool conflicts = false;
+        // This must be calculated per-interaction for variable levels
+        double probThisRowWillCover = 1.0; 
 
-		// --- USE interaction.cols and interaction.vals (from your struct) ---
 		for (size_t i = 0; i < interaction.first.size(); ++i) {
 			int col = interaction.first[i];
 			int val = interaction.second[i];
 
-			if (partialRow[col] != -1) { 
+			if (partialRow[col] != -1) { // If this column is already fixed in the partial row
 				if (partialRow[col] != val) {
 					conflicts = true; 
+                    probThisRowWillCover = 0.0; // This row can't cover it
 					break;
 				}
+                // If partialRow[col] == val, this part matches. probThisRowWillCover stays (1.0 * 1.0)
 			} else { 
-				unfixedColsInT++;
+				// This column is unfixed. The probability of hitting it is 1 / (levels for this col)
+                probThisRowWillCover *= (1.0 / array->vs[col]);
 			}
 		}
 
-		double probThisRowWillCover;
+		double expectedUncovered;
 		if (conflicts) {
-			probThisRowWillCover = 0.0;
+            // This row conflicts with the interaction, so it can't cover it.
+            // probThisRowWillCover is 0.0.
+			expectedUncovered = getUncoverProb(needed, remainingRows, correct_p_base);
 		} else {
-			probThisRowWillCover = std::pow(1.0 / array->v, unfixedColsInT);
+            // probThisRowWillCover now holds the correct probability (e.g., 1/2 * 1/3 = 1/6)
+			expectedUncovered =
+				probThisRowWillCover * getUncoverProb(needed - 1, remainingRows, correct_p_base) +
+				(1.0 - probThisRowWillCover) * getUncoverProb(needed, remainingRows, correct_p_base);
 		}
-
-		double expectedUncovered =
-			probThisRowWillCover * getUncoverProb(needed - 1, remainingRows, p_base) +
-			(1.0 - probThisRowWillCover) * getUncoverProb(needed, remainingRows, p_base);
 
 		totalExpected += expectedUncovered;
 	}
@@ -95,15 +106,11 @@ void run_phase_2_ce(LocatingArray *array) {
 	while (!array->uncovered_interactions.empty()) {
 		M++;
 		std::vector<v_type> newRow(k, -1); // -1 = "unfixed"
-        for (int i = 0; i < k; ++i) {
-            // If 'vs' is available on 'array', use that. Otherwise, use 'v'.
-            newRow[i] = rand() % (array->vs.empty() ? array->v : array->vs[i]); 
-        }
 		for (int col = 0; col < k; ++col) {
 			double bestExpected = std::numeric_limits<double>::max();
 			int bestVal = 0;
 
-			for (int val = 0; val < v; ++val) {
+			for (int val = 0; val < array->vs[col]; ++val) {
 				newRow[col] = val; 
 				double expected = calculateTotalExpectedUncovered(array, newRow, M - 1, N);
 				if (expected < bestExpected) {
@@ -126,7 +133,7 @@ void run_phase_2_ce(LocatingArray *array) {
             const interaction_type& inter = it->first; // ASSUME key is the 'interaction' struct
 			
 			bool covers = true;
-			for (int i = 0; i < t; ++i) {
+			for (size_t i = 0; i < inter.first.size(); ++i) {
 				if (newRow[inter.first[i]] != inter.second[i]) {
 					covers = false;
 					break;
