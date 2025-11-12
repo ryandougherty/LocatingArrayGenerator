@@ -1,0 +1,7 @@
+Config,ArrayType,Method,Policy,RealTime_s,UserTime_s,SysTime_s
+SPINS,locating,ga,parallel,66.37,714.70,11.77
+SPINS,locating,density,serial,0.01,0.01,0.00
+Mobile,locating,ga,parallel,7197.99,27774.63,512.20
+Mobile,locating,density,serial,3.15,3.08,0.05
+2^30,detecting,ga,serial,4186.92,4186.75,0.06
+2^30,detecting,ga,parallel,1539.86,4524.72,101.97

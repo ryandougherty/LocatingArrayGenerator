@@ -1,0 +1,56 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/SPINS/SPINS_2_1.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=24, Time=3
+There are 792 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) ---
+  (CE) Converted 792 non-valid pairs into 399 unique interactions. 
+  (CE) After checking initial array, 0 interactions still require coverage.
+  (CE) All interactions are already covered >= lambda times.
+  (CE) NOTE: The 'density' algorithm is for *coverage*, not *locating*.
+  (CE) Exiting density phase with 0 new rows.
+--- Pareto Front Solutions ---
+Solution 0: N total=24 (N_initial=24, N_added=0), Time total=3 ms, Saved to: ./results/SPINS_t2_l1_pareto_0.csv, percents=
+
+------------d=1, t=2, lambda=2, filename=./evaluation/SPINS/SPINS_2_2.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=32, Time=2
+There are 149 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) ---
+  (CE) Converted 149 non-valid pairs into 194 unique interactions. 
+  (CE) After checking initial array, 0 interactions still require coverage.
+  (CE) All interactions are already covered >= lambda times.
+  (CE) NOTE: The 'density' algorithm is for *coverage*, not *locating*.
+  (CE) Exiting density phase with 0 new rows.
+--- Pareto Front Solutions ---
+Solution 0: N total=32 (N_initial=32, N_added=0), Time total=2 ms, Saved to: ./results/SPINS_t2_l2_pareto_0.csv, percents=
+
+------------d=1, t=2, lambda=3, filename=./evaluation/SPINS/SPINS_2_3.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=56, Time=1
+There are 33 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) ---
+  (CE) Converted 33 non-valid pairs into 47 unique interactions. 
+  (CE) After checking initial array, 0 interactions still require coverage.
+  (CE) All interactions are already covered >= lambda times.
+  (CE) NOTE: The 'density' algorithm is for *coverage*, not *locating*.
+  (CE) Exiting density phase with 0 new rows.
+--- Pareto Front Solutions ---
+Solution 0: N total=56 (N_initial=56, N_added=0), Time total=1 ms, Saved to: ./results/SPINS_t2_l3_pareto_0.csv, percents=
+
+------------d=1, t=2, lambda=4, filename=./evaluation/SPINS/SPINS_2_4.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=64, Time=1
+There are 13 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) ---
+  (CE) Converted 13 non-valid pairs into 14 unique interactions. 
+  (CE) After checking initial array, 0 interactions still require coverage.
+  (CE) All interactions are already covered >= lambda times.
+  (CE) NOTE: The 'density' algorithm is for *coverage*, not *locating*.
+  (CE) Exiting density phase with 0 new rows.
+--- Pareto Front Solutions ---
+Solution 0: N total=64 (N_initial=64, N_added=0), Time total=1 ms, Saved to: ./results/SPINS_t2_l4_pareto_0.csv, percents=
+
