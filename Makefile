@@ -32,7 +32,8 @@ else ifeq ($(findstring CYGWIN,$(UNAME_S)),CYGWIN)
 # Check for native Windows (cmd.exe)
 else ifeq ($(OS),Windows_NT)
     TARGET = LocAG.exe
-    LDFLAGS = -ltbb
+#     LDFLAGS = -ltbb
+    LDFLAGS = 
     RM = del /F /Q
     # Use backslashes for native Windows 'del' command
     OBJS_LIST = LocAG.o \

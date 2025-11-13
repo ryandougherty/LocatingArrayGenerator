@@ -40,16 +40,20 @@
 #include "phase2/phase2.h"
 
 // 4. Define the LocatingArray struct expected by phase2_ce
+// This struct will now hold the data for a LOCATING problem.
 struct LocatingArray {
-    ca_type array;      // The actual array data (std::vector<std::vector<...>>)
+    ca_type array;      // The full array (initial + new rows)
     k_type k;           // Number of columns
     vs_type vs;         // Vector of levels (for varied levels)
-    v_type v;           // Number of levels (assuming uniform)
+    v_type v;           // Average number of levels (for heuristic)
     t_type t;           // Strength
     lambda_type lambda; // Lambda
+    d_type d;           // d-set size
+    bool is_detecting;  // Flag for detecting vs locating
 
-    // This is the map of uncovered interactions that phase2_ce expects
-    std::map<interaction_type, int> uncovered_interactions;
+    // The list of pairs that Phase 1 found to be undistinguished.
+    // This is the problem the algorithm needs to solve.
+    std::vector<std::tuple<d_set_type, d_set_type, int>> undistinguished_pairs;
 };
 
 

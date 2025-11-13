@@ -8,6 +8,7 @@
 #include <random>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 using N_type = int;
 using d_type = uint8_t;
@@ -32,10 +33,20 @@ extern std::uniform_real_distribution<double> unif;//(0, 1);
 extern std::uniform_int_distribution<int> ind_size;//(10, 30);
 extern std::uniform_int_distribution<int> any_int;
 
+extern std::uniform_int_distribution<int> ind_size;//(10, 30);
+extern std::uniform_int_distribution<int> any_int;
+
+std::string interaction_to_str(const interaction_type& I); // <-- FIX: Changed 'auto' to 'std::string'
+void print_interaction(const interaction_type& I);
+void print_d_set(const d_set_type& D);
+std::string d_set_to_str(const d_set_type& D); // <-- FIX: Changed 'auto' to 'std::string'
+void print_array(const ca_type& A);
+
+template <typename T>
+
 auto interaction_to_str(const interaction_type& I);
 void print_interaction(const interaction_type& I);
 void print_d_set(const d_set_type& D);
-auto d_set_to_str(const d_set_type& D);
 void print_array(const ca_type& A);
 void print_array(std::vector<std::vector<int>> &array);
 void write_to_file(std::vector<std::vector<int>> &array, std::string file_name);

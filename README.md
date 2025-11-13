@@ -8,6 +8,8 @@ The program will append rows for non locating pairs from a given covering array 
 ## Usage
 #### Compiling
 
+On Windows, it may be ne
+
 To compile the program use the command navigate to the location of :
 ```
 <!-- g++ -std=c++20 -O3 LocAG.cpp -o ./LocAG -->

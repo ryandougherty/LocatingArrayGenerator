@@ -1,160 +1,157 @@
 #include "phase2_ce.h"
-#include "../utils/utils.h" // For math::combinations
+#include "../utils/utils.h" // For any_int, rng, d_set_to_str
 #include <cmath>
 #include <limits>
 #include <iostream>
 #include <map>
 #include <vector>
+#include <set>
 
-// --- Helper Functions for CE Algorithm ---
+// --- Helper Functions for Locating Algorithm ---
 
-double getUncoverProb(int needed, int remainingRows, double p) {
-	if (needed <= 0) {
-		return 0.0; 
-	}
-    if (remainingRows <= 0) {
-        return 1.0; 
+/**
+ * @brief Checks if a given row covers a d-set.
+ * A row covers a d-set if it covers all interactions within that d-set.
+ */
+bool row_covers_d_set(const std::vector<v_type>& row, const d_set_type& d_set) {
+    if (d_set.empty()) {
+        return false; 
     }
-
-	double probOfFailure = 0.0;
-	double q = 1.0 - p;
-
-	for (int i = 0; i < needed; ++i) {
-        if (i > remainingRows) break; 
-		// --- USE THE NAMESPACED FUNCTION ---
-		probOfFailure += math::combinations(remainingRows, i) * std::pow(p, i) * std::pow(q, remainingRows - i);
-	}
-	return probOfFailure;
+    for (const auto& interaction : d_set) {
+        // Check if row covers this single interaction
+        bool covers_interaction = true;
+        if (interaction.first.empty()) {
+             continue;
+        }
+        for (size_t i = 0; i < interaction.first.size(); ++i) {
+            // Bounds check
+            if (interaction.first[i] >= row.size() || interaction.second.size() <= i) {
+                covers_interaction = false; 
+                break;
+            }
+            if (row[interaction.first[i]] != interaction.second[i]) {
+                covers_interaction = false;
+                break;
+            }
+        }
+        // If the row fails to cover even one interaction, it fails to cover the d-set
+        if (!covers_interaction) {
+            return false;
+        }
+    }
+    // If we get here, the row covered all interactions in the d-set
+    return true;
 }
 
-double calculateTotalExpectedUncovered(LocatingArray *array, const std::vector<v_type>& partialRow, int M, int N) {
-	double totalExpected = 0.0;
-	
-	int remainingRows = N - M - 1; 
-
-	for (auto const& [interaction, needed] : array->uncovered_interactions) {
-		double correct_p_base = 1.0;
-		for (auto col_idx : interaction.first) {
-			// Check for valid level to prevent division by zero
-			if (array->vs[col_idx] > 0) { 
-				correct_p_base *= (1.0 / array->vs[col_idx]);
-			} else {
-				correct_p_base = 0.0; // Cannot be covered if level is 0
-				break;
-			}
-		}
-		bool conflicts = false;
-        // This must be calculated per-interaction for variable levels
-        double probThisRowWillCover = 1.0; 
-
-		for (size_t i = 0; i < interaction.first.size(); ++i) {
-			int col = interaction.first[i];
-			int val = interaction.second[i];
-
-			if (partialRow[col] != -1) { // If this column is already fixed in the partial row
-				if (partialRow[col] != val) {
-					conflicts = true; 
-                    probThisRowWillCover = 0.0; // This row can't cover it
-					break;
-				}
-                // If partialRow[col] == val, this part matches. probThisRowWillCover stays (1.0 * 1.0)
-			} else { 
-				// This column is unfixed. The probability of hitting it is 1 / (levels for this col)
-                probThisRowWillCover *= (1.0 / array->vs[col]);
-			}
-		}
-
-		double expectedUncovered;
-		if (conflicts) {
-            // This row conflicts with the interaction, so it can't cover it.
-            // probThisRowWillCover is 0.0.
-			expectedUncovered = getUncoverProb(needed, remainingRows, correct_p_base);
-		} else {
-            // probThisRowWillCover now holds the correct probability (e.g., 1/2 * 1/3 = 1/6)
-			expectedUncovered =
-				probThisRowWillCover * getUncoverProb(needed - 1, remainingRows, correct_p_base) +
-				(1.0 - probThisRowWillCover) * getUncoverProb(needed, remainingRows, correct_p_base);
-		}
-
-		totalExpected += expectedUncovered;
-	}
-	return totalExpected;
-}
-
-int calculateInitialN(int k, int v, int t, int lambda) {
-	double N_double = (lambda * std::pow(v, t)) * (1.0 + std::log(k));
-    if (N_double < 10) N_double = 10;
-    if (N_double > 50000) N_double = 50000; 
-	return static_cast<int>(N_double);
+/**
+ * @brief Generates a single random row based on the levels in 'vs'.
+ */
+std::vector<v_type> generate_random_row(int k, const vs_type& vs) {
+    std::vector<v_type> row(k);
+    for(int i = 0; i < k; ++i) {
+        row[i] = any_int(rng) % vs[i];
+    }
+    return row;
 }
 
 
-// --- Main CE Algorithm Function ---
+// --- Main Greedy Algorithm Function ---
 
 void run_phase_2_ce(LocatingArray *array) {
 	
 	int k = array->k;
-	int v = array->v;
-	int t = array->t;
-	int lambda = array->lambda;
+	int M = array->array.size(); // Start counting from existing rows
 
-	int N = calculateInitialN(k, v, t, lambda);
-	std::cout << "  (CE) Target N heuristic: " << N << std::endl;
+    // A set of indices into array->undistinguished_pairs
+    std::set<size_t> pair_indices;
+    for(size_t i = 0; i < array->undistinguished_pairs.size(); ++i) {
+        pair_indices.insert(i);
+    }
 
-	int M = 0; 
+    if (!pair_indices.empty()) {
+        std::cout << "  (CE) DEBUG: Trying to distinguish " << pair_indices.size() << " pairs. Example:" << std::endl;
+        const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[*pair_indices.begin()];
+        // Use the utility function from utils/utils.h (which must be linked)
+        std::cout << "       Pair 0: " << d_set_to_str(d_set1) << " vs " << d_set_to_str(d_set2) << std::endl;
+    }
 
-	while (!array->uncovered_interactions.empty()) {
+    // --- NEW: Set number of candidates to generate per new row ---
+    // Let's try k*2 or 100, whichever is larger.
+    int num_candidates = std::max(100, k * 2);
+    std::cout << "  (CE) Using randomized greedy strategy with " << num_candidates << " candidates per row." << std::endl;
+
+
+	while (!pair_indices.empty()) {
 		M++;
-		std::vector<v_type> newRow(k, -1); // -1 = "unfixed"
-		for (int col = 0; col < k; ++col) {
-			double bestExpected = std::numeric_limits<double>::max();
-			int bestVal = 0;
 
-			for (int val = 0; val < array->vs[col]; ++val) {
-				newRow[col] = val; 
-				double expected = calculateTotalExpectedUncovered(array, newRow, M - 1, N);
-				if (expected < bestExpected) {
-					bestExpected = expected;
-					bestVal = val;
-				}
-			}
-			newRow[col] = bestVal;
-		}
+        // --- NEW: Randomized Greedy Heuristic ---
+        std::vector<v_type> bestRow = generate_random_row(k, array->vs);
+        int bestScore = -1;
 
-		// --- ADD THE ROW TO THE OBJECT'S ARRAY ---
-		array->array.push_back(newRow);
+        // Generate and score N candidate rows
+        for(int i = 0; i < num_candidates; ++i) {
+            std::vector<v_type> currentRow = generate_random_row(k, array->vs);
+            int currentScore = 0;
 
-		// --- UPDATE THE OBJECT'S MAP ---
-		std::vector<interaction_type> covered_this_round;
-        // Note: We iterate with a reference to the map
-		for (auto it = array->uncovered_interactions.begin(); it != array->uncovered_interactions.end(); ++it) {
-			// const interaction_type& interaction_str = it->first;
+            // Score this row by checking how many *remaining* pairs it distinguishes
+            for (const auto& index : pair_indices) {
+                const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[index];
+                
+                bool covers1 = row_covers_d_set(currentRow, d_set1);
+                bool covers2 = row_covers_d_set(currentRow, d_set2);
+
+                if ((covers1 && !covers2) || (!covers1 && covers2)) {
+                    currentScore++;
+                }
+            }
+
+            if (currentScore > bestScore) {
+                bestScore = currentScore;
+                bestRow = currentRow;
+            }
+        }
+        // --- END NEW HEURISTIC ---
+
+		// --- ADD THE *BEST* ROW TO THE OBJECT'S ARRAY ---
+		array->array.push_back(bestRow);
+
+		// --- UPDATE THE LIST OF UNDISTINGUISHED PAIRS ---
+		std::vector<size_t> distinguished_this_round;
+
+        for (const auto& index : pair_indices) {
+            // Get the tuple by reference
+            auto& pair_tuple = array->undistinguished_pairs[index];
+            const auto& d_set1 = std::get<0>(pair_tuple);
+            const auto& d_set2 = std::get<1>(pair_tuple);
+            int& needed = std::get<2>(pair_tuple);
             
-            const interaction_type& inter = it->first; // ASSUME key is the 'interaction' struct
-			
-			bool covers = true;
-			for (size_t i = 0; i < inter.first.size(); ++i) {
-				if (newRow[inter.first[i]] != inter.second[i]) {
-					covers = false;
-					break;
-				}
-			}
+            bool covers1 = row_covers_d_set(bestRow, d_set1);
+            bool covers2 = row_covers_d_set(bestRow, d_set2);
 
-			if (covers) {
-				it->second--; 
-				if (it->second == 0) {
-					covered_this_round.push_back(inter);
-				}
-			}
-		}
-
-		for (const interaction_type& inter : covered_this_round) {
-			array->uncovered_interactions.erase(inter);
+            // Check for distinguishing
+            if ((covers1 && !covers2) || (!covers1 && covers2)) {
+                needed--; 
+                if (needed == 0) {
+                    distinguished_this_round.push_back(index);
+                }
+            }
+        } 
+		
+        // Remove the pairs that are now fully distinguished
+		for (const auto& index : distinguished_this_round) {
+			pair_indices.erase(index);
 		}
 		
-		if (M % 10 == 0 || array->uncovered_interactions.empty()) {
-			std::cout << "  (CE) Row " << M << " built. "
-					  << array->uncovered_interactions.size() << " interactions remaining to cover." << std::endl;
+		if (M % 10 == 0 || pair_indices.empty()) {
+			std::cout << "  (CE) Row " << M << " built (best score: " << bestScore << "). "
+					  << pair_indices.size() << " pairs remaining to distinguish." << std::endl;
 		}
-	}
+
+        // --- SAFETY BREAK ---
+        if (M > (int(array->array.size()) + k * 20) && M > 200) { 
+             std::cout << "  (CE) WARNING: Algorithm seems stuck. Forcefully exiting loop." << std::endl;
+             std::cout << "  (CE) " << pair_indices.size() << " pairs were left undistinguished." << std::endl;
+             break;
+        }
+	} 
 }

@@ -94,8 +94,6 @@ auto first_uncovered_cols(ca_type A, const t_type t, const k_type k, const vs_ty
         }
 
         // Check if all possible interactions are present
-        // Note: This assumes all columns in 'cols' have the same number of levels 'vs[cols.size()]'
-        // This might be an error if vs[cols[0]] != vs[cols[1]], etc.
         // --- FIX: This should be based on the product of levels for the chosen columns ---
         long long expected_interactions = 1;
         for(k_type col_idx : cols) {
@@ -341,7 +339,7 @@ int main(int argc, char** argv) {
                 std::cout << "First Stage N=" << first_stage_N << ", Time=" << first_stage_time << "\n"; 
                 std::cout << "There are " << non_valid_pairs.size() << " remaining non-locating pairs\n";
 
-                /* ------------------------------------- Stage 2: GA ------------------------------ */
+                /* ------------------------------------- Stage 2: GA / Density ------------------------------ */
 
                 // If the initial array is already valid, we're done.
                 if (non_valid_pairs.size() == 0) {
@@ -355,15 +353,15 @@ int main(int argc, char** argv) {
                 std::vector<PercentGAFitnessInd> pareto;
 
                 if (algorithm_type == "ga") {
-
+                    std::cout << "--- Running GA Algorithm (phase2) ---" << std::endl;
                     // Run the genetic algorithm (Phase 2) to find new rows
                     // This GA optimizes the *percentage* of pairs to fix at each step
                     pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,false, is_detecting, policy);
                     
                 }
-// --- NEW GLUE CODE FOR DENSITY ALGORITHM ---
+                // --- GLUE CODE FOR DENSITY ALGORITHM ---
                 else {
-                    std::cout << "--- Running Density Algorithm (phase2_ce) ---" << std::endl;
+                    std::cout << "--- Running Density Algorithm (phase2_ce) for Locating ---" << std::endl;
 
                     // 1. Create and populate the LocatingArray struct
                     LocatingArray loc_array;
@@ -372,106 +370,45 @@ int main(int argc, char** argv) {
                     loc_array.t = t;
                     loc_array.lambda = lambda;
                     loc_array.k = vs.size();
+                    loc_array.d = d;
+                    loc_array.is_detecting = is_detecting;
                     
                     if (!vs.empty()) {
-                        // The heuristic N should be based on the *maximum* level,
-                        // as this creates the hardest-to-cover interactions.
-                        loc_array.v = *std::max_element(vs.begin(), vs.end());
+                        double sum_levels = 0.0;
+                        for(v_type level : vs) { sum_levels += level; }
+                        loc_array.v = static_cast<v_type>(std::round(sum_levels / vs.size())); 
                     } else {
                         loc_array.v = 0; // Should not happen given configs
                     }
 
-                    // 2. Convert 'non_valid_pairs' to a map of unique interactions
-                    // that need to be *covered* 'lambda' times.
-                    std::map<interaction_type, int> interactions_to_check;
-                    for (const auto& pair_tuple : non_valid_pairs) {
-                        for (const auto& interaction : std::get<0>(pair_tuple)) {
-                            interactions_to_check[interaction] = lambda; // Set target coverage
-                        }
-                        for (const auto& interaction : std::get<1>(pair_tuple)) {
-                            interactions_to_check[interaction] = lambda; // Set target coverage
-                        }
-                    }
-
-                    // 3. (CRITICAL FIX) Pre-calculate existing coverage from array 'A'
-                    // We must check how many times 'A' *already* covers these.
-                    for (auto& [interaction, needed] : interactions_to_check) {
-                        if (needed <= 0) continue; // Already satisfied
-
-                        for (const auto& row : A) { // 'A' is the original array
-                            bool covers = true;
-                            // Check if this row covers this interaction
-                            for (size_t i = 0; i < interaction.first.size(); ++i) {
-                                if (row[interaction.first[i]] != interaction.second[i]) {
-                                    covers = false;
-                                    break;
-                                }
-                            }
-                            if (covers) {
-                                needed--; // Decrement 'needed'
-                                if (needed == 0) {
-                                    break; // Stop checking rows for this interaction
-                                }
-                            }
-                        }
-                    }
-
-                    // 4. Populate the final map for the 'ce' algorithm
-                    // Only add interactions that *still* need coverage.
-                    for (auto const& [interaction, needed] : interactions_to_check) {
-                        if (needed > 0) {
-                            loc_array.uncovered_interactions[interaction] = needed;
-                        }
-                    }
-
-                    std::cout << "  (CE) Converted " << non_valid_pairs.size() 
-                              << " non-valid pairs into " << interactions_to_check.size()
-                              << " unique interactions. " << std::endl;
-                    std::cout << "  (CE) After checking initial array, " 
-                              << loc_array.uncovered_interactions.size()
-                              << " interactions still require coverage." << std::endl;
-
+                    // 2. Assign the non-valid pairs to the struct.
+                    // The 'density' algorithm will now operate on this list.
+                    loc_array.undistinguished_pairs = non_valid_pairs;
                     
-                    // 5. If all interactions are already covered, we are done.
-                    // The 'density' algorithm cannot solve the 'locating' problem.
-                    if (loc_array.uncovered_interactions.empty()) {
-                        std::cout << "  (CE) All interactions are already covered >= lambda times." << std::endl;
-                        std::cout << "  (CE) NOTE: The 'density' algorithm is for *coverage*, "
-                                  << "not *locating*." << std::endl;
-                        std::cout << "  (CE) Exiting density phase with 0 new rows." << std::endl;
-                        
-                        PercentGAFitnessInd empty_result;
-                        empty_result.N = 0;
-                        empty_result.time = 0;
-                        empty_result.generated_rows = {};
-                        pareto.push_back(empty_result);
-                    } 
-                    else {
-                        // 6. Start timer and call the function on the *actually* uncovered interactions
-                        auto ce_start = high_resolution_clock::now();
-                        run_phase_2_ce(&loc_array); // Pass a pointer
-                        auto ce_stop = high_resolution_clock::now();
-                        auto ce_time = duration_cast<milliseconds>(ce_stop - ce_start).count();
+                    // 3. Start timer and call the function
+                    auto ce_start = high_resolution_clock::now();
+                    run_phase_2_ce(&loc_array); // Pass a pointer
+                    auto ce_stop = high_resolution_clock::now();
+                    auto ce_time = duration_cast<milliseconds>(ce_stop - ce_start).count();
 
-                        // 7. Extract new rows.
-                        ca_type new_rows;
-                        if (loc_array.array.size() > first_stage_N) {
-                            new_rows.insert(new_rows.end(),
-                                            loc_array.array.begin() + first_stage_N,
-                                            loc_array.array.end());
-                        }
-
-                        // 8. Manually create a single result and add it to 'pareto'
-                        PercentGAFitnessInd density_result;
-                        density_result.N = new_rows.size();
-                        density_result.time = ce_time;
-                        density_result.generated_rows = new_rows;
-                        density_result.percents = {1.0}; // 'percents' isn't applicable
-
-                        pareto.push_back(density_result);
+                    // 4. Extract new rows. The function modified loc_array.array directly.
+                    ca_type new_rows;
+                    if (loc_array.array.size() > first_stage_N) {
+                        new_rows.insert(new_rows.end(),
+                                        loc_array.array.begin() + first_stage_N,
+                                        loc_array.array.end());
                     }
+
+                    // 5. Manually create a single result and add it to 'pareto'
+                    PercentGAFitnessInd density_result;
+                    density_result.N = new_rows.size();
+                    density_result.time = ce_time;
+                    density_result.generated_rows = new_rows;
+                    density_result.percents = {1.0}; // 'percents' isn't applicable, so use a placeholder
+
+                    pareto.push_back(density_result);
                 }
-                // --- END NEW GLUE CODE ---
+                // --- END GLUE CODE ---
 
                 // Print the results from the Pareto front
                 // Each result is a trade-off between (total rows) and (total time)
@@ -500,11 +437,13 @@ int main(int argc, char** argv) {
                     std::cout << "\n";
                     
                     pareto_solution_index++;
-                } // --- FIX: Closing brace for 'for (const auto& ind : pareto)' ---
-            } // --- FIX: Closing brace for 'for (lambda_type lambda = 1...)' ---
-        } // --- FIX: Closing brace for 'for (t_type t = 2...)' ---
-    } // --- FIX: Closing brace for 'for (d_type d = 1...)' ---
-} // --- FIX: Closing brace for 'int main(...)' ---
+                }
+            } // End lambda loop
+        } // End t loop
+    } // End d loop
+    
+    return 0;
+} // End main
 
 // --- Research/Todo Comments ---
 //Do checks in parallel and for main loop
