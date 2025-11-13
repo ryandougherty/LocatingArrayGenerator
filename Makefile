@@ -77,7 +77,6 @@ LocAG.o: LocAG.cpp
 
 # Rule to clean up build files
 clean:
-	# The '-' tells 'make' to ignore errors (e.g., if a file doesn't exist)
 	-$(RM) $(TARGET)
 	-$(RM) $(OBJS_LIST)
 

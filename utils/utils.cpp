@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream> // For std::cerr
 #include <limits>
+#include <string> // <-- Make sure <string> is included
 
 // --- Global Random Number Generation ---
 // A single global RNG, seeded with 0 for reproducible results.
@@ -27,7 +28,8 @@ std::uniform_int_distribution<int> any_int;
  * @param I The interaction to convert.
  * @return A string representation, e.g., "(0,1,),(1,0,)"
  */
-auto interaction_to_str(const interaction_type& I) {
+// --- FIX: Change 'auto' to 'std::string' to match header ---
+std::string interaction_to_str(const interaction_type& I) {
     std::string result = "(";
     for (auto& col : I.first) {
         result += std::to_string(col) + ',';
@@ -67,7 +69,8 @@ void print_d_set(const d_set_type& D) {
 /**
  * @brief Converts a d-set to a string.
  */
-auto d_set_to_str(const d_set_type& D) {
+// --- FIX: Change 'auto' to 'std::string' to match header ---
+std::string d_set_to_str(const d_set_type& D) {
     std::string result;
     for (const auto& I : D) {
         result += interaction_to_str(I) + " ";
