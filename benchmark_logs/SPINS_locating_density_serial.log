@@ -3,54 +3,57 @@ Computing partitioned counts of d-sets...
 Ready to look at pairs based on partitioned counts...
 First Stage N=24, Time=3
 There are 792 remaining non-locating pairs
---- Running Density Algorithm (phase2_ce) ---
-  (CE) Converted 792 non-valid pairs into 399 unique interactions. 
-  (CE) After checking initial array, 0 interactions still require coverage.
-  (CE) All interactions are already covered >= lambda times.
-  (CE) NOTE: The 'density' algorithm is for *coverage*, not *locating*.
-  (CE) Exiting density phase with 0 new rows.
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 792 pairs. Example:
+       Pair 0: (2,15,),(1,2,)  vs (3,16,),(0,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 30 built (best score: 45). 147 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 2). 0 pairs remaining to distinguish.
 --- Pareto Front Solutions ---
-Solution 0: N total=24 (N_initial=24, N_added=0), Time total=3 ms, Saved to: ./results/SPINS_t2_l1_pareto_0.csv, percents=
+Solution 0: N total=40 (N_initial=24, N_added=16), Time total=24 ms, Saved to: ./results/SPINS_t2_l1_pareto_0.csv, percents=1, 
 
 ------------d=1, t=2, lambda=2, filename=./evaluation/SPINS/SPINS_2_2.csv------------
 Computing partitioned counts of d-sets...
 Ready to look at pairs based on partitioned counts...
 First Stage N=32, Time=2
-There are 149 remaining non-locating pairs
---- Running Density Algorithm (phase2_ce) ---
-  (CE) Converted 149 non-valid pairs into 194 unique interactions. 
-  (CE) After checking initial array, 0 interactions still require coverage.
-  (CE) All interactions are already covered >= lambda times.
-  (CE) NOTE: The 'density' algorithm is for *coverage*, not *locating*.
-  (CE) Exiting density phase with 0 new rows.
+There are 154 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 154 pairs. Example:
+       Pair 0: (9,17,),(0,3,)  vs (13,17,),(0,3,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 40 built (best score: 16). 73 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 5). 10 pairs remaining to distinguish.
+  (CE) Row 55 built (best score: 1). 0 pairs remaining to distinguish.
 --- Pareto Front Solutions ---
-Solution 0: N total=32 (N_initial=32, N_added=0), Time total=2 ms, Saved to: ./results/SPINS_t2_l2_pareto_0.csv, percents=
+Solution 0: N total=55 (N_initial=32, N_added=23), Time total=11 ms, Saved to: ./results/SPINS_t2_l2_pareto_0.csv, percents=1, 
 
 ------------d=1, t=2, lambda=3, filename=./evaluation/SPINS/SPINS_2_3.csv------------
 Computing partitioned counts of d-sets...
 Ready to look at pairs based on partitioned counts...
 First Stage N=56, Time=1
-There are 33 remaining non-locating pairs
---- Running Density Algorithm (phase2_ce) ---
-  (CE) Converted 33 non-valid pairs into 47 unique interactions. 
-  (CE) After checking initial array, 0 interactions still require coverage.
-  (CE) All interactions are already covered >= lambda times.
-  (CE) NOTE: The 'density' algorithm is for *coverage*, not *locating*.
-  (CE) Exiting density phase with 0 new rows.
+There are 28 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 28 pairs. Example:
+       Pair 0: (13,16,),(2,1,)  vs (13,17,),(2,3,)  (already separated 2 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 60 built (best score: 4). 17 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 1). 2 pairs remaining to distinguish.
+  (CE) Row 75 built (best score: 1). 0 pairs remaining to distinguish.
 --- Pareto Front Solutions ---
-Solution 0: N total=56 (N_initial=56, N_added=0), Time total=1 ms, Saved to: ./results/SPINS_t2_l3_pareto_0.csv, percents=
+Solution 0: N total=75 (N_initial=56, N_added=19), Time total=2 ms, Saved to: ./results/SPINS_t2_l3_pareto_0.csv, percents=1, 
 
 ------------d=1, t=2, lambda=4, filename=./evaluation/SPINS/SPINS_2_4.csv------------
 Computing partitioned counts of d-sets...
 Ready to look at pairs based on partitioned counts...
 First Stage N=64, Time=1
 There are 13 remaining non-locating pairs
---- Running Density Algorithm (phase2_ce) ---
-  (CE) Converted 13 non-valid pairs into 14 unique interactions. 
-  (CE) After checking initial array, 0 interactions still require coverage.
-  (CE) All interactions are already covered >= lambda times.
-  (CE) NOTE: The 'density' algorithm is for *coverage*, not *locating*.
-  (CE) Exiting density phase with 0 new rows.
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 13 pairs. Example:
+       Pair 0: (14,16,),(0,0,)  vs (14,17,),(0,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 70 built (best score: 2). 11 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 2). 7 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 1). 0 pairs remaining to distinguish.
 --- Pareto Front Solutions ---
-Solution 0: N total=64 (N_initial=64, N_added=0), Time total=1 ms, Saved to: ./results/SPINS_t2_l4_pareto_0.csv, percents=
+Solution 0: N total=90 (N_initial=64, N_added=26), Time total=2 ms, Saved to: ./results/SPINS_t2_l4_pareto_0.csv, percents=1, 
 
