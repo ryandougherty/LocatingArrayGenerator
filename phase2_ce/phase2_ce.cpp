@@ -8,6 +8,7 @@
 #include <set>
 
 // --- Helper Functions for Locating Algorithm ---
+// (These are unchanged)
 
 /**
  * @brief Checks if a given row covers a d-set.
@@ -60,6 +61,7 @@ std::vector<v_type> generate_random_row(int k, const vs_type& vs) {
 void run_phase_2_ce(LocatingArray *array) {
 	
 	int k = array->k;
+    const vs_type& vs = array->vs; // Get vs
 	int M = array->array.size(); // Start counting from existing rows
 
     // A set of indices into array->undistinguished_pairs
@@ -72,50 +74,86 @@ void run_phase_2_ce(LocatingArray *array) {
         std::cout << "  (CE) DEBUG: Trying to distinguish " << pair_indices.size() << " pairs. Example:" << std::endl;
         const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[*pair_indices.begin()];
         // Use the utility function from utils/utils.h (which must be linked)
-        std::cout << "       Pair 0: " << d_set_to_str(d_set1) << " vs " << d_set_to_str(d_set2) << std::endl;
+        std::cout << "       Pair 0: " << d_set_to_str(d_set1) << " vs " << d_set_to_str(d_set2) << " (already separated " << needed << " times)" << std::endl;
     }
 
-    // --- NEW: Set number of candidates to generate per new row ---
-    // Let's try k*2 or 100, whichever is larger.
-    int num_candidates = std::max(100, k * 2);
-    std::cout << "  (CE) Using randomized greedy strategy with " << num_candidates << " candidates per row." << std::endl;
+    // --- NEW: Using greedy, column-by-column construction ---
+    // This implements the "Conditional Expectation" heuristic.
+    std::cout << "  (CE) Using greedy column-by-column strategy." << std::endl;
+    
+    // Number of random samples to take when evaluating each value
+    const int SAMPLES = 10; 
 
 
 	while (!pair_indices.empty()) {
 		M++;
 
-        // --- NEW: Randomized Greedy Heuristic ---
-        std::vector<v_type> bestRow = generate_random_row(k, array->vs);
-        int bestScore = -1;
+        // --- Greedy Row Construction (Unchanged) ---
+        std::vector<v_type> currentRow(k); // We will build this row greedily
+        
+        for(int j = 0; j < k; ++j) { // For each column j
+            v_type best_v_for_col = 0;     // Best value for this column
+            int best_score_for_col = -1; // Best score seen for this column
 
-        // Generate and score N candidate rows
-        for(int i = 0; i < num_candidates; ++i) {
-            std::vector<v_type> currentRow = generate_random_row(k, array->vs);
-            int currentScore = 0;
+            // Try every possible value 'v' for column 'j'
+            for(v_type v = 0; v < vs[j]; ++v) {
+                currentRow[j] = v; // Set the value for this column
+                int score_for_v = 0;
 
-            // Score this row by checking how many *remaining* pairs it distinguishes
-            for (const auto& index : pair_indices) {
-                const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[index];
-                
-                bool covers1 = row_covers_d_set(currentRow, d_set1);
-                bool covers2 = row_covers_d_set(currentRow, d_set2);
+                // To score this choice, we randomly fill the *rest* of the
+                // row SAMPLES times and sum the scores.
+                for (int s = 0; s < SAMPLES; ++s) {
+                    
+                    // Fill columns j+1 to k-1 randomly
+                    for (int r = j + 1; r < k; ++r) {
+                        currentRow[r] = any_int(rng) % vs[r];
+                    }
 
-                if ((covers1 && !covers2) || (!covers1 && covers2)) {
-                    currentScore++;
+                    // Now that `currentRow` is complete, score it
+                    // against all remaining pairs
+                    for (const auto& index : pair_indices) {
+                        const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[index];
+                        
+                        bool covers1 = row_covers_d_set(currentRow, d_set1);
+                        bool covers2 = row_covers_d_set(currentRow, d_set2);
+
+                        if ((covers1 && !covers2) || (!covers1 && covers2)) {
+                            score_for_v++;
+                        }
+                    }
+                } // End sampling loop
+
+                // If this value 'v' gave the best score so far, keep it
+                if (score_for_v > best_score_for_col) {
+                    best_score_for_col = score_for_v;
+                    best_v_for_col = v;
                 }
-            }
+            } // End value loop
 
-            if (currentScore > bestScore) {
-                bestScore = currentScore;
-                bestRow = currentRow;
+            // We've tried all values for col j. Lock in the best one.
+            currentRow[j] = best_v_for_col;
+        }
+        // --- END GREEDY HEURISTIC ---
+
+        // `currentRow` is now the complete, greedily-constructed row
+        std::vector<v_type> bestRow = currentRow;
+
+        // Calculate the *actual* score for this row for logging
+        int bestScore = 0;
+        for (const auto& index : pair_indices) {
+            const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[index];
+            bool covers1 = row_covers_d_set(bestRow, d_set1);
+            bool covers2 = row_covers_d_set(bestRow, d_set2);
+            if ((covers1 && !covers2) || (!covers1 && covers2)) {
+                bestScore++;
             }
         }
-        // --- END NEW HEURISTIC ---
 
 		// --- ADD THE *BEST* ROW TO THE OBJECT'S ARRAY ---
 		array->array.push_back(bestRow);
 
-		// --- UPDATE THE LIST OF UNDISTINGUISHED PAIRS ---
+		// --- *** LOGIC FIX HERE *** ---
+        // --- UPDATE THE LIST OF UNDISTINGUISHED PAIRS ---
 		std::vector<size_t> distinguished_this_round;
 
         for (const auto& index : pair_indices) {
@@ -123,15 +161,19 @@ void run_phase_2_ce(LocatingArray *array) {
             auto& pair_tuple = array->undistinguished_pairs[index];
             const auto& d_set1 = std::get<0>(pair_tuple);
             const auto& d_set2 = std::get<1>(pair_tuple);
-            int& needed = std::get<2>(pair_tuple);
+            
+            // This int is 'times_separated_already', not 'needed'
+            int& times_separated = std::get<2>(pair_tuple); 
             
             bool covers1 = row_covers_d_set(bestRow, d_set1);
             bool covers2 = row_covers_d_set(bestRow, d_set2);
 
             // Check for distinguishing
             if ((covers1 && !covers2) || (!covers1 && covers2)) {
-                needed--; 
-                if (needed == 0) {
+                times_separated++; // <-- INCREMENT the separation count
+                
+                // Check if it has now met the lambda requirement
+                if (times_separated >= array->lambda) { 
                     distinguished_this_round.push_back(index);
                 }
             }
@@ -141,6 +183,7 @@ void run_phase_2_ce(LocatingArray *array) {
 		for (const auto& index : distinguished_this_round) {
 			pair_indices.erase(index);
 		}
+        // --- *** END LOGIC FIX *** ---
 		
 		if (M % 10 == 0 || pair_indices.empty()) {
 			std::cout << "  (CE) Row " << M << " built (best score: " << bestScore << "). "
