@@ -1,31 +1,81 @@
+/* MODIFIED: ryandougherty/locatingarraygenerator/LocatingArrayGenerator-degryse/phase2_ce/phase2_ce.cpp */
+
 #include "phase2_ce.h"
-#include "../utils/utils.h" // For any_int, rng, d_set_to_str
+#include "../utils/utils.h" // For d_set_to_str
 #include <cmath>
 #include <limits>
 #include <iostream>
 #include <map>
 #include <vector>
 #include <set>
+#include <numeric> // For std::iota
+#include <iomanip> // For std::setprecision
 
-// --- Helper Functions for Locating Algorithm ---
-// (These are unchanged)
+// --- Helper Functions for Binomial Probabilities ---
+
+// Pre-calculated log-factorials for performance
+std::vector<double> log_factorial_cache;
+void precompute_log_factorials(int n) {
+    // [WARNING FIX] Cast n to size_t for comparison
+    if (log_factorial_cache.size() >= static_cast<size_t>(n + 1)) return;
+    log_factorial_cache.resize(n + 1);
+    log_factorial_cache[0] = 0.0;
+    for (int i = 1; i <= n; ++i) {
+        log_factorial_cache[i] = log_factorial_cache[i - 1] + std::log((double)i);
+    }
+}
+
+// Calculates log(nCk) using the precomputed cache
+double log_nCr(int n, int r) {
+    if (r < 0 || r > n) return -std::numeric_limits<double>::infinity(); // Log(0)
+    // [WARNING FIX] Cast n to size_t for comparison
+    if (log_factorial_cache.size() <= static_cast<size_t>(n)) {
+        precompute_log_factorials(n);
+    }
+    return log_factorial_cache[n] - log_factorial_cache[r] - log_factorial_cache[n - r];
+}
 
 /**
- * @brief Checks if a given row covers a d-set.
- * A row covers a d-set if it covers all interactions within that d-set.
+ * @brief Calculates P(X <= k) for X ~ Binomial(n, p)
+ * [PRECISION FIX] Uses long double for the summation.
  */
-bool row_covers_d_set(const std::vector<v_type>& row, const d_set_type& d_set) {
+double binomial_cdf(int k, int n, double p) {
+    if (k < 0) return 0.0;
+    if (p == 0.0) return 1.0; // P(X=0) is 1. P(X<=k) is 1 for k>=0.
+    if (p == 1.0) return (k >= n) ? 1.0 : 0.0; // P(X=n) is 1.
+    
+    long double cdf = 0.0L; // <-- Use long double for accumulator
+    
+    double log_p = std::log(p);
+    double log_1_p = std::log(1.0 - p);
+    
+    for (int i = 0; i <= k; ++i) {
+        if (i > n) break;
+        double log_pmf = log_nCr(n, i) + (double)i * log_p + (double)(n - i) * log_1_p;
+        cdf += std::exp(log_pmf); // <-- Add double to long double
+    }
+    return (double)cdf; // Cast back to double
+}
+
+// --- Helper Functions for CE Probability ---
+
+// -1 in a row means "indeterminate" or "*"
+const v_type INDETERMINATE = -1; 
+
+/**
+ * @brief [HELPER] Checks if a given *full* row covers a d-set.
+ * (Copied from phase2_greedy.cpp for deterministic check)
+ */
+static bool row_covers_d_set(const std::vector<v_type>& row, const d_set_type& d_set) {
     if (d_set.empty()) {
         return false; 
     }
     for (const auto& interaction : d_set) {
-        // Check if row covers this single interaction
         bool covers_interaction = true;
         if (interaction.first.empty()) {
              continue;
         }
         for (size_t i = 0; i < interaction.first.size(); ++i) {
-            // Bounds check
             if (interaction.first[i] >= row.size() || interaction.second.size() <= i) {
                 covers_interaction = false; 
                 break;
@@ -35,166 +85,224 @@ bool row_covers_d_set(const std::vector<v_type>& row, const d_set_type& d_set) {
                 break;
             }
         }
-        // If the row fails to cover even one interaction, it fails to cover the d-set
         if (!covers_interaction) {
             return false;
         }
     }
-    // If we get here, the row covered all interactions in the d-set
     return true;
 }
 
+
 /**
- * @brief Generates a single random row based on the levels in 'vs'.
+ * @brief Calculates the probability that a random completion of a
+ * partial row will cover a single d-set.
  */
-std::vector<v_type> generate_random_row(int k, const vs_type& vs) {
-    std::vector<v_type> row(k);
-    for(int i = 0; i < k; ++i) {
-        row[i] = any_int(rng) % vs[i];
+double prob_covers_dset(const std::vector<v_type>& partial_row, const d_set_type& d_set, const vs_type& vs) {
+    double prob = 1.0;
+    std::map<k_type, v_type> col_constraints;
+
+    for (const auto& interaction : d_set) {
+        for (size_t i = 0; i < interaction.first.size(); ++i) {
+            k_type col = interaction.first[i];
+            v_type val = interaction.second[i];
+            if (partial_row[col] != INDETERMINATE && partial_row[col] != val) {
+                return 0.0; // Impossible to cover
+            }
+            if (col_constraints.count(col) && col_constraints[col] != val) {
+                 return 0.0; // Conflicting interaction
+            }
+            col_constraints[col] = val;
+        }
     }
-    return row;
+
+    for (const auto& [col, val] : col_constraints) {
+        if (partial_row[col] == INDETERMINATE) {
+            prob *= (1.0 / (double)vs[col]);
+        }
+    }
+    return prob;
+}
+
+/**
+ * @brief [COMPILER FIX] Calculates the probability that a random completion of
+ * 'partial_row' will *distinguish* d_set1 and d_set2.
+ * P(distinguish) = P(covers1) + P(covers2) - 2 * P(covers1 and covers2)
+ */
+double prob_distinguishes(const std::vector<v_type>& partial_row, const d_set_type& d_set1, const d_set_type& d_set2, const vs_type& vs) {
+    
+    double p1 = prob_covers_dset(partial_row, d_set1, vs);
+    double p2 = prob_covers_dset(partial_row, d_set2, vs);
+
+    // Create the union of the two d-sets
+    d_set_type d_union = d_set1;
+    // [COMPILER FIX] Use vector::insert syntax, which requires a position
+    d_union.insert(d_union.end(), d_set2.begin(), d_set2.end());
+    
+    // Calculate P(covers1 and covers2)
+    double p_union = prob_covers_dset(partial_row, d_union, vs);
+
+    // P(dist) = p1 + p2 - 2.0 * p_union
+    double result = p1 + p2 - 2.0 * p_union;
+    
+    if (result < 0.0) return 0.0;
+    if (result > 1.0) return 1.0;
+    return result;
 }
 
 
-// --- Main Greedy Algorithm Function ---
+/**
+ * @brief Calculates P(pair remains NOT lambda-distinguished)
+ */
+double prob_remains_undistinguished(int N, int M, double p, double cr, int lambda_remaining) {
+    if (lambda_remaining <= 0) return 0.0; 
+    if (p == 0.0 && cr == 0.0) return 1.0; 
 
-void run_phase_2_ce(LocatingArray *array) {
-	
-	int k = array->k;
-    const vs_type& vs = array->vs; // Get vs
-	int M = array->array.size(); // Start counting from existing rows
+    int N_remaining = N - M - 1;
+    if (N_remaining < 0) N_remaining = 0;
 
-    // A set of indices into array->undistinguished_pairs
-    std::set<size_t> pair_indices;
-    for(size_t i = 0; i < array->undistinguished_pairs.size(); ++i) {
-        pair_indices.insert(i);
-    }
+    double p_fail_if_dist = binomial_cdf(lambda_remaining - 2, N_remaining, p);
+    double p_fail_if_not_dist = binomial_cdf(lambda_remaining - 1, N_remaining, p);
 
-    if (!pair_indices.empty()) {
-        std::cout << "  (CE) DEBUG: Trying to distinguish " << pair_indices.size() << " pairs. Example:" << std::endl;
-        const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[*pair_indices.begin()];
-        // Use the utility function from utils/utils.h (which must be linked)
-        std::cout << "       Pair 0: " << d_set_to_str(d_set1) << " vs " << d_set_to_str(d_set2) << " (already separated " << needed << " times)" << std::endl;
-    }
-
-    // --- NEW: Using greedy, column-by-column construction ---
-    // This implements the "Conditional Expectation" heuristic.
-    std::cout << "  (CE) Using greedy column-by-column strategy." << std::endl;
-    
-    // Number of random samples to take when evaluating each value
-    const int SAMPLES = 10; 
+    return (p_fail_if_dist * cr) + (p_fail_if_not_dist * (1.0 - cr));
+}
 
 
-	while (!pair_indices.empty()) {
-		M++;
+/**
+ * @brief Calculates the smallest N.
+ * [PRECISION FIX] Uses long double for the summation.
+ */
+int calculate_N(const LocatingArray* array, const std::map<size_t, double>& p_dist_cache, int M, int N_start, const std::set<size_t>& remaining_pair_indices) {
+    int N = N_start;
+    precompute_log_factorials(N + 100); 
 
-        // --- Greedy Row Construction (Unchanged) ---
-        std::vector<v_type> currentRow(k); // We will build this row greedily
+    while (true) {
+        long double total_expected_failures = 0.0L; // <-- Use long double
         
-        for(int j = 0; j < k; ++j) { // For each column j
-            v_type best_v_for_col = 0;     // Best value for this column
-            int best_score_for_col = -1; // Best score seen for this column
+        for (const auto& index : remaining_pair_indices) {
+            const auto& [d_set1, d_set2, times_separated] = array->undistinguished_pairs[index];
+            int lambda_remaining = array->lambda - times_separated;
 
-            // Try every possible value 'v' for column 'j'
-            for(v_type v = 0; v < vs[j]; ++v) {
-                currentRow[j] = v; // Set the value for this column
-                int score_for_v = 0;
+            double p = p_dist_cache.at(index);
+            total_expected_failures += binomial_cdf(lambda_remaining - 1, N - M, p);
+        }
 
-                // To score this choice, we randomly fill the *rest* of the
-                // row SAMPLES times and sum the scores.
-                for (int s = 0; s < SAMPLES; ++s) {
+        if (total_expected_failures < 1.0L) { // <-- Compare to long double
+            break; // Found our N
+        }
+        N++; // Try a larger N
+        if (N > N_start + 2000) { 
+             std::cout << "  (CE) WARNING: Could not find N < " << N << ". Using " << N << "." << std::endl;
+             break;
+        }
+        // [WARNING FIX] Cast N to size_t for comparison
+        if (static_cast<size_t>(N) > log_factorial_cache.size() - 10) {
+            precompute_log_factorials(N + 100);
+        }
+    }
+    return N;
+}
+
+/**
+ * @brief Main CE algorithm implementation.
+ * [PRECISION FIX] Uses long double for the summation.
+ */
+void run_phase_2_ce(LocatingArray *array) {
+
+    int k = array->k;
+    const vs_type& vs = array->vs;
+    int M = array->array.size(); 
+    int lambda = array->lambda;
+
+    std::set<size_t> remaining_pair_indices;
+    for(size_t i = 0; i < array->undistinguished_pairs.size(); ++i) {
+        if (std::get<2>(array->undistinguished_pairs[i]) < lambda) {
+            remaining_pair_indices.insert(i);
+        }
+    }
+
+    std::map<size_t, double> p_dist_cache;
+    std::vector<v_type> empty_row(k, INDETERMINATE);
+    for (size_t i = 0; i < array->undistinguished_pairs.size(); ++i) {
+        const auto& [d_set1, d_set2, ts] = array->undistinguished_pairs[i];
+        p_dist_cache[i] = prob_distinguishes(empty_row, d_set1, d_set2, vs);
+    }
+    
+    int N_target = calculate_N(array, p_dist_cache, M, M + 1, remaining_pair_indices);
+    std::cout << "  (CE) Initial N_target calculated as: " << N_target << " (M=" << M << ")" << std::endl;
+
+    while (!remaining_pair_indices.empty()) {
+        std::vector<v_type> new_row(k, INDETERMINATE);
+        
+        for (int j = 0; j < k; ++j) { 
+            long double min_expected_failures = std::numeric_limits<long double>::infinity(); // <-- Use long double
+            v_type best_v = 0;
+
+            for (v_type v = 0; v < vs[j]; ++v) { 
+                new_row[j] = v; 
+                long double current_expected_failures = 0.0L; // <-- Use long double
+
+                for (const auto& index : remaining_pair_indices) {
+                    const auto& [d1, d2, ts] = array->undistinguished_pairs[index];
+                    int lambda_remaining = lambda - ts;
                     
-                    // Fill columns j+1 to k-1 randomly
-                    for (int r = j + 1; r < k; ++r) {
-                        currentRow[r] = any_int(rng) % vs[r];
-                    }
-
-                    // Now that `currentRow` is complete, score it
-                    // against all remaining pairs
-                    for (const auto& index : pair_indices) {
-                        const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[index];
-                        
-                        bool covers1 = row_covers_d_set(currentRow, d_set1);
-                        bool covers2 = row_covers_d_set(currentRow, d_set2);
-
-                        if ((covers1 && !covers2) || (!covers1 && covers2)) {
-                            score_for_v++;
-                        }
-                    }
-                } // End sampling loop
-
-                // If this value 'v' gave the best score so far, keep it
-                if (score_for_v > best_score_for_col) {
-                    best_score_for_col = score_for_v;
-                    best_v_for_col = v;
+                    double cr = prob_distinguishes(new_row, d1, d2, vs);
+                    double p = p_dist_cache.at(index);
+                    
+                    current_expected_failures += prob_remains_undistinguished(
+                        N_target, M, p, cr, lambda_remaining);
                 }
-            } // End value loop
 
-            // We've tried all values for col j. Lock in the best one.
-            currentRow[j] = best_v_for_col;
-        }
-        // --- END GREEDY HEURISTIC ---
+                if (current_expected_failures < min_expected_failures) {
+                    min_expected_failures = current_expected_failures;
+                    best_v = v;
+                }
+            } 
+            
+            new_row[j] = best_v;
+        } 
 
-        // `currentRow` is now the complete, greedily-constructed row
-        std::vector<v_type> bestRow = currentRow;
+        array->array.push_back(new_row);
+        M++; 
 
-        // Calculate the *actual* score for this row for logging
-        int bestScore = 0;
-        for (const auto& index : pair_indices) {
-            const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[index];
-            bool covers1 = row_covers_d_set(bestRow, d_set1);
-            bool covers2 = row_covers_d_set(bestRow, d_set2);
-            if ((covers1 && !covers2) || (!covers1 && covers2)) {
-                bestScore++;
-            }
-        }
-
-		// --- ADD THE *BEST* ROW TO THE OBJECT'S ARRAY ---
-		array->array.push_back(bestRow);
-
-		// --- *** LOGIC FIX HERE *** ---
-        // --- UPDATE THE LIST OF UNDISTINGUISHED PAIRS ---
-		std::vector<size_t> distinguished_this_round;
-
-        for (const auto& index : pair_indices) {
-            // Get the tuple by reference
+        std::vector<size_t> distinguished_this_round;
+        for (const auto& index : remaining_pair_indices) {
             auto& pair_tuple = array->undistinguished_pairs[index];
+            auto& times_separated = std::get<2>(pair_tuple);
+            
             const auto& d_set1 = std::get<0>(pair_tuple);
             const auto& d_set2 = std::get<1>(pair_tuple);
-            
-            // This int is 'times_separated_already', not 'needed'
-            int& times_separated = std::get<2>(pair_tuple); 
-            
-            bool covers1 = row_covers_d_set(bestRow, d_set1);
-            bool covers2 = row_covers_d_set(bestRow, d_set2);
 
-            // Check for distinguishing
+            // [LOGIC FIX] Use the deterministic checker
+            bool covers1 = row_covers_d_set(new_row, d_set1);
+            bool covers2 = row_covers_d_set(new_row, d_set2);
+
             if ((covers1 && !covers2) || (!covers1 && covers2)) {
-                times_separated++; // <-- INCREMENT the separation count
-                
-                // Check if it has now met the lambda requirement
-                if (times_separated >= array->lambda) { 
+                times_separated++;
+                if (times_separated >= lambda) {
                     distinguished_this_round.push_back(index);
                 }
             }
-        } 
-		
-        // Remove the pairs that are now fully distinguished
-		for (const auto& index : distinguished_this_round) {
-			pair_indices.erase(index);
-		}
-        // --- *** END LOGIC FIX *** ---
-		
-		if (M % 10 == 0 || pair_indices.empty()) {
-			std::cout << "  (CE) Row " << M << " built (best score: " << bestScore << "). "
-					  << pair_indices.size() << " pairs remaining to distinguish." << std::endl;
-		}
+        }
 
-        // --- SAFETY BREAK ---
-        if (M > (int(array->array.size()) + k * 20) && M > 200) { 
-             std::cout << "  (CE) WARNING: Algorithm seems stuck. Forcefully exiting loop." << std::endl;
-             std::cout << "  (CE) " << pair_indices.size() << " pairs were left undistinguished." << std::endl;
+        for (const auto& index : distinguished_this_round) {
+            remaining_pair_indices.erase(index);
+        }
+        
+        std::cout << "  (CE) Row " << M << " built. "
+                  << remaining_pair_indices.size() << " pairs remaining to distinguish." << std::endl;
+
+        if (!remaining_pair_indices.empty()) {
+            int old_N_target = N_target;
+            N_target = calculate_N(array, p_dist_cache, M, N_target, remaining_pair_indices); 
+            if (N_target != old_N_target) {
+                std::cout << "  (CE) N_target recalculated as: " << N_target << std::endl;
+            }
+        }
+
+        if (M > N_target + k*20 && M > 500) { 
+             std::cout << "  (CE) WARNING: Algorithm seems stuck (M > N_target). Forcefully exiting." << std::endl;
+             std::cout << "  (CE) " << remaining_pair_indices.size() << " pairs were left undistinguished." << std::endl;
              break;
         }
-	} 
+    } 
 }

@@ -52,6 +52,7 @@
 #include "utils/utils.h"   // Utility functions (printing, random numbers)
 #include "phase1/phase1.h" // Phase 1: Finding non-valid pairs
 #include "phase2/phase2.h" // Phase 2: Genetic algorithm for fixing pairs
+#include "phase2_greedy/phase2_greedy.h"   // For the new CE algorithm
 #include "phase2_ce/phase2_ce.h"   // For the new CE algorithm
 
 /**
@@ -275,19 +276,25 @@ int main(int argc, char** argv) {
     if (argc != 5) {
         std::cerr << "Usage: ./LocAG <name of config> <array_type> <method> <execution_policy>\n";
         std::cerr << "array_type can be 'locating' or 'detecting'\n";
-        std::cerr << "method can be 'ga' or 'density'\n";
+        std::cerr << "method can be 'ga', 'greedy', or 'ce'\n";
         std::cerr << "execution_policy can be 'serial' or 'parallel'\n";
         return -1;
     }
 
-    std::string algorithm_type = "ga";
-
+    std::string algorithm_type = "ga"; // Default
     std::string array_type = argv[2];
     const std::string policy = argv[4]; // "serial" or "parallel"
     
-    // --- BUG FIX: strcmp returns 0 on match ---
-    if (strcmp(argv[3],"density") == 0) {
-        algorithm_type = "density";
+    // --- MODIFIED: Updated algorithm selection ---
+    if (strcmp(argv[3],"greedy") == 0) {
+        algorithm_type = "greedy";
+    }
+    else if (strcmp(argv[3], "ce") == 0) {
+        algorithm_type = "ce";
+    }
+    else if (strcmp(argv[3], "ga") != 0) {
+        std::cerr << "Invalid method: " << argv[3] << ". Must be 'ga', 'greedy', or 'ce'." << std::endl;
+        return -1;
     }
     
 
@@ -360,7 +367,7 @@ int main(int argc, char** argv) {
                     
                 }
                 // --- GLUE CODE FOR DENSITY ALGORITHM ---
-                else {
+                else if (algorithm_type == "greedy") {
                     std::cout << "--- Running Density Algorithm (phase2_ce) for Locating ---" << std::endl;
 
                     // 1. Create and populate the LocatingArray struct
@@ -387,7 +394,7 @@ int main(int argc, char** argv) {
                     
                     // 3. Start timer and call the function
                     auto ce_start = high_resolution_clock::now();
-                    run_phase_2_ce(&loc_array); // Pass a pointer
+                    run_phase_2_greedy(&loc_array); // Pass a pointer
                     auto ce_stop = high_resolution_clock::now();
                     auto ce_time = duration_cast<milliseconds>(ce_stop - ce_start).count();
 
@@ -409,6 +416,55 @@ int main(int argc, char** argv) {
                     pareto.push_back(density_result);
                 }
                 // --- END GLUE CODE ---
+                // --- NEW: Added block for "ce" ---
+                else if (algorithm_type == "ce") {
+                    std::cout << "--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---" << std::endl;
+
+                    // 1. Create and populate the LocatingArray struct
+                    LocatingArray loc_array;
+                    loc_array.array = A; // The initial array from Phase 1
+                    loc_array.vs = vs;
+                    loc_array.t = t;
+                    loc_array.lambda = lambda;
+                    loc_array.k = vs.size();
+                    loc_array.d = d;
+                    loc_array.is_detecting = is_detecting;
+                    
+                    if (!vs.empty()) {
+                        double sum_levels = 0.0;
+                        for(v_type level : vs) { sum_levels += level; }
+                        loc_array.v = static_cast<v_type>(std::round(sum_levels / vs.size())); 
+                    } else {
+                        loc_array.v = 0; // Should not happen given configs
+                    }
+
+                    // 2. Assign the non-valid pairs to the struct.
+                    loc_array.undistinguished_pairs = non_valid_pairs;
+                    
+                    // 3. Start timer and call the new CE function
+                    auto ce_start = high_resolution_clock::now();
+                    run_phase_2_ce(&loc_array); // <-- NEW function call
+                    auto ce_stop = high_resolution_clock::now();
+                    auto ce_time = duration_cast<milliseconds>(ce_stop - ce_start).count();
+
+                    // 4. Extract new rows.
+                    ca_type new_rows;
+                    if (loc_array.array.size() > first_stage_N) {
+                        new_rows.insert(new_rows.end(),
+                                        loc_array.array.begin() + first_stage_N,
+                                        loc_array.array.end());
+                    }
+
+                    // 5. Manually create a single result and add it to 'pareto'
+                    PercentGAFitnessInd ce_result;
+                    ce_result.N = new_rows.size();
+                    ce_result.time = ce_time;
+                    ce_result.generated_rows = new_rows;
+                    ce_result.percents = {1.0}; 
+
+                    pareto.push_back(ce_result);
+                }
+                // --- END NEW BLOCK ---
 
                 // Print the results from the Pareto front
                 // Each result is a trade-off between (total rows) and (total time)

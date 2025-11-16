@@ -47,6 +47,7 @@ endif
 SRCS = LocAG.cpp \
        phase1/phase1.cpp \
        phase2/phase2.cpp \
+       phase2_greedy/phase2_greedy.cpp \
        phase2_ce/phase2_ce.cpp \
        utils/utils.cpp
 

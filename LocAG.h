@@ -1,3 +1,4 @@
+/* MODIFIED: ryandougherty/locatingarraygenerator/LocatingArrayGenerator-degryse/LocAG.h */
 #ifndef LOCAG_H
 #define LOCAG_H
 
@@ -39,8 +40,8 @@
 // 3. Include phase2.h, which defines PercentGAFitnessInd
 #include "phase2/phase2.h"
 
-// 4. Define the LocatingArray struct expected by phase2_ce
-// This struct will now hold the data for a LOCATING problem.
+// 4. Define the LocatingArray struct
+// This struct holds the data for both the greedy and CE locating problem.
 struct LocatingArray {
     ca_type array;      // The full array (initial + new rows)
     k_type k;           // Number of columns
@@ -57,7 +58,10 @@ struct LocatingArray {
 };
 
 
-// 5. Finally, include phase2_ce.h, which *uses* LocatingArray
+// 5. Finally, include the headers for the phase 2 algorithms
+//    (Renamed old ce -> greedy)
+#include "phase2_greedy/phase2_greedy.h"
+//    (This is the new, true CE algorithm)
 #include "phase2_ce/phase2_ce.h"
 
 
