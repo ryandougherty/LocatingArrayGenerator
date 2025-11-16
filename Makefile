@@ -18,6 +18,7 @@ OBJS_LIST = LocAG.o \
             phase1/phase1.o \
             phase2/phase2.o \
             phase2_ce/phase2_ce.o \
+            phase2_greedy/phase2_greedy.o \
             utils/utils.o
 
 # --- OS Overrides ---
@@ -39,6 +40,7 @@ else ifeq ($(OS),Windows_NT)
     OBJS_LIST = LocAG.o \
                 phase1\phase1.o \
                 phase2\phase2.o \
+                phase2_greedy\phase2_greedy.o \
                 phase2_ce\phase2_ce.o \
                 utils\utils.o
 endif
@@ -63,7 +65,7 @@ $(TARGET): $(OBJS)
 
 # --- Generic Compilation Rules ---
 # VPATH tells 'make' to look for .cpp files in these directories
-VPATH = phase1:phase2:phase2_ce:utils
+VPATH = phase1:phase2:phase2_ce:phase2_greedy:utils
 
 # This single generic rule builds .o files from .cpp files
 # It automatically finds .cpp files in the VPATH directories
