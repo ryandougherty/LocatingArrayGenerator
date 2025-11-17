@@ -87,11 +87,18 @@ run_all_benchmarks() {
 
     # Run 'SPINS' config with all 4 algorithm/policy combinations
     run_benchmark "SPINS" "locating" "ga" "parallel"
-    run_benchmark "SPINS" "locating" "density" "serial"
+    run_benchmark "SPINS" "locating" "greedy" "serial"
+    run_benchmark "SPINS" "locating" "ce" "serial"
 
     # Run 'Mobile' config with all 4 algorithm/policy combinations
     run_benchmark "Mobile" "locating" "ga" "parallel"
-    run_benchmark "Mobile" "locating" "density" "serial"
+    run_benchmark "Mobile" "locating" "greedy" "serial"
+    run_benchmark "Mobile" "locating" "ce" "serial"
+
+    #Uniform Example
+    run_benchmark "2^30" "locating" "ga" "parallel"
+    run_benchmark "2^30" "locating" "greedy" "serial"
+    run_benchmark "2^30" "locating" "ce" "serial"
 
     # Run a 'detecting' array example
     run_benchmark "2^30" "detecting" "ga" "serial"
