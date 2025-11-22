@@ -22,7 +22,7 @@ def parse_log_files(log_dir):
 
     # Regex to parse the filename, e.g., "SPINS_locating_ga_serial.log"
     # Groups: 1=Config, 2=Type, 3=Method, 4=Policy
-    filename_re = re.compile(r'(.+?)_(locating|detecting)_(ga|density)_(serial|parallel)\.log')
+    filename_re = re.compile(r'(.+?)_(locating|detecting)_(ga|ce|greedy)_(serial|parallel)\.log')
     
     # Regex to find lambda and the *first* "Solution 0" N total for that lambda
     # re.DOTALL makes '.' match newlines, so we can span across multiple lines.

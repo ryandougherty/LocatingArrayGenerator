@@ -42,7 +42,8 @@ def visualize_results(input_file, output_image):
     # Pivot the data to get Configs as rows and RunTypes as columns
     # This is the ideal format for a grouped bar chart
     try:
-        pivot_data = data.pivot(index='Config', columns='RunType', values='RealTime_s')
+        # pivot_data = data.pivot(index='Config', columns='RunType', values='RealTime_s')
+        pivot_data = data.pivot(index=['Config', 'ArrayType'], columns='RunType', values='RealTime_s')
     except Exception as e:
         print(f"Error pivoting data: {e}")
         print("Please check your benchmark_results.csv file for correct formatting.")

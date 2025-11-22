@@ -66,15 +66,14 @@ const v_type INDETERMINATE = -1;
  * @brief [HELPER] Checks if a given *full* row covers a d-set.
  * (Copied from phase2_greedy.cpp for deterministic check)
  */
+/* MODIFIED HELPER in phase2_ce.cpp */
 static bool row_covers_d_set(const std::vector<v_type>& row, const d_set_type& d_set) {
-    if (d_set.empty()) {
-        return false; 
-    }
+    if (d_set.empty()) return false;
+    
     for (const auto& interaction : d_set) {
         bool covers_interaction = true;
-        if (interaction.first.empty()) {
-             continue;
-        }
+        if (interaction.first.empty()) continue;
+
         for (size_t i = 0; i < interaction.first.size(); ++i) {
             if (interaction.first[i] >= row.size() || interaction.second.size() <= i) {
                 covers_interaction = false; 
@@ -85,19 +84,17 @@ static bool row_covers_d_set(const std::vector<v_type>& row, const d_set_type& d
                 break;
             }
         }
-        if (!covers_interaction) {
-            return false;
+        // [FIX] If ANY interaction is covered, the d-set is covered.
+        if (covers_interaction) {
+            return true;
         }
     }
-    return true;
+    // [FIX] Only return false if NONE were covered
+    return false;
 }
 
 
-/**
- * @brief Calculates the probability that a random completion of a
- * partial row will cover a single d-set.
- */
-double prob_covers_dset(const std::vector<v_type>& partial_row, const d_set_type& d_set, const vs_type& vs) {
+double prob_covers_intersection(const std::vector<v_type>& partial_row, const d_set_type& d_set, const vs_type& vs) {
     double prob = 1.0;
     std::map<k_type, v_type> col_constraints;
 
@@ -124,25 +121,65 @@ double prob_covers_dset(const std::vector<v_type>& partial_row, const d_set_type
 }
 
 /**
+ * @brief Calculates the probability that a random completion of a
+ * partial row will cover a single d-set.
+ */
+double prob_covers_dset(const std::vector<v_type>& partial_row, const d_set_type& d_set, const vs_type& vs) {
+    if (d_set.empty()) return 0.0;
+
+    double total_prob = 0.0;
+    int n = d_set.size();
+    
+    // Iterate through all non-empty subsets (1 to 2^n - 1)
+    // Using bit manipulation for subsets
+    for (int i = 1; i < (1 << n); ++i) {
+        d_set_type subset;
+        int set_bits = 0;
+        
+        for (int j = 0; j < n; ++j) {
+            if ((i >> j) & 1) {
+                subset.push_back(d_set[j]);
+                set_bits++;
+            }
+        }
+
+        double p_intersection = prob_covers_intersection(partial_row, subset, vs);
+
+        // Inclusion-Exclusion: Add if odd size, Subtract if even size
+        if (set_bits % 2 == 1) {
+            total_prob += p_intersection;
+        } else {
+            total_prob -= p_intersection;
+        }
+    }
+    
+    // Clamp result for floating point errors
+    if (total_prob < 0.0) return 0.0;
+    if (total_prob > 1.0) return 1.0;
+    return total_prob;
+}
+
+/**
  * @brief [COMPILER FIX] Calculates the probability that a random completion of
  * 'partial_row' will *distinguish* d_set1 and d_set2.
  * P(distinguish) = P(covers1) + P(covers2) - 2 * P(covers1 and covers2)
  */
+/* MODIFIED in phase2_ce.cpp */
 double prob_distinguishes(const std::vector<v_type>& partial_row, const d_set_type& d_set1, const d_set_type& d_set2, const vs_type& vs) {
     
-    double p1 = prob_covers_dset(partial_row, d_set1, vs);
-    double p2 = prob_covers_dset(partial_row, d_set2, vs);
+    double p1 = prob_covers_dset(partial_row, d_set1, vs); // P(C1)
+    double p2 = prob_covers_dset(partial_row, d_set2, vs); // P(C2)
 
-    // Create the union of the two d-sets
+    // Union of the two d-sets
     d_set_type d_union = d_set1;
-    // [COMPILER FIX] Use vector::insert syntax, which requires a position
     d_union.insert(d_union.end(), d_set2.begin(), d_set2.end());
     
-    // Calculate P(covers1 and covers2)
-    double p_union = prob_covers_dset(partial_row, d_union, vs);
+    // With new logic, this calculates P(C1 OR C2)
+    double p_union_or = prob_covers_dset(partial_row, d_union, vs);
 
-    // P(dist) = p1 + p2 - 2.0 * p_union
-    double result = p1 + p2 - 2.0 * p_union;
+    // Formula for symmetric difference using Union probability:
+    // P(Diff) = 2 * P(Union) - P(A) - P(B)
+    double result = 2.0 * p_union_or - p1 - p2;
     
     if (result < 0.0) return 0.0;
     if (result > 1.0) return 1.0;
