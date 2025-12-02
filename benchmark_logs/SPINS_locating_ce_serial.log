@@ -22,7 +22,7 @@ There are 792 remaining non-locating pairs
   (CE) Row 39 built. 1 pairs remaining to distinguish.
   (CE) Row 40 built. 0 pairs remaining to distinguish.
 --- Pareto Front Solutions ---
-Solution 0: N total=40 (N_initial=24, N_added=16), Time total=53 ms, Saved to: ./results/SPINS_t2_l1_pareto_0.csv, percents=1, 
+Solution 0: N total=40 (N_initial=24, N_added=16), Time total=116 ms, Saved to: ./results/SPINS_t2_l1_pareto_0.csv, percents=1, 
 
 ------------d=1, t=2, lambda=2, filename=./evaluation/SPINS/SPINS_2_2.csv------------
 Computing partitioned counts of d-sets...
@@ -54,7 +54,7 @@ There are 149 remaining non-locating pairs
   (CE) Row 53 built. 2 pairs remaining to distinguish.
   (CE) Row 54 built. 0 pairs remaining to distinguish.
 --- Pareto Front Solutions ---
-Solution 0: N total=54 (N_initial=32, N_added=22), Time total=27 ms, Saved to: ./results/SPINS_t2_l2_pareto_0.csv, percents=1, 
+Solution 0: N total=54 (N_initial=32, N_added=22), Time total=62 ms, Saved to: ./results/SPINS_t2_l2_pareto_0.csv, percents=1, 
 
 ------------d=1, t=2, lambda=3, filename=./evaluation/SPINS/SPINS_2_3.csv------------
 Computing partitioned counts of d-sets...
@@ -77,7 +77,7 @@ There are 33 remaining non-locating pairs
   (CE) Row 68 built. 1 pairs remaining to distinguish.
   (CE) Row 69 built. 0 pairs remaining to distinguish.
 --- Pareto Front Solutions ---
-Solution 0: N total=69 (N_initial=56, N_added=13), Time total=4 ms, Saved to: ./results/SPINS_t2_l3_pareto_0.csv, percents=1, 
+Solution 0: N total=69 (N_initial=56, N_added=13), Time total=8 ms, Saved to: ./results/SPINS_t2_l3_pareto_0.csv, percents=1, 
 
 ------------d=1, t=2, lambda=4, filename=./evaluation/SPINS/SPINS_2_4.csv------------
 Computing partitioned counts of d-sets...
@@ -114,5 +114,5 @@ There are 13 remaining non-locating pairs
   (CE) Row 90 built. 1 pairs remaining to distinguish.
   (CE) Row 91 built. 0 pairs remaining to distinguish.
 --- Pareto Front Solutions ---
-Solution 0: N total=91 (N_initial=64, N_added=27), Time total=5 ms, Saved to: ./results/SPINS_t2_l4_pareto_0.csv, percents=1, 
+Solution 0: N total=91 (N_initial=64, N_added=27), Time total=12 ms, Saved to: ./results/SPINS_t2_l4_pareto_0.csv, percents=1, 
 
