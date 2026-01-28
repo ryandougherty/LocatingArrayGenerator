@@ -1,0 +1,77 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/Make/Make_2_1.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=30, Time=3
+There are 1464 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 114 (M=30)
+  (CE) Row 31 built. 1210 pairs remaining to distinguish.
+  (CE) Row 32 built. 979 pairs remaining to distinguish.
+  (CE) Row 33 built. 788 pairs remaining to distinguish.
+  (CE) Row 34 built. 678 pairs remaining to distinguish.
+  (CE) Row 35 built. 556 pairs remaining to distinguish.
+  (CE) Row 36 built. 460 pairs remaining to distinguish.
+  (CE) Row 37 built. 395 pairs remaining to distinguish.
+  (CE) Row 38 built. 326 pairs remaining to distinguish.
+  (CE) Row 39 built. 274 pairs remaining to distinguish.
+  (CE) Row 40 built. 220 pairs remaining to distinguish.
+  (CE) Row 41 built. 177 pairs remaining to distinguish.
+  (CE) Row 42 built. 141 pairs remaining to distinguish.
+  (CE) Row 43 built. 100 pairs remaining to distinguish.
+  (CE) Row 44 built. 80 pairs remaining to distinguish.
+  (CE) Row 45 built. 56 pairs remaining to distinguish.
+  (CE) Row 46 built. 38 pairs remaining to distinguish.
+  (CE) Row 47 built. 27 pairs remaining to distinguish.
+  (CE) Row 48 built. 16 pairs remaining to distinguish.
+  (CE) Row 49 built. 9 pairs remaining to distinguish.
+  (CE) Row 50 built. 5 pairs remaining to distinguish.
+  (CE) Row 51 built. 1 pairs remaining to distinguish.
+  (CE) Row 52 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=52 (N_initial=30, N_added=22), Time total=323 ms, Saved to: ./results/Make_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/Make/Make_2_2.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=60, Time=2
+There are 30 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 130 (M=60)
+  (CE) Row 61 built. 30 pairs remaining to distinguish.
+  (CE) Row 62 built. 30 pairs remaining to distinguish.
+  (CE) Row 63 built. 29 pairs remaining to distinguish.
+  (CE) Row 64 built. 28 pairs remaining to distinguish.
+  (CE) Row 65 built. 27 pairs remaining to distinguish.
+  (CE) Row 66 built. 27 pairs remaining to distinguish.
+  (CE) Row 67 built. 20 pairs remaining to distinguish.
+  (CE) Row 68 built. 13 pairs remaining to distinguish.
+  (CE) Row 69 built. 9 pairs remaining to distinguish.
+  (CE) Row 70 built. 4 pairs remaining to distinguish.
+  (CE) Row 71 built. 2 pairs remaining to distinguish.
+  (CE) Row 72 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=72 (N_initial=60, N_added=12), Time total=11 ms, Saved to: ./results/Make_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/Make/Make_2_3.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=90, Time=2
+There are 8 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 130 (M=90)
+  (CE) Row 91 built. 6 pairs remaining to distinguish.
+  (CE) Row 92 built. 6 pairs remaining to distinguish.
+  (CE) Row 93 built. 4 pairs remaining to distinguish.
+  (CE) Row 94 built. 3 pairs remaining to distinguish.
+  (CE) Row 95 built. 2 pairs remaining to distinguish.
+  (CE) Row 96 built. 1 pairs remaining to distinguish.
+  (CE) Row 97 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=97 (N_initial=90, N_added=7), Time total=3 ms, Saved to: ./results/Make_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/Make/Make_2_4.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=120, Time=2
+There are 0 remaining non-locating pairs
+Array is already valid. Saved initial array to ./Make_t2_l4_final.csv
