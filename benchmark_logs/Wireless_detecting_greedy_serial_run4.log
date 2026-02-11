@@ -1,0 +1,80 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/Wireless/Wireless_2_1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=45, Time=17
+There are 57665 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 57665 pairs. Example:
+       Pair 0: (1,13,),(2,2,)  vs (1,15,),(2,2,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 50 built (best score: 3966). 27955 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 899). 6167 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 204). 1269 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 58). 213 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 6). 17 pairs remaining to distinguish.
+  (CE) Row 95 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=95 (N_initial=45, N_added=50), Time total=8251 ms, Saved to: ./results/Wireless_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/Wireless/Wireless_2_2.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=80, Time=11
+There are 10732 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 10732 pairs. Example:
+       Pair 0: (1,2,),(0,2,)  vs (1,2,),(0,3,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 90 built (best score: 880). 6385 pairs remaining to distinguish.
+  (CE) Row 100 built (best score: 354). 2492 pairs remaining to distinguish.
+  (CE) Row 110 built (best score: 102). 807 pairs remaining to distinguish.
+  (CE) Row 120 built (best score: 39). 224 pairs remaining to distinguish.
+  (CE) Row 130 built (best score: 13). 43 pairs remaining to distinguish.
+  (CE) Row 139 built (best score: 2). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=139 (N_initial=80, N_added=59), Time total=2419 ms, Saved to: ./results/Wireless_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/Wireless/Wireless_2_3.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=105, Time=7
+There are 7921 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 7921 pairs. Example:
+       Pair 0: (2,12,),(4,1,)  vs (7,11,),(3,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 110 built (best score: 929). 7569 pairs remaining to distinguish.
+  (CE) Row 120 built (best score: 664). 5898 pairs remaining to distinguish.
+  (CE) Row 130 built (best score: 452). 3738 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 219). 1803 pairs remaining to distinguish.
+  (CE) Row 150 built (best score: 116). 752 pairs remaining to distinguish.
+  (CE) Row 160 built (best score: 40). 277 pairs remaining to distinguish.
+  (CE) Row 170 built (best score: 19). 85 pairs remaining to distinguish.
+  (CE) Row 180 built (best score: 5). 11 pairs remaining to distinguish.
+  (CE) Row 187 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=187 (N_initial=105, N_added=82), Time total=2781 ms, Saved to: ./results/Wireless_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/Wireless/Wireless_2_4.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=120, Time=9
+There are 7882 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 7882 pairs. Example:
+       Pair 0: (1,5,),(2,4,)  vs (2,4,),(3,4,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 130 built (best score: 927). 7405 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 726). 5889 pairs remaining to distinguish.
+  (CE) Row 150 built (best score: 447). 3990 pairs remaining to distinguish.
+  (CE) Row 160 built (best score: 303). 2543 pairs remaining to distinguish.
+  (CE) Row 170 built (best score: 177). 1435 pairs remaining to distinguish.
+  (CE) Row 180 built (best score: 78). 732 pairs remaining to distinguish.
+  (CE) Row 190 built (best score: 49). 317 pairs remaining to distinguish.
+  (CE) Row 200 built (best score: 16). 106 pairs remaining to distinguish.
+  (CE) Row 210 built (best score: 6). 19 pairs remaining to distinguish.
+  (CE) Row 220 built (best score: 1). 1 pairs remaining to distinguish.
+  (CE) Row 221 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=221 (N_initial=120, N_added=101), Time total=3506 ms, Saved to: ./results/Wireless_t2_l4_pareto_0.csv, percents=1, 
+

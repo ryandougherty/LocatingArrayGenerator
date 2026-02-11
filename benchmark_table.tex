@@ -1,33 +1,50 @@
+% --- Locating Table ---
 \begin{table}[htbp]
-\caption{Benchmark Execution Times (seconds, Mean $\pm$ Std Dev)}
-\label{tab:benchmark_results}
-\begin{tabular}{llll}
+\caption{Locating Array Execution Times (seconds)}
+\label{tab:locating}
+\begin{tabular}{lccc}
 \toprule
- & RunType & ce (serial) & ga (parallel) & greedy (serial) \\
-Config & ArrayType &  &  &  \\
+RunType & ce (serial) & ga (parallel) & greedy (serial) \\
+Config &  &  &  \\
 \midrule
-2^30 & locating & 0.89 $\pm$ 0.01 & 0.07 $\pm$ 0.03 & 0.25 $\pm$ 0.00 \\
-\cline{1-5}
-Apache & locating & 8.49 $\pm$ 0.05 & 1.06 $\pm$ 0.06 & 3.08 $\pm$ 0.02 \\
-\cline{1-5}
-Bugzilla & locating & 3.90 $\pm$ 0.06 & 0.36 $\pm$ 0.03 & 1.17 $\pm$ 0.03 \\
-\cline{1-5}
-Flex & locating & 0.31 $\pm$ 0.00 & 0.10 $\pm$ 0.01 & 0.07 $\pm$ 0.00 \\
-\cline{1-5}
-GCC & locating & 273.21 $\pm$ 1.55 & NaN & 115.50 $\pm$ 0.69 \\
-\cline{1-5}
-Make & locating & 0.34 $\pm$ 0.00 & 0.19 $\pm$ 0.05 & 0.07 $\pm$ 0.00 \\
-\cline{1-5}
-Mobile & locating & 681.27 $\pm$ 3.00 & NaN & 281.59 $\pm$ 2.04 \\
-\cline{1-5}
-SPINS & locating & 0.20 $\pm$ 0.00 & 0.12 $\pm$ 0.04 & 0.04 $\pm$ 0.00 \\
-\cline{1-5}
-SPINV & locating & 0.99 $\pm$ 0.09 & 0.25 $\pm$ 0.03 & 0.28 $\pm$ 0.00 \\
-\cline{1-5}
-TCAS & locating & 1.88 $\pm$ 0.02 & 0.60 $\pm$ 0.05 & 0.31 $\pm$ 0.00 \\
-\cline{1-5}
-Wireless & locating & 7.01 $\pm$ 0.03 & 1.15 $\pm$ 0.12 & 1.43 $\pm$ 0.02 \\
-\cline{1-5}
+2^30 & 0.89 $\pm$ 0.01 & 0.07 $\pm$ 0.03 & 0.25 $\pm$ 0.00 \\
+Apache & 8.49 $\pm$ 0.05 & 1.06 $\pm$ 0.06 & 3.08 $\pm$ 0.02 \\
+Bugzilla & 3.90 $\pm$ 0.06 & 0.36 $\pm$ 0.03 & 1.17 $\pm$ 0.03 \\
+Flex & 0.31 $\pm$ 0.00 & 0.10 $\pm$ 0.01 & 0.07 $\pm$ 0.00 \\
+GCC & 273.21 $\pm$ 1.55 & T/O & 115.50 $\pm$ 0.69 \\
+Make & 0.34 $\pm$ 0.00 & 0.19 $\pm$ 0.05 & 0.07 $\pm$ 0.00 \\
+Mobile & 681.27 $\pm$ 3.00 & T/O & 281.59 $\pm$ 2.04 \\
+SPINS & 0.20 $\pm$ 0.00 & 0.12 $\pm$ 0.04 & 0.04 $\pm$ 0.00 \\
+SPINV & 0.99 $\pm$ 0.09 & 0.25 $\pm$ 0.03 & 0.28 $\pm$ 0.00 \\
+TCAS & 1.88 $\pm$ 0.02 & 0.60 $\pm$ 0.05 & 0.31 $\pm$ 0.00 \\
+Wireless & 7.01 $\pm$ 0.03 & 1.15 $\pm$ 0.12 & 1.43 $\pm$ 0.02 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\vspace{1em}
+
+% --- Detecting Table ---
+\begin{table}[htbp]
+\caption{Detecting Array Execution Times (seconds)}
+\label{tab:detecting}
+\begin{tabular}{lccc}
+\toprule
+RunType & ce (serial) & ga (parallel) & greedy (serial) \\
+Config &  &  &  \\
+\midrule
+2^30 & 21.76 $\pm$ 0.27 & 0.48 $\pm$ 0.29 & 5.65 $\pm$ 0.03 \\
+Apache & 380.65 $\pm$ 3.88 & T/O & 114.40 $\pm$ 1.14 \\
+Bugzilla & 35.91 $\pm$ 0.61 & 0.60 $\pm$ 0.06 & 9.95 $\pm$ 0.07 \\
+Flex & 2.08 $\pm$ 0.04 & 0.37 $\pm$ 0.08 & 0.43 $\pm$ 0.00 \\
+GCC & T/O & T/O & 2433.19 $\pm$ 42.56 \\
+Make & 1.89 $\pm$ 0.01 & 0.54 $\pm$ 0.07 & 0.36 $\pm$ 0.01 \\
+SPINS & 1.67 $\pm$ 0.02 & 0.29 $\pm$ 0.06 & 0.26 $\pm$ 0.00 \\
+SPINV & 28.22 $\pm$ 0.14 & 0.96 $\pm$ 0.17 & 6.39 $\pm$ 0.03 \\
+TCAS & 229.52 $\pm$ 1.33 & 5.10 $\pm$ 0.38 & 33.44 $\pm$ 0.89 \\
+Wireless & 73.46 $\pm$ 0.47 & 1.29 $\pm$ 0.09 & 16.84 $\pm$ 0.16 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{1em}

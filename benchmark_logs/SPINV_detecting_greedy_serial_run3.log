@@ -1,0 +1,69 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/SPINV/SPINV_2_1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=40, Time=16
+There are 15440 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 15440 pairs. Example:
+       Pair 0: (26,54,),(0,2,)  vs (27,52,),(1,2,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 50 built (best score: 349). 1257 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 26). 91 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=70 (N_initial=40, N_added=30), Time total=2302 ms, Saved to: ./results/SPINV_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/SPINV/SPINV_2_2.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=56, Time=15
+There are 3873 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 3873 pairs. Example:
+       Pair 0: (10,54,),(1,3,)  vs (24,48,),(0,2,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 60 built (best score: 688). 2880 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 161). 780 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 33). 108 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 4). 3 pairs remaining to distinguish.
+  (CE) Row 93 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=93 (N_initial=56, N_added=37), Time total=1079 ms, Saved to: ./results/SPINV_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/SPINV/SPINV_2_3.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=64, Time=15
+There are 2626 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 2626 pairs. Example:
+       Pair 0: (9,47,),(1,3,)  vs (12,45,),(1,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 70 built (best score: 436). 2266 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 234). 1163 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 67). 391 pairs remaining to distinguish.
+  (CE) Row 100 built (best score: 26). 79 pairs remaining to distinguish.
+  (CE) Row 110 built (best score: 2). 4 pairs remaining to distinguish.
+  (CE) Row 112 built (best score: 2). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=112 (N_initial=64, N_added=48), Time total=1173 ms, Saved to: ./results/SPINV_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/SPINV/SPINV_2_4.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=82, Time=18
+There are 3104 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 3104 pairs. Example:
+       Pair 0: (12,52,),(0,2,)  vs (26,53,),(1,3,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 90 built (best score: 508). 2760 pairs remaining to distinguish.
+  (CE) Row 100 built (best score: 296). 1816 pairs remaining to distinguish.
+  (CE) Row 110 built (best score: 169). 1041 pairs remaining to distinguish.
+  (CE) Row 120 built (best score: 77). 427 pairs remaining to distinguish.
+  (CE) Row 130 built (best score: 29). 138 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 7). 24 pairs remaining to distinguish.
+  (CE) Row 147 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=147 (N_initial=82, N_added=65), Time total=1811 ms, Saved to: ./results/SPINV_t2_l4_pareto_0.csv, percents=1, 
+

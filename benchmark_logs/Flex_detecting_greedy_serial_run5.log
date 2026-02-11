@@ -1,0 +1,67 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/Flex/Flex_2_1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=26, Time=4
+There are 5036 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 5036 pairs. Example:
+       Pair 0: (4,17,),(2,1,)  vs (4,28,),(2,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 30 built (best score: 462). 1782 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 55). 219 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 2). 6 pairs remaining to distinguish.
+  (CE) Row 53 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=53 (N_initial=26, N_added=27), Time total=283 ms, Saved to: ./results/Flex_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/Flex/Flex_2_2.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=50, Time=4
+There are 1003 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 1003 pairs. Example:
+       Pair 0: (1,27,),(3,0,)  vs (2,18,),(0,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 60 built (best score: 101). 603 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 33). 163 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 6). 7 pairs remaining to distinguish.
+  (CE) Row 83 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=83 (N_initial=50, N_added=33), Time total=100 ms, Saved to: ./results/Flex_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/Flex/Flex_2_3.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=75, Time=4
+There are 142 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 142 pairs. Example:
+       Pair 0: (0,3,),(0,1,)  vs (0,4,),(0,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 80 built (best score: 32). 120 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 9). 52 pairs remaining to distinguish.
+  (CE) Row 100 built (best score: 4). 18 pairs remaining to distinguish.
+  (CE) Row 110 built (best score: 1). 2 pairs remaining to distinguish.
+  (CE) Row 114 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=114 (N_initial=75, N_added=39), Time total=18 ms, Saved to: ./results/Flex_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/Flex/Flex_2_4.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=100, Time=5
+There are 125 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 125 pairs. Example:
+       Pair 0: (0,11,),(2,0,)  vs (0,17,),(2,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 110 built (best score: 16). 101 pairs remaining to distinguish.
+  (CE) Row 120 built (best score: 11). 65 pairs remaining to distinguish.
+  (CE) Row 130 built (best score: 4). 40 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 3). 24 pairs remaining to distinguish.
+  (CE) Row 150 built (best score: 2). 4 pairs remaining to distinguish.
+  (CE) Row 156 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=156 (N_initial=100, N_added=56), Time total=25 ms, Saved to: ./results/Flex_t2_l4_pareto_0.csv, percents=1, 
+

@@ -1,0 +1,147 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/TCAS/TCAS_2_1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=110, Time=8
+There are 18013 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 18013 pairs. Example:
+       Pair 0: (4,13,),(0,6,)  vs (6,12,),(1,2,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 120 built (best score: 371). 12713 pairs remaining to distinguish.
+  (CE) Row 130 built (best score: 267). 9491 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 203). 6998 pairs remaining to distinguish.
+  (CE) Row 150 built (best score: 180). 4894 pairs remaining to distinguish.
+  (CE) Row 160 built (best score: 143). 3291 pairs remaining to distinguish.
+  (CE) Row 170 built (best score: 120). 2102 pairs remaining to distinguish.
+  (CE) Row 180 built (best score: 57). 1265 pairs remaining to distinguish.
+  (CE) Row 190 built (best score: 41). 724 pairs remaining to distinguish.
+  (CE) Row 200 built (best score: 25). 396 pairs remaining to distinguish.
+  (CE) Row 210 built (best score: 8). 215 pairs remaining to distinguish.
+  (CE) Row 220 built (best score: 6). 116 pairs remaining to distinguish.
+  (CE) Row 230 built (best score: 4). 63 pairs remaining to distinguish.
+  (CE) Row 240 built (best score: 3). 29 pairs remaining to distinguish.
+  (CE) Row 250 built (best score: 1). 5 pairs remaining to distinguish.
+  (CE) Row 255 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=255 (N_initial=110, N_added=145), Time total=5148 ms, Saved to: ./results/TCAS_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/TCAS/TCAS_2_2.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=200, Time=6
+There are 15106 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 15106 pairs. Example:
+       Pair 0: (11,13,),(0,4,)  vs (11,13,),(1,5,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 210 built (best score: 446). 14279 pairs remaining to distinguish.
+  (CE) Row 220 built (best score: 342). 13188 pairs remaining to distinguish.
+  (CE) Row 230 built (best score: 300). 12286 pairs remaining to distinguish.
+  (CE) Row 240 built (best score: 283). 11065 pairs remaining to distinguish.
+  (CE) Row 250 built (best score: 259). 9615 pairs remaining to distinguish.
+  (CE) Row 260 built (best score: 250). 8094 pairs remaining to distinguish.
+  (CE) Row 270 built (best score: 234). 6457 pairs remaining to distinguish.
+  (CE) Row 280 built (best score: 222). 4886 pairs remaining to distinguish.
+  (CE) Row 290 built (best score: 206). 3119 pairs remaining to distinguish.
+  (CE) Row 300 built (best score: 205). 1282 pairs remaining to distinguish.
+  (CE) Row 310 built (best score: 35). 755 pairs remaining to distinguish.
+  (CE) Row 320 built (best score: 24). 582 pairs remaining to distinguish.
+  (CE) Row 330 built (best score: 24). 440 pairs remaining to distinguish.
+  (CE) Row 340 built (best score: 17). 323 pairs remaining to distinguish.
+  (CE) Row 350 built (best score: 12). 231 pairs remaining to distinguish.
+  (CE) Row 360 built (best score: 6). 178 pairs remaining to distinguish.
+  (CE) Row 370 built (best score: 6). 141 pairs remaining to distinguish.
+  (CE) Row 380 built (best score: 5). 94 pairs remaining to distinguish.
+  (CE) Row 390 built (best score: 4). 57 pairs remaining to distinguish.
+  (CE) Row 400 built (best score: 3). 34 pairs remaining to distinguish.
+  (CE) Row 410 built (best score: 3). 15 pairs remaining to distinguish.
+  (CE) Row 420 built (best score: 1). 2 pairs remaining to distinguish.
+  (CE) Row 422 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=422 (N_initial=200, N_added=222), Time total=7488 ms, Saved to: ./results/TCAS_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/TCAS/TCAS_2_3.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=310, Time=7
+There are 8296 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 8296 pairs. Example:
+       Pair 0: (12,13,),(0,1,)  vs (12,13,),(0,2,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 320 built (best score: 263). 8140 pairs remaining to distinguish.
+  (CE) Row 330 built (best score: 250). 7849 pairs remaining to distinguish.
+  (CE) Row 340 built (best score: 225). 7428 pairs remaining to distinguish.
+  (CE) Row 350 built (best score: 208). 6836 pairs remaining to distinguish.
+  (CE) Row 360 built (best score: 203). 6376 pairs remaining to distinguish.
+  (CE) Row 370 built (best score: 179). 5728 pairs remaining to distinguish.
+  (CE) Row 380 built (best score: 149). 5022 pairs remaining to distinguish.
+  (CE) Row 390 built (best score: 134). 4677 pairs remaining to distinguish.
+  (CE) Row 400 built (best score: 116). 4187 pairs remaining to distinguish.
+  (CE) Row 410 built (best score: 127). 3531 pairs remaining to distinguish.
+  (CE) Row 420 built (best score: 92). 2906 pairs remaining to distinguish.
+  (CE) Row 430 built (best score: 83). 2409 pairs remaining to distinguish.
+  (CE) Row 440 built (best score: 70). 1907 pairs remaining to distinguish.
+  (CE) Row 450 built (best score: 61). 1442 pairs remaining to distinguish.
+  (CE) Row 460 built (best score: 48). 1078 pairs remaining to distinguish.
+  (CE) Row 470 built (best score: 37). 846 pairs remaining to distinguish.
+  (CE) Row 480 built (best score: 28). 636 pairs remaining to distinguish.
+  (CE) Row 490 built (best score: 23). 463 pairs remaining to distinguish.
+  (CE) Row 500 built (best score: 16). 341 pairs remaining to distinguish.
+  (CE) Row 510 built (best score: 13). 245 pairs remaining to distinguish.
+  (CE) Row 520 built (best score: 7). 179 pairs remaining to distinguish.
+  (CE) Row 530 built (best score: 9). 120 pairs remaining to distinguish.
+  (CE) Row 540 built (best score: 6). 77 pairs remaining to distinguish.
+  (CE) Row 550 built (best score: 3). 44 pairs remaining to distinguish.
+  (CE) Row 560 built (best score: 3). 21 pairs remaining to distinguish.
+  (CE) Row 570 built (best score: 1). 5 pairs remaining to distinguish.
+  (CE) Row 575 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=575 (N_initial=310, N_added=265), Time total=6328 ms, Saved to: ./results/TCAS_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/TCAS/TCAS_2_4.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=400, Time=9
+There are 12746 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 12746 pairs. Example:
+       Pair 0: (11,13,),(0,0,)  vs (11,13,),(1,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 410 built (best score: 438). 12684 pairs remaining to distinguish.
+  (CE) Row 420 built (best score: 407). 12267 pairs remaining to distinguish.
+  (CE) Row 430 built (best score: 320). 11854 pairs remaining to distinguish.
+  (CE) Row 440 built (best score: 329). 11375 pairs remaining to distinguish.
+  (CE) Row 450 built (best score: 277). 10749 pairs remaining to distinguish.
+  (CE) Row 460 built (best score: 241). 10246 pairs remaining to distinguish.
+  (CE) Row 470 built (best score: 217). 10095 pairs remaining to distinguish.
+  (CE) Row 480 built (best score: 210). 9977 pairs remaining to distinguish.
+  (CE) Row 490 built (best score: 208). 9618 pairs remaining to distinguish.
+  (CE) Row 500 built (best score: 207). 9388 pairs remaining to distinguish.
+  (CE) Row 510 built (best score: 198). 9070 pairs remaining to distinguish.
+  (CE) Row 520 built (best score: 197). 8660 pairs remaining to distinguish.
+  (CE) Row 530 built (best score: 201). 8237 pairs remaining to distinguish.
+  (CE) Row 540 built (best score: 195). 7609 pairs remaining to distinguish.
+  (CE) Row 550 built (best score: 196). 7023 pairs remaining to distinguish.
+  (CE) Row 560 built (best score: 194). 6088 pairs remaining to distinguish.
+  (CE) Row 570 built (best score: 195). 5226 pairs remaining to distinguish.
+  (CE) Row 580 built (best score: 189). 4125 pairs remaining to distinguish.
+  (CE) Row 590 built (best score: 192). 2821 pairs remaining to distinguish.
+  (CE) Row 600 built (best score: 88). 1324 pairs remaining to distinguish.
+  (CE) Row 610 built (best score: 35). 1025 pairs remaining to distinguish.
+  (CE) Row 620 built (best score: 36). 913 pairs remaining to distinguish.
+  (CE) Row 630 built (best score: 28). 774 pairs remaining to distinguish.
+  (CE) Row 640 built (best score: 24). 642 pairs remaining to distinguish.
+  (CE) Row 650 built (best score: 19). 502 pairs remaining to distinguish.
+  (CE) Row 660 built (best score: 14). 389 pairs remaining to distinguish.
+  (CE) Row 670 built (best score: 12). 307 pairs remaining to distinguish.
+  (CE) Row 680 built (best score: 11). 230 pairs remaining to distinguish.
+  (CE) Row 690 built (best score: 10). 161 pairs remaining to distinguish.
+  (CE) Row 700 built (best score: 8). 95 pairs remaining to distinguish.
+  (CE) Row 710 built (best score: 4). 51 pairs remaining to distinguish.
+  (CE) Row 720 built (best score: 3). 29 pairs remaining to distinguish.
+  (CE) Row 730 built (best score: 3). 7 pairs remaining to distinguish.
+  (CE) Row 740 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=740 (N_initial=400, N_added=340), Time total=13727 ms, Saved to: ./results/TCAS_t2_l4_pareto_0.csv, percents=1, 
+

@@ -1,0 +1,70 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/Bugzilla/Bugzilla_2_1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=18, Time=24
+There are 72303 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 72303 pairs. Example:
+       Pair 0: (9,34,),(0,0,)  vs (18,41,),(0,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 20 built (best score: 16524). 30482 pairs remaining to distinguish.
+  (CE) Row 30 built (best score: 338). 1077 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 23). 94 pairs remaining to distinguish.
+  (CE) Row 49 built (best score: 2). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=49 (N_initial=18, N_added=31), Time total=6941 ms, Saved to: ./results/Bugzilla_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/Bugzilla/Bugzilla_2_2.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=32, Time=13
+There are 5117 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 5117 pairs. Example:
+       Pair 0: (3,32,),(1,0,)  vs (3,48,),(1,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 40 built (best score: 396). 1964 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 86). 565 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 32). 105 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 2). 2 pairs remaining to distinguish.
+  (CE) Row 71 built (best score: 2). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=71 (N_initial=32, N_added=39), Time total=1202 ms, Saved to: ./results/Bugzilla_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/Bugzilla/Bugzilla_2_3.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=48, Time=11
+There are 3948 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 3948 pairs. Example:
+       Pair 0: (34,35,),(1,1,)  vs (35,38,),(0,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 50 built (best score: 913). 3948 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 340). 2231 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 193). 1096 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 62). 307 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 14). 69 pairs remaining to distinguish.
+  (CE) Row 100 built (best score: 2). 4 pairs remaining to distinguish.
+  (CE) Row 102 built (best score: 2). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=102 (N_initial=48, N_added=54), Time total=1500 ms, Saved to: ./results/Bugzilla_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/Bugzilla/Bugzilla_2_4.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=64, Time=13
+There are 1025 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 1025 pairs. Example:
+       Pair 0: (8,41,),(1,1,)  vs (22,32,),(1,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 70 built (best score: 182). 874 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 83). 502 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 63). 358 pairs remaining to distinguish.
+  (CE) Row 100 built (best score: 31). 134 pairs remaining to distinguish.
+  (CE) Row 110 built (best score: 8). 26 pairs remaining to distinguish.
+  (CE) Row 117 built (best score: 2). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=117 (N_initial=64, N_added=53), Time total=403 ms, Saved to: ./results/Bugzilla_t2_l4_pareto_0.csv, percents=1, 
+
