@@ -3,12 +3,12 @@ import re
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
+import math
 
 # --- Configuration ---
 LOG_DIR = "benchmark_logs"
-OUTPUT_LOCATING = "benchmark_size_locating.png"
-OUTPUT_DETECTING = "benchmark_size_detecting.png"
-# ---
+OUTPUT_PREFIX = "benchmark_sizes_comparison"
+# ---------------------
 
 def parse_log_files(log_dir):
     parsed_data = []
@@ -26,8 +26,12 @@ def parse_log_files(log_dir):
 
         config, array_type, method, policy, trial = match.groups()
 
-        with open(os.path.join(log_dir, filename), 'r') as f:
-            content = f.read()
+        try:
+            with open(os.path.join(log_dir, filename), 'r') as f:
+                content = f.read()
+        except Exception as e:
+            print(f"Skipping {filename}: {e}")
+            continue
 
         results = log_content_re.findall(content)
         for lambda_val, n_total in results:
@@ -41,35 +45,66 @@ def parse_log_files(log_dir):
             })
     return parsed_data
 
-def plot_sizes(df, title, output_file):
-    if df.empty: return
+def generate_comparison_chart(df, configs, filename_suffix):
+    """
+    Generates a figure with len(configs) rows and 2 columns (Locating vs Detecting).
+    """
+    if not configs:
+        return
 
-    # Average N across trials
-    df_agg = df.groupby(['Config', 'Lambda', 'RunType'])['N_total'].mean().reset_index()
-    configs = df_agg['Config'].unique()
+    num_rows = len(configs)
+    fig, axes = plt.subplots(nrows=num_rows, ncols=2, figsize=(14, 5 * num_rows), squeeze=False)
 
-    if len(configs) == 0: return
-
-    fig, axes = plt.subplots(nrows=len(configs), ncols=1, figsize=(12, 6 * len(configs)), squeeze=False)
+    # Global titles for columns (optional, but nice)
+    # plt.figtext(0.25, 0.99, "Locating Arrays", ha='center', fontsize=16, fontweight='bold')
+    # plt.figtext(0.75, 0.99, "Detecting Arrays", ha='center', fontsize=16, fontweight='bold')
 
     for i, config in enumerate(configs):
-        ax = axes[i][0]
-        subset = df_agg[df_agg['Config'] == config]
+        # Filter data for this specific config
+        config_data = df[df['Config'] == config]
 
-        pivot = subset.pivot(index='Lambda', columns='RunType', values='N_total')
-        pivot.plot(kind='bar', ax=ax, width=0.8, edgecolor='black', rot=0)
+        # --- LEFT PLOT: Locating ---
+        ax_loc = axes[i][0]
+        loc_data = config_data[config_data['ArrayType'] == 'locating']
 
-        ax.set_title(f'{title}: {config}', fontsize=14)
-        ax.set_ylabel('Array Size (N)')
-        ax.set_xlabel('Lambda')
-        ax.grid(axis='y', linestyle='--', alpha=0.7)
+        if not loc_data.empty:
+            pivot_loc = loc_data.pivot_table(index='Lambda', columns='RunType', values='N_total')
+            pivot_loc.plot(kind='bar', ax=ax_loc, width=0.8, edgecolor='black', rot=0)
+            ax_loc.set_title(f"{config} - Locating", fontsize=14, fontweight='bold')
+            ax_loc.set_ylabel("Array Size (N)")
+            ax_loc.grid(axis='y', linestyle='--', alpha=0.7)
+            ax_loc.legend(loc='upper left', fontsize='small')
 
-        for container in ax.containers:
-             ax.bar_label(container, fmt='%d', padding=3, fontsize=9)
+            # Add labels
+            for container in ax_loc.containers:
+                ax_loc.bar_label(container, fmt='%d', padding=3, fontsize=8)
+        else:
+            ax_loc.text(0.5, 0.5, "No Locating Data", ha='center', va='center')
+            ax_loc.set_title(f"{config} - Locating")
 
-    plt.tight_layout()
+        # --- RIGHT PLOT: Detecting ---
+        ax_det = axes[i][1]
+        det_data = config_data[config_data['ArrayType'] == 'detecting']
+
+        if not det_data.empty:
+            pivot_det = det_data.pivot_table(index='Lambda', columns='RunType', values='N_total')
+            pivot_det.plot(kind='bar', ax=ax_det, width=0.8, edgecolor='black', rot=0)
+            ax_det.set_title(f"{config} - Detecting", fontsize=14, fontweight='bold')
+            ax_det.set_ylabel("") # Hide Y label on right to save space? Or keep it.
+            ax_det.grid(axis='y', linestyle='--', alpha=0.7)
+            ax_det.legend(loc='upper left', fontsize='small')
+
+            # Add labels
+            for container in ax_det.containers:
+                ax_det.bar_label(container, fmt='%d', padding=3, fontsize=8)
+        else:
+            ax_det.text(0.5, 0.5, "No Detecting Data\n(Timeout?)", ha='center', va='center')
+            ax_det.set_title(f"{config} - Detecting")
+
+    plt.tight_layout(rect=[0, 0.03, 1, 0.98]) # Make room for main title if needed
+    output_file = f"{OUTPUT_PREFIX}_{filename_suffix}.png"
     plt.savefig(output_file)
-    print(f"Saved {output_file}")
+    print(f"Saved comparison chart to '{output_file}'")
     plt.close()
 
 if __name__ == "__main__":
@@ -80,5 +115,19 @@ if __name__ == "__main__":
 
     df = pd.DataFrame(data)
 
-    plot_sizes(df[df['ArrayType'] == 'locating'], "Locating Sizes", OUTPUT_LOCATING)
-    plot_sizes(df[df['ArrayType'] == 'detecting'], "Detecting Sizes", OUTPUT_DETECTING)
+    # 1. Aggregate Trials (Mean N)
+    df_agg = df.groupby(['Config', 'ArrayType', 'Lambda', 'RunType'])['N_total'].mean().reset_index()
+
+    # 2. Get unique configs and sort them
+    all_configs = sorted(df_agg['Config'].unique())
+
+    # 3. Split into chunks (e.g., max 6 rows per image)
+    CHUNK_SIZE = 6
+    total_chunks = math.ceil(len(all_configs) / CHUNK_SIZE)
+
+    for chunk_idx in range(total_chunks):
+        start_i = chunk_idx * CHUNK_SIZE
+        end_i = start_i + CHUNK_SIZE
+        config_chunk = all_configs[start_i:end_i]
+
+        generate_comparison_chart(df_agg, config_chunk, f"part{chunk_idx+1}")
