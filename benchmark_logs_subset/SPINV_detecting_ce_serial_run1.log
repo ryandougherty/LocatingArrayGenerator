@@ -1,0 +1,16 @@
+------------d=1, t=3, lambda=1, filename=./evaluation/SPINV/SPINV_3_1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=168, Time=1644
+There are 2596917 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 598 (M=168)
+  (CE) Row 169 built. 2406547 pairs remaining to distinguish.
+  (CE) Row 170 built. 2243742 pairs remaining to distinguish.
+  (CE) Row 171 built. 2063521 pairs remaining to distinguish.
+  (CE) Row 172 built. 1915398 pairs remaining to distinguish.
+  (CE) Row 173 built. 1779126 pairs remaining to distinguish.
+  (CE) Row 174 built. 1666876 pairs remaining to distinguish.
+  (CE) Row 175 built. 1551825 pairs remaining to distinguish.
+  (CE) Row 176 built. 1452026 pairs remaining to distinguish.
+  (CE) Row 177 built. 1358488 pairs remaining to distinguish.

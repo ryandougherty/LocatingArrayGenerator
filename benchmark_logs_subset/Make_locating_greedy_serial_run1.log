@@ -1,0 +1,78 @@
+------------d=1, t=3, lambda=1, filename=./evaluation/Make/Make_3_1.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=138, Time=185
+There are 10072 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 10072 pairs. Example:
+       Pair 0: (1,6,18,),(0,1,0,)  vs (1,7,11,),(0,1,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 140 built (best score: 494). 8999 pairs remaining to distinguish.
+  (CE) Row 150 built (best score: 269). 5418 pairs remaining to distinguish.
+  (CE) Row 160 built (best score: 173). 3342 pairs remaining to distinguish.
+  (CE) Row 170 built (best score: 92). 2154 pairs remaining to distinguish.
+  (CE) Row 180 built (best score: 60). 1367 pairs remaining to distinguish.
+  (CE) Row 190 built (best score: 41). 876 pairs remaining to distinguish.
+  (CE) Row 200 built (best score: 23). 544 pairs remaining to distinguish.
+  (CE) Row 210 built (best score: 17). 318 pairs remaining to distinguish.
+  (CE) Row 220 built (best score: 10). 167 pairs remaining to distinguish.
+  (CE) Row 230 built (best score: 6). 81 pairs remaining to distinguish.
+  (CE) Row 240 built (best score: 4). 32 pairs remaining to distinguish.
+  (CE) Row 250 built (best score: 1). 10 pairs remaining to distinguish.
+  (CE) Row 258 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=258 (N_initial=138, N_added=120), Time total=1951 ms, Saved to: ./results/Make_t3_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=3, lambda=2, filename=./evaluation/Make/Make_3_2.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=244, Time=146
+There are 270 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 270 pairs. Example:
+       Pair 0: (0,6,12,),(5,0,1,)  vs (0,6,17,),(5,0,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 250 built (best score: 10). 243 pairs remaining to distinguish.
+  (CE) Row 260 built (best score: 10). 185 pairs remaining to distinguish.
+  (CE) Row 270 built (best score: 10). 148 pairs remaining to distinguish.
+  (CE) Row 280 built (best score: 7). 97 pairs remaining to distinguish.
+  (CE) Row 290 built (best score: 5). 65 pairs remaining to distinguish.
+  (CE) Row 300 built (best score: 6). 33 pairs remaining to distinguish.
+  (CE) Row 310 built (best score: 2). 18 pairs remaining to distinguish.
+  (CE) Row 320 built (best score: 1). 7 pairs remaining to distinguish.
+  (CE) Row 327 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=327 (N_initial=244, N_added=83), Time total=189 ms, Saved to: ./results/Make_t3_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=3, lambda=3, filename=./evaluation/Make/Make_3_3.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=360, Time=86
+There are 197 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 197 pairs. Example:
+       Pair 0: (0,1,2,),(1,4,0,)  vs (0,1,3,),(1,4,2,)  (already separated 2 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 370 built (best score: 5). 136 pairs remaining to distinguish.
+  (CE) Row 380 built (best score: 7). 101 pairs remaining to distinguish.
+  (CE) Row 390 built (best score: 4). 74 pairs remaining to distinguish.
+  (CE) Row 400 built (best score: 4). 47 pairs remaining to distinguish.
+  (CE) Row 410 built (best score: 2). 27 pairs remaining to distinguish.
+  (CE) Row 420 built (best score: 2). 9 pairs remaining to distinguish.
+  (CE) Row 428 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=428 (N_initial=360, N_added=68), Time total=110 ms, Saved to: ./results/Make_t3_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=3, lambda=4, filename=./evaluation/Make/Make_3_4.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=480, Time=93
+There are 4 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 4 pairs. Example:
+       Pair 0: (0,1,8,),(0,3,1,)  vs (0,1,19,),(0,3,0,)  (already separated 2 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 487 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=487 (N_initial=480, N_added=7), Time total=93 ms, Saved to: ./results/Make_t3_l4_pareto_0.csv, percents=1, 
+
