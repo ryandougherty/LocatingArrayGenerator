@@ -1,0 +1,250 @@
+------------d=1, t=3, lambda=1, filename=./evaluation/SPINV/SPINV_3_1.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=168, Time=3423
+There are 35190 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 526 (M=168)
+  (CE) Row 169 built. 32950 pairs remaining to distinguish.
+  (CE) Row 170 built. 30680 pairs remaining to distinguish.
+  (CE) Row 171 built. 28825 pairs remaining to distinguish.
+  (CE) Row 172 built. 26396 pairs remaining to distinguish.
+  (CE) Row 173 built. 24745 pairs remaining to distinguish.
+  (CE) Row 174 built. 23425 pairs remaining to distinguish.
+  (CE) Row 175 built. 21843 pairs remaining to distinguish.
+  (CE) Row 176 built. 20378 pairs remaining to distinguish.
+  (CE) Row 177 built. 19055 pairs remaining to distinguish.
+  (CE) Row 178 built. 17994 pairs remaining to distinguish.
+  (CE) Row 179 built. 16994 pairs remaining to distinguish.
+  (CE) Row 180 built. 15977 pairs remaining to distinguish.
+  (CE) Row 181 built. 14925 pairs remaining to distinguish.
+  (CE) Row 182 built. 14079 pairs remaining to distinguish.
+  (CE) Row 183 built. 13257 pairs remaining to distinguish.
+  (CE) Row 184 built. 12508 pairs remaining to distinguish.
+  (CE) Row 185 built. 11747 pairs remaining to distinguish.
+  (CE) Row 186 built. 11063 pairs remaining to distinguish.
+  (CE) Row 187 built. 10374 pairs remaining to distinguish.
+  (CE) Row 188 built. 9796 pairs remaining to distinguish.
+  (CE) Row 189 built. 9263 pairs remaining to distinguish.
+  (CE) Row 190 built. 8685 pairs remaining to distinguish.
+  (CE) Row 191 built. 8206 pairs remaining to distinguish.
+  (CE) Row 192 built. 7721 pairs remaining to distinguish.
+  (CE) Row 193 built. 7396 pairs remaining to distinguish.
+  (CE) Row 194 built. 6908 pairs remaining to distinguish.
+  (CE) Row 195 built. 6416 pairs remaining to distinguish.
+  (CE) Row 196 built. 6117 pairs remaining to distinguish.
+  (CE) Row 197 built. 5767 pairs remaining to distinguish.
+  (CE) Row 198 built. 5399 pairs remaining to distinguish.
+  (CE) Row 199 built. 5127 pairs remaining to distinguish.
+  (CE) Row 200 built. 4838 pairs remaining to distinguish.
+  (CE) Row 201 built. 4538 pairs remaining to distinguish.
+  (CE) Row 202 built. 4236 pairs remaining to distinguish.
+  (CE) Row 203 built. 3932 pairs remaining to distinguish.
+  (CE) Row 204 built. 3736 pairs remaining to distinguish.
+  (CE) Row 205 built. 3532 pairs remaining to distinguish.
+  (CE) Row 206 built. 3298 pairs remaining to distinguish.
+  (CE) Row 207 built. 3140 pairs remaining to distinguish.
+  (CE) Row 208 built. 2998 pairs remaining to distinguish.
+  (CE) Row 209 built. 2808 pairs remaining to distinguish.
+  (CE) Row 210 built. 2651 pairs remaining to distinguish.
+  (CE) Row 211 built. 2471 pairs remaining to distinguish.
+  (CE) Row 212 built. 2356 pairs remaining to distinguish.
+  (CE) Row 213 built. 2220 pairs remaining to distinguish.
+  (CE) Row 214 built. 2104 pairs remaining to distinguish.
+  (CE) Row 215 built. 1973 pairs remaining to distinguish.
+  (CE) Row 216 built. 1879 pairs remaining to distinguish.
+  (CE) Row 217 built. 1744 pairs remaining to distinguish.
+  (CE) Row 218 built. 1656 pairs remaining to distinguish.
+  (CE) Row 219 built. 1570 pairs remaining to distinguish.
+  (CE) Row 220 built. 1498 pairs remaining to distinguish.
+  (CE) Row 221 built. 1406 pairs remaining to distinguish.
+  (CE) Row 222 built. 1336 pairs remaining to distinguish.
+  (CE) Row 223 built. 1256 pairs remaining to distinguish.
+  (CE) Row 224 built. 1191 pairs remaining to distinguish.
+  (CE) Row 225 built. 1113 pairs remaining to distinguish.
+  (CE) Row 226 built. 1066 pairs remaining to distinguish.
+  (CE) Row 227 built. 1004 pairs remaining to distinguish.
+  (CE) Row 228 built. 961 pairs remaining to distinguish.
+  (CE) Row 229 built. 895 pairs remaining to distinguish.
+  (CE) Row 230 built. 844 pairs remaining to distinguish.
+  (CE) Row 231 built. 795 pairs remaining to distinguish.
+  (CE) Row 232 built. 749 pairs remaining to distinguish.
+  (CE) Row 233 built. 699 pairs remaining to distinguish.
+  (CE) Row 234 built. 646 pairs remaining to distinguish.
+  (CE) Row 235 built. 606 pairs remaining to distinguish.
+  (CE) Row 236 built. 582 pairs remaining to distinguish.
+  (CE) Row 237 built. 541 pairs remaining to distinguish.
+  (CE) Row 238 built. 505 pairs remaining to distinguish.
+  (CE) Row 239 built. 465 pairs remaining to distinguish.
+  (CE) Row 240 built. 435 pairs remaining to distinguish.
+  (CE) Row 241 built. 399 pairs remaining to distinguish.
+  (CE) Row 242 built. 369 pairs remaining to distinguish.
+  (CE) Row 243 built. 347 pairs remaining to distinguish.
+  (CE) Row 244 built. 329 pairs remaining to distinguish.
+  (CE) Row 245 built. 290 pairs remaining to distinguish.
+  (CE) Row 246 built. 269 pairs remaining to distinguish.
+  (CE) Row 247 built. 246 pairs remaining to distinguish.
+  (CE) Row 248 built. 233 pairs remaining to distinguish.
+  (CE) Row 249 built. 219 pairs remaining to distinguish.
+  (CE) Row 250 built. 200 pairs remaining to distinguish.
+  (CE) Row 251 built. 182 pairs remaining to distinguish.
+  (CE) Row 252 built. 163 pairs remaining to distinguish.
+  (CE) Row 253 built. 150 pairs remaining to distinguish.
+  (CE) Row 254 built. 134 pairs remaining to distinguish.
+  (CE) Row 255 built. 119 pairs remaining to distinguish.
+  (CE) Row 256 built. 109 pairs remaining to distinguish.
+  (CE) Row 257 built. 101 pairs remaining to distinguish.
+  (CE) Row 258 built. 89 pairs remaining to distinguish.
+  (CE) Row 259 built. 78 pairs remaining to distinguish.
+  (CE) Row 260 built. 67 pairs remaining to distinguish.
+  (CE) Row 261 built. 57 pairs remaining to distinguish.
+  (CE) Row 262 built. 51 pairs remaining to distinguish.
+  (CE) Row 263 built. 44 pairs remaining to distinguish.
+  (CE) Row 264 built. 38 pairs remaining to distinguish.
+  (CE) Row 265 built. 34 pairs remaining to distinguish.
+  (CE) Row 266 built. 27 pairs remaining to distinguish.
+  (CE) Row 267 built. 22 pairs remaining to distinguish.
+  (CE) Row 268 built. 18 pairs remaining to distinguish.
+  (CE) Row 269 built. 14 pairs remaining to distinguish.
+  (CE) Row 270 built. 6 pairs remaining to distinguish.
+  (CE) Row 271 built. 3 pairs remaining to distinguish.
+  (CE) Row 272 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=272 (N_initial=168, N_added=104), Time total=77528 ms, Saved to: ./results/SPINV_t3_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=3, lambda=2, filename=./evaluation/SPINV/SPINV_3_2.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=250, Time=1635
+There are 459 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 568 (M=250)
+  (CE) Row 251 built. 459 pairs remaining to distinguish.
+  (CE) Row 252 built. 458 pairs remaining to distinguish.
+  (CE) Row 253 built. 454 pairs remaining to distinguish.
+  (CE) Row 254 built. 453 pairs remaining to distinguish.
+  (CE) Row 255 built. 449 pairs remaining to distinguish.
+  (CE) Row 256 built. 446 pairs remaining to distinguish.
+  (CE) Row 257 built. 445 pairs remaining to distinguish.
+  (CE) Row 258 built. 436 pairs remaining to distinguish.
+  (CE) Row 259 built. 425 pairs remaining to distinguish.
+  (CE) Row 260 built. 416 pairs remaining to distinguish.
+  (CE) Row 261 built. 414 pairs remaining to distinguish.
+  (CE) Row 262 built. 402 pairs remaining to distinguish.
+  (CE) Row 263 built. 391 pairs remaining to distinguish.
+  (CE) Row 264 built. 381 pairs remaining to distinguish.
+  (CE) Row 265 built. 364 pairs remaining to distinguish.
+  (CE) Row 266 built. 355 pairs remaining to distinguish.
+  (CE) Row 267 built. 347 pairs remaining to distinguish.
+  (CE) Row 268 built. 336 pairs remaining to distinguish.
+  (CE) Row 269 built. 328 pairs remaining to distinguish.
+  (CE) Row 270 built. 321 pairs remaining to distinguish.
+  (CE) Row 271 built. 309 pairs remaining to distinguish.
+  (CE) Row 272 built. 300 pairs remaining to distinguish.
+  (CE) Row 273 built. 286 pairs remaining to distinguish.
+  (CE) Row 274 built. 281 pairs remaining to distinguish.
+  (CE) Row 275 built. 271 pairs remaining to distinguish.
+  (CE) Row 276 built. 257 pairs remaining to distinguish.
+  (CE) Row 277 built. 243 pairs remaining to distinguish.
+  (CE) Row 278 built. 234 pairs remaining to distinguish.
+  (CE) Row 279 built. 223 pairs remaining to distinguish.
+  (CE) Row 280 built. 203 pairs remaining to distinguish.
+  (CE) Row 281 built. 190 pairs remaining to distinguish.
+  (CE) Row 282 built. 172 pairs remaining to distinguish.
+  (CE) Row 283 built. 157 pairs remaining to distinguish.
+  (CE) Row 284 built. 148 pairs remaining to distinguish.
+  (CE) Row 285 built. 131 pairs remaining to distinguish.
+  (CE) Row 286 built. 124 pairs remaining to distinguish.
+  (CE) Row 287 built. 115 pairs remaining to distinguish.
+  (CE) Row 288 built. 97 pairs remaining to distinguish.
+  (CE) Row 289 built. 81 pairs remaining to distinguish.
+  (CE) Row 290 built. 74 pairs remaining to distinguish.
+  (CE) Row 291 built. 64 pairs remaining to distinguish.
+  (CE) Row 292 built. 59 pairs remaining to distinguish.
+  (CE) Row 293 built. 53 pairs remaining to distinguish.
+  (CE) Row 294 built. 46 pairs remaining to distinguish.
+  (CE) Row 295 built. 42 pairs remaining to distinguish.
+  (CE) Row 296 built. 35 pairs remaining to distinguish.
+  (CE) Row 297 built. 30 pairs remaining to distinguish.
+  (CE) Row 298 built. 26 pairs remaining to distinguish.
+  (CE) Row 299 built. 21 pairs remaining to distinguish.
+  (CE) Row 300 built. 16 pairs remaining to distinguish.
+  (CE) Row 301 built. 10 pairs remaining to distinguish.
+  (CE) Row 302 built. 5 pairs remaining to distinguish.
+  (CE) Row 303 built. 1 pairs remaining to distinguish.
+  (CE) Row 304 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=304 (N_initial=250, N_added=54), Time total=3203 ms, Saved to: ./results/SPINV_t3_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=3, lambda=3, filename=./evaluation/SPINV/SPINV_3_3.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=330, Time=1455
+There are 145 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 572 (M=330)
+  (CE) Row 331 built. 120 pairs remaining to distinguish.
+  (CE) Row 332 built. 113 pairs remaining to distinguish.
+  (CE) Row 333 built. 102 pairs remaining to distinguish.
+  (CE) Row 334 built. 90 pairs remaining to distinguish.
+  (CE) Row 335 built. 84 pairs remaining to distinguish.
+  (CE) Row 336 built. 76 pairs remaining to distinguish.
+  (CE) Row 337 built. 70 pairs remaining to distinguish.
+  (CE) Row 338 built. 62 pairs remaining to distinguish.
+  (CE) Row 339 built. 52 pairs remaining to distinguish.
+  (CE) Row 340 built. 48 pairs remaining to distinguish.
+  (CE) Row 341 built. 43 pairs remaining to distinguish.
+  (CE) Row 342 built. 37 pairs remaining to distinguish.
+  (CE) Row 343 built. 33 pairs remaining to distinguish.
+  (CE) Row 344 built. 27 pairs remaining to distinguish.
+  (CE) Row 345 built. 22 pairs remaining to distinguish.
+  (CE) Row 346 built. 16 pairs remaining to distinguish.
+  (CE) Row 347 built. 14 pairs remaining to distinguish.
+  (CE) Row 348 built. 12 pairs remaining to distinguish.
+  (CE) Row 349 built. 10 pairs remaining to distinguish.
+  (CE) Row 350 built. 8 pairs remaining to distinguish.
+  (CE) Row 351 built. 5 pairs remaining to distinguish.
+  (CE) Row 352 built. 3 pairs remaining to distinguish.
+  (CE) Row 353 built. 2 pairs remaining to distinguish.
+  (CE) Row 354 built. 1 pairs remaining to distinguish.
+  (CE) Row 355 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=355 (N_initial=330, N_added=25), Time total=1602 ms, Saved to: ./results/SPINV_t3_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=3, lambda=4, filename=./evaluation/SPINV/SPINV_3_4.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=399, Time=1898
+There are 29 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 720 (M=399)
+  (CE) Row 400 built. 29 pairs remaining to distinguish.
+  (CE) Row 401 built. 29 pairs remaining to distinguish.
+  (CE) Row 402 built. 29 pairs remaining to distinguish.
+  (CE) Row 403 built. 29 pairs remaining to distinguish.
+  (CE) Row 404 built. 28 pairs remaining to distinguish.
+  (CE) Row 405 built. 28 pairs remaining to distinguish.
+  (CE) Row 406 built. 27 pairs remaining to distinguish.
+  (CE) Row 407 built. 26 pairs remaining to distinguish.
+  (CE) Row 408 built. 26 pairs remaining to distinguish.
+  (CE) Row 409 built. 22 pairs remaining to distinguish.
+  (CE) Row 410 built. 20 pairs remaining to distinguish.
+  (CE) Row 411 built. 20 pairs remaining to distinguish.
+  (CE) Row 412 built. 20 pairs remaining to distinguish.
+  (CE) Row 413 built. 20 pairs remaining to distinguish.
+  (CE) Row 414 built. 19 pairs remaining to distinguish.
+  (CE) Row 415 built. 18 pairs remaining to distinguish.
+  (CE) Row 416 built. 17 pairs remaining to distinguish.
+  (CE) Row 417 built. 16 pairs remaining to distinguish.
+  (CE) Row 418 built. 14 pairs remaining to distinguish.
+  (CE) Row 419 built. 13 pairs remaining to distinguish.
+  (CE) Row 420 built. 8 pairs remaining to distinguish.
+  (CE) Row 421 built. 6 pairs remaining to distinguish.
+  (CE) Row 422 built. 5 pairs remaining to distinguish.
+  (CE) Row 423 built. 3 pairs remaining to distinguish.
+  (CE) Row 424 built. 2 pairs remaining to distinguish.
+  (CE) Row 425 built. 1 pairs remaining to distinguish.
+  (CE) Row 426 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=426 (N_initial=399, N_added=27), Time total=1959 ms, Saved to: ./results/SPINV_t3_l4_pareto_0.csv, percents=1, 
+
