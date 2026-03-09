@@ -113,10 +113,10 @@ for conf in "${CONFIGS[@]}"; do
     echo "=== Configuration: $conf ==="
 
     # --- LOCATING ARRAYS (Commented out to preserve your 24h run) ---
-    # echo "Skipping Locating Arrays (already done)..."
-    # run_suite "$conf" "locating" "ga" "parallel"
-    # run_suite "$conf" "locating" "greedy" "serial"
-    # run_suite "$conf" "locating" "ce" "serial"
+    echo "Skipping Locating Arrays (already done)..."
+    run_suite "$conf" "locating" "ga" "parallel"
+    run_suite "$conf" "locating" "greedy" "serial"
+    run_suite "$conf" "locating" "ce" "serial"
 
     # --- DETECTING ARRAYS (Enabled) ---
     run_suite "$conf" "detecting" "ga" "parallel"

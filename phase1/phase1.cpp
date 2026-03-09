@@ -285,7 +285,7 @@ std::vector<std::tuple<d_set_type, d_set_type, int>> find_non_detecting_sets( co
         lower_lim = 1; // "at most d"
     }
     for (int i = lower_lim; i <= d; i++) {
-        auto to_add = combinations(interactions, d); // All combinations of size 'i'
+        auto to_add = combinations(interactions, i); // All combinations of size 'i'
         for (auto& individual_d_set : to_add) {
             d_set_type inner_d_set;
             for (auto& interaction : individual_d_set) {
@@ -422,9 +422,13 @@ std::vector<std::tuple<d_set_type, d_set_type, int>> find_non_locating_sets(cons
                     // Now, perform the expensive symmetric difference check.
                     
                     // Get the full (non-partitioned) row sets for each d-set
-                    auto rows1 = rows_of_d_set(d_set_group[i], A);
-                    auto rows2 = rows_of_d_set(d_set_group[j], A);
-                    
+                    auto unordered_rows1 = rows_of_d_set(d_set_group[i], A);
+                    auto unordered_rows2 = rows_of_d_set(d_set_group[j], A);
+                    std::vector<int> rows1(unordered_rows1.begin(), unordered_rows1.end()); // Ensure sorted for set operations
+                    std::vector<int> rows2(unordered_rows2.begin(), unordered_rows2.end()); // Ensure sorted for set operations
+                    std::sort(rows1.begin(), rows1.end());
+                    std::sort(rows2.begin(), rows2.end());
+
                     // Calculate the size of the symmetric difference
                     int diff_size = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
 
