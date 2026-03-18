@@ -1,0 +1,127 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/Apache/Apache_2_1.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=60, Time=160
+There are 1256 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 143 (M=60)
+  (CE) Row 61 built. 1068 pairs remaining to distinguish.
+  (CE) Row 62 built. 902 pairs remaining to distinguish.
+  (CE) Row 63 built. 742 pairs remaining to distinguish.
+  (CE) Row 64 built. 619 pairs remaining to distinguish.
+  (CE) Row 65 built. 504 pairs remaining to distinguish.
+  (CE) Row 66 built. 413 pairs remaining to distinguish.
+  (CE) Row 67 built. 304 pairs remaining to distinguish.
+  (CE) Row 68 built. 238 pairs remaining to distinguish.
+  (CE) Row 69 built. 173 pairs remaining to distinguish.
+  (CE) Row 70 built. 130 pairs remaining to distinguish.
+  (CE) Row 71 built. 92 pairs remaining to distinguish.
+  (CE) Row 72 built. 62 pairs remaining to distinguish.
+  (CE) Row 73 built. 45 pairs remaining to distinguish.
+  (CE) Row 74 built. 23 pairs remaining to distinguish.
+  (CE) Row 75 built. 10 pairs remaining to distinguish.
+  (CE) Row 76 built. 5 pairs remaining to distinguish.
+  (CE) Row 77 built. 1 pairs remaining to distinguish.
+  (CE) Row 78 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=78 (N_initial=60, N_added=18), Time total=1939 ms, Saved to: ./results/Apache_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/Apache/Apache_2_2.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=60, Time=144
+There are 1256 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 171 (M=60)
+  (CE) Row 61 built. 1256 pairs remaining to distinguish.
+  (CE) Row 62 built. 1254 pairs remaining to distinguish.
+  (CE) Row 63 built. 1249 pairs remaining to distinguish.
+  (CE) Row 64 built. 1247 pairs remaining to distinguish.
+  (CE) Row 65 built. 1235 pairs remaining to distinguish.
+  (CE) Row 66 built. 1235 pairs remaining to distinguish.
+  (CE) Row 67 built. 1137 pairs remaining to distinguish.
+  (CE) Row 68 built. 1036 pairs remaining to distinguish.
+  (CE) Row 69 built. 942 pairs remaining to distinguish.
+  (CE) Row 70 built. 872 pairs remaining to distinguish.
+  (CE) Row 71 built. 779 pairs remaining to distinguish.
+  (CE) Row 72 built. 715 pairs remaining to distinguish.
+  (CE) Row 73 built. 578 pairs remaining to distinguish.
+  (CE) Row 74 built. 500 pairs remaining to distinguish.
+  (CE) Row 75 built. 405 pairs remaining to distinguish.
+  (CE) Row 76 built. 364 pairs remaining to distinguish.
+  (CE) Row 77 built. 311 pairs remaining to distinguish.
+  (CE) Row 78 built. 258 pairs remaining to distinguish.
+  (CE) Row 79 built. 204 pairs remaining to distinguish.
+  (CE) Row 80 built. 151 pairs remaining to distinguish.
+  (CE) Row 81 built. 119 pairs remaining to distinguish.
+  (CE) Row 82 built. 92 pairs remaining to distinguish.
+  (CE) Row 83 built. 66 pairs remaining to distinguish.
+  (CE) Row 84 built. 60 pairs remaining to distinguish.
+  (CE) Row 85 built. 46 pairs remaining to distinguish.
+  (CE) Row 86 built. 32 pairs remaining to distinguish.
+  (CE) Row 87 built. 18 pairs remaining to distinguish.
+  (CE) Row 88 built. 12 pairs remaining to distinguish.
+  (CE) Row 89 built. 6 pairs remaining to distinguish.
+  (CE) Row 90 built. 2 pairs remaining to distinguish.
+  (CE) Row 91 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=91 (N_initial=60, N_added=31), Time total=4856 ms, Saved to: ./results/Apache_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/Apache/Apache_2_3.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=90, Time=117
+There are 533 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 181 (M=90)
+  (CE) Row 91 built. 473 pairs remaining to distinguish.
+  (CE) Row 92 built. 419 pairs remaining to distinguish.
+  (CE) Row 93 built. 343 pairs remaining to distinguish.
+  (CE) Row 94 built. 301 pairs remaining to distinguish.
+  (CE) Row 95 built. 244 pairs remaining to distinguish.
+  (CE) Row 96 built. 169 pairs remaining to distinguish.
+  (CE) Row 97 built. 143 pairs remaining to distinguish.
+  (CE) Row 98 built. 120 pairs remaining to distinguish.
+  (CE) Row 99 built. 99 pairs remaining to distinguish.
+  (CE) Row 100 built. 76 pairs remaining to distinguish.
+  (CE) Row 101 built. 71 pairs remaining to distinguish.
+  (CE) Row 102 built. 57 pairs remaining to distinguish.
+  (CE) Row 103 built. 51 pairs remaining to distinguish.
+  (CE) Row 104 built. 33 pairs remaining to distinguish.
+  (CE) Row 105 built. 23 pairs remaining to distinguish.
+  (CE) Row 106 built. 15 pairs remaining to distinguish.
+  (CE) Row 107 built. 11 pairs remaining to distinguish.
+  (CE) Row 108 built. 7 pairs remaining to distinguish.
+  (CE) Row 109 built. 4 pairs remaining to distinguish.
+  (CE) Row 110 built. 2 pairs remaining to distinguish.
+  (CE) Row 111 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=111 (N_initial=90, N_added=21), Time total=952 ms, Saved to: ./results/Apache_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/Apache/Apache_2_4.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=120, Time=117
+There are 61 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 200 (M=120)
+  (CE) Row 121 built. 61 pairs remaining to distinguish.
+  (CE) Row 122 built. 61 pairs remaining to distinguish.
+  (CE) Row 123 built. 61 pairs remaining to distinguish.
+  (CE) Row 124 built. 52 pairs remaining to distinguish.
+  (CE) Row 125 built. 40 pairs remaining to distinguish.
+  (CE) Row 126 built. 40 pairs remaining to distinguish.
+  (CE) Row 127 built. 40 pairs remaining to distinguish.
+  (CE) Row 128 built. 23 pairs remaining to distinguish.
+  (CE) Row 129 built. 23 pairs remaining to distinguish.
+  (CE) Row 130 built. 23 pairs remaining to distinguish.
+  (CE) Row 131 built. 15 pairs remaining to distinguish.
+  (CE) Row 132 built. 15 pairs remaining to distinguish.
+  (CE) Row 133 built. 9 pairs remaining to distinguish.
+  (CE) Row 134 built. 5 pairs remaining to distinguish.
+  (CE) Row 135 built. 3 pairs remaining to distinguish.
+  (CE) Row 136 built. 1 pairs remaining to distinguish.
+  (CE) Row 137 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=137 (N_initial=120, N_added=17), Time total=257 ms, Saved to: ./results/Apache_t2_l4_pareto_0.csv, percents=1, 
+

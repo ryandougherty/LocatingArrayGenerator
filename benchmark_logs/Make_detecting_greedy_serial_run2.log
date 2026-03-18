@@ -1,0 +1,69 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/Make/Make_2_1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=30, Time=3
+There are 4890 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 4890 pairs. Example:
+       Pair 0: (5,17,),(0,0,)  vs (5,19,),(0,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 40 built (best score: 123). 648 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 25). 94 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 3). 3 pairs remaining to distinguish.
+  (CE) Row 62 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=62 (N_initial=30, N_added=32), Time total=228 ms, Saved to: ./results/Make_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/Make/Make_2_2.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=60, Time=2
+There are 656 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 656 pairs. Example:
+       Pair 0: (0,2,),(1,3,)  vs (0,3,),(1,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 70 built (best score: 55). 387 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 30). 124 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 6). 33 pairs remaining to distinguish.
+  (CE) Row 100 built (best score: 3). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=100 (N_initial=60, N_added=40), Time total=49 ms, Saved to: ./results/Make_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/Make/Make_2_3.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=90, Time=3
+There are 150 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 150 pairs. Example:
+       Pair 0: (0,4,),(0,2,)  vs (0,18,),(0,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 100 built (best score: 16). 117 pairs remaining to distinguish.
+  (CE) Row 110 built (best score: 10). 61 pairs remaining to distinguish.
+  (CE) Row 120 built (best score: 4). 29 pairs remaining to distinguish.
+  (CE) Row 130 built (best score: 2). 10 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 1). 2 pairs remaining to distinguish.
+  (CE) Row 142 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=142 (N_initial=90, N_added=52), Time total=18 ms, Saved to: ./results/Make_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/Make/Make_2_4.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=120, Time=3
+There are 132 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 132 pairs. Example:
+       Pair 0: (2,20,),(0,0,)  vs (3,12,),(3,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 130 built (best score: 14). 116 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 8). 88 pairs remaining to distinguish.
+  (CE) Row 150 built (best score: 8). 68 pairs remaining to distinguish.
+  (CE) Row 160 built (best score: 5). 50 pairs remaining to distinguish.
+  (CE) Row 170 built (best score: 5). 34 pairs remaining to distinguish.
+  (CE) Row 180 built (best score: 3). 8 pairs remaining to distinguish.
+  (CE) Row 182 built (best score: 3). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=182 (N_initial=120, N_added=62), Time total=23 ms, Saved to: ./results/Make_t2_l4_pareto_0.csv, percents=1, 
+

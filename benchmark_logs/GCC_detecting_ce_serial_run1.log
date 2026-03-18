@@ -1,0 +1,41 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/GCC/GCC_2_1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=21, Time=599
+There are 2258852 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 81 (M=21)
+  (CE) Row 22 built. 1434652 pairs remaining to distinguish.
+  (CE) Row 23 built. 908688 pairs remaining to distinguish.
+  (CE) Row 24 built. 580108 pairs remaining to distinguish.
+  (CE) Row 25 built. 371130 pairs remaining to distinguish.
+  (CE) Row 26 built. 243812 pairs remaining to distinguish.
+  (CE) Row 27 built. 155624 pairs remaining to distinguish.
+  (CE) Row 28 built. 95646 pairs remaining to distinguish.
+  (CE) Row 29 built. 63186 pairs remaining to distinguish.
+  (CE) Row 30 built. 41869 pairs remaining to distinguish.
+  (CE) Row 31 built. 27142 pairs remaining to distinguish.
+  (CE) Row 32 built. 16768 pairs remaining to distinguish.
+  (CE) Row 33 built. 11317 pairs remaining to distinguish.
+  (CE) Row 34 built. 7296 pairs remaining to distinguish.
+  (CE) Row 35 built. 4701 pairs remaining to distinguish.
+  (CE) Row 36 built. 2978 pairs remaining to distinguish.
+  (CE) Row 37 built. 1952 pairs remaining to distinguish.
+  (CE) Row 38 built. 1182 pairs remaining to distinguish.
+  (CE) Row 39 built. 704 pairs remaining to distinguish.
+  (CE) Row 40 built. 426 pairs remaining to distinguish.
+  (CE) Row 41 built. 228 pairs remaining to distinguish.
+  (CE) Row 42 built. 95 pairs remaining to distinguish.
+  (CE) Row 43 built. 26 pairs remaining to distinguish.
+  (CE) Row 44 built. 4 pairs remaining to distinguish.
+  (CE) Row 45 built. 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=45 (N_initial=21, N_added=24), Time total=2560832 ms, Saved to: ./results/GCC_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/GCC/GCC_2_2.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=30, Time=172
+There are 680101 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 98 (M=30)

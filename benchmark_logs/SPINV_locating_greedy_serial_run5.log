@@ -1,0 +1,59 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/SPINV/SPINV_2_1.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=40, Time=20
+There are 1673 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 1673 pairs. Example:
+       Pair 0: (4,52,),(0,2,)  vs (43,52,),(2,2,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 50 built (best score: 31). 117 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 2). 1 pairs remaining to distinguish.
+  (CE) Row 61 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=61 (N_initial=40, N_added=21), Time total=183 ms, Saved to: ./results/SPINV_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/SPINV/SPINV_2_2.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=56, Time=13
+There are 123 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 123 pairs. Example:
+       Pair 0: (4,44,),(1,1,)  vs (22,44,),(0,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 60 built (best score: 31). 85 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 2). 4 pairs remaining to distinguish.
+  (CE) Row 73 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=73 (N_initial=56, N_added=17), Time total=29 ms, Saved to: ./results/SPINV_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/SPINV/SPINV_2_3.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=64, Time=12
+There are 162 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 162 pairs. Example:
+       Pair 0: (48,50,),(0,3,)  vs (51,54,),(2,0,)  (already separated 2 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 70 built (best score: 15). 46 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 1). 1 pairs remaining to distinguish.
+  (CE) Row 81 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=81 (N_initial=64, N_added=17), Time total=25 ms, Saved to: ./results/SPINV_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/SPINV/SPINV_2_4.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=82, Time=14
+There are 28 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 28 pairs. Example:
+       Pair 0: (45,48,),(0,0,)  vs (47,48,),(0,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 90 built (best score: 3). 7 pairs remaining to distinguish.
+  (CE) Row 96 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=96 (N_initial=82, N_added=14), Time total=17 ms, Saved to: ./results/SPINV_t2_l4_pareto_0.csv, percents=1, 
+

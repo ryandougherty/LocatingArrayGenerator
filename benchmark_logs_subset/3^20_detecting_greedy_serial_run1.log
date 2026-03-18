@@ -1,0 +1,9 @@
+------------d=2, t=2, lambda=1, filename=./evaluation/3^20-t2_l1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=23, Time=238402
+There are 718447441 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 718447441 pairs. Example:
+       Pair 0: (1,2,),(0,2,) (2,19,),(0,1,)  vs (2,6,),(0,2,) (5,6,),(2,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.

@@ -1,0 +1,60 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/2^30-t2_l1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=12, Time=4
+There are 6989 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 6989 pairs. Example:
+       Pair 0: (1,3,),(1,1,)  vs (17,23,),(1,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 20 built (best score: 50). 41 pairs remaining to distinguish.
+  (CE) Row 23 built (best score: 5). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=23 (N_initial=12, N_added=11), Time total=222 ms, Saved to: ./results/2^30_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/2^30-t2_l2.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=18, Time=3
+There are 10537 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 10537 pairs. Example:
+       Pair 0: (8,),(1,)  vs (12,),(1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 20 built (best score: 4284). 8259 pairs remaining to distinguish.
+  (CE) Row 30 built (best score: 128). 109 pairs remaining to distinguish.
+  (CE) Row 35 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=35 (N_initial=18, N_added=17), Time total=664 ms, Saved to: ./results/2^30_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/2^30-t2_l3.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=24, Time=2
+There are 6315 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 6315 pairs. Example:
+       Pair 0: (1,28,),(1,0,)  vs (3,18,),(1,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 30 built (best score: 1687). 3258 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 63). 66 pairs remaining to distinguish.
+  (CE) Row 45 built (best score: 2). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=45 (N_initial=24, N_added=21), Time total=584 ms, Saved to: ./results/2^30_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/2^30-t2_l4.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=28, Time=5
+There are 27441 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 27441 pairs. Example:
+       Pair 0: (1,15,),(0,1,)  vs (2,16,),(0,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 30 built (best score: 10643). 27441 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 3470). 6364 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 115). 132 pairs remaining to distinguish.
+  (CE) Row 56 built (best score: 2). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=56 (N_initial=28, N_added=28), Time total=3426 ms, Saved to: ./results/2^30_t2_l4_pareto_0.csv, percents=1, 
+

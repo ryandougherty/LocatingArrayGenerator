@@ -9,9 +9,14 @@ TRIALS=5
 
 # CHANGED: Only running Make, SPINS, and SPINV
 CONFIGS=(
-    "Make"
-    "SPINS"
-    "SPINV"
+#    "Make"
+#    "SPINS"
+#    "SPINV"
+     "3^10"
+     "3^20"
+     "3^50"
+     "4^50"
+     "5^50"
 )
 # --- End of Configuration ---
 

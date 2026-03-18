@@ -1,0 +1,41 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/GCC/GCC_2_1.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=21, Time=607
+There are 2258852 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 2258852 pairs. Example:
+       Pair 0: (5,55,),(0,0,)  vs (6,32,),(0,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 30 built (best score: 18825). 32696 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 249). 652 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 3). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=50 (N_initial=21, N_added=29), Time total=1537510 ms, Saved to: ./results/GCC_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/GCC/GCC_2_2.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=30, Time=171
+There are 680101 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 680101 pairs. Example:
+       Pair 0: (2,83,),(1,1,)  vs (34,179,),(1,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 40 built (best score: 24223). 44314 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 605). 1453 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 24). 40 pairs remaining to distinguish.
+  (CE) Row 64 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=64 (N_initial=30, N_added=34), Time total=680088 ms, Saved to: ./results/GCC_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/GCC/GCC_2_3.csv------------
+Grouping d-sets by partitioned row counts for detecting arrays...
+Ready to look at pairs for detecting arrays...
+First Stage N=38, Time=156
+There are 419374 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 419374 pairs. Example:
+       Pair 0: (3,175,),(0,1,)  vs (7,11,),(1,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 40 built (best score: 153874). 419374 pairs remaining to distinguish.

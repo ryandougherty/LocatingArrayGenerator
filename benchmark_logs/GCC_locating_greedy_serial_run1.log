@@ -1,0 +1,62 @@
+------------d=1, t=2, lambda=1, filename=./evaluation/GCC/GCC_2_1.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=21, Time=939
+There are 212048 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 212048 pairs. Example:
+       Pair 0: (6,32,),(0,0,)  vs (6,96,),(0,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 30 built (best score: 1976). 4899 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 77). 156 pairs remaining to distinguish.
+  (CE) Row 48 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=48 (N_initial=21, N_added=27), Time total=97300 ms, Saved to: ./results/GCC_t2_l1_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=2, filename=./evaluation/GCC/GCC_2_2.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=30, Time=488
+There are 10573 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 10573 pairs. Example:
+       Pair 0: (58,139,),(1,1,)  vs (66,179,),(1,1,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 40 built (best score: 594). 1651 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 52). 155 pairs remaining to distinguish.
+  (CE) Row 59 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=59 (N_initial=30, N_added=29), Time total=7918 ms, Saved to: ./results/GCC_t2_l2_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=3, filename=./evaluation/GCC/GCC_2_3.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=38, Time=447
+There are 7167 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 7167 pairs. Example:
+       Pair 0: (16,166,),(0,0,)  vs (32,166,),(0,0,)  (already separated 2 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 40 built (best score: 1602). 3835 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 128). 437 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 15). 26 pairs remaining to distinguish.
+  (CE) Row 64 built (best score: 2). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=64 (N_initial=38, N_added=26), Time total=3748 ms, Saved to: ./results/GCC_t2_l3_pareto_0.csv, percents=1, 
+
+------------d=1, t=2, lambda=4, filename=./evaluation/GCC/GCC_2_4.csv------------
+Computing partitioned counts of d-sets...
+Ready to look at pairs based on partitioned counts...
+First Stage N=44, Time=616
+There are 2290 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 2290 pairs. Example:
+       Pair 0: (55,189,),(1,2,)  vs (157,189,),(0,2,)  (already separated 2 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 50 built (best score: 374). 1117 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 89). 294 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 22). 40 pairs remaining to distinguish.
+  (CE) Row 79 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=79 (N_initial=44, N_added=35), Time total=2378 ms, Saved to: ./results/GCC_t2_l4_pareto_0.csv, percents=1, 
+
