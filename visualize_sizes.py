@@ -6,8 +6,19 @@ import matplotlib.pyplot as plt
 import math
 
 # --- Configuration ---
+# Change this to "benchmark_logs_subset" if you are running the subset
 LOG_DIR = "benchmark_logs"
 OUTPUT_PREFIX = "benchmark_sizes_comparison"
+
+# --- FIXED COLOR PALETTE ---
+COLOR_MAP = {
+    'ga-parallel': '#1f77b4',    # Blue
+    'greedy-serial': '#ff7f0e',  # Orange
+    'ce-serial': '#2ca02c',      # Green
+    'ga-serial': '#9467bd',      # Purple
+    'greedy-parallel': '#8c564b',# Brown
+    'ce-parallel': '#e377c2'     # Pink
+}
 # ---------------------
 
 def parse_log_files(log_dir):
@@ -23,9 +34,9 @@ def parse_log_files(log_dir):
         if not filename.endswith(".log"): continue
         match = filename_re.match(filename)
         if not match: continue
-
+            
         config, array_type, method, policy, trial = match.groups()
-
+        
         try:
             with open(os.path.join(log_dir, filename), 'r') as f:
                 content = f.read()
@@ -46,36 +57,31 @@ def parse_log_files(log_dir):
     return parsed_data
 
 def generate_comparison_chart(df, configs, filename_suffix):
-    """
-    Generates a figure with len(configs) rows and 2 columns (Locating vs Detecting).
-    """
     if not configs:
         return
 
     num_rows = len(configs)
     fig, axes = plt.subplots(nrows=num_rows, ncols=2, figsize=(14, 5 * num_rows), squeeze=False)
 
-    # Global titles for columns (optional, but nice)
-    # plt.figtext(0.25, 0.99, "Locating Arrays", ha='center', fontsize=16, fontweight='bold')
-    # plt.figtext(0.75, 0.99, "Detecting Arrays", ha='center', fontsize=16, fontweight='bold')
-
     for i, config in enumerate(configs):
-        # Filter data for this specific config
         config_data = df[df['Config'] == config]
-
+        
         # --- LEFT PLOT: Locating ---
         ax_loc = axes[i][0]
         loc_data = config_data[config_data['ArrayType'] == 'locating']
-
+        
         if not loc_data.empty:
             pivot_loc = loc_data.pivot_table(index='Lambda', columns='RunType', values='N_total')
-            pivot_loc.plot(kind='bar', ax=ax_loc, width=0.8, edgecolor='black', rot=0)
+            
+            # Map columns to fixed colors
+            colors_loc = [COLOR_MAP.get(col, '#7f7f7f') for col in pivot_loc.columns]
+            
+            pivot_loc.plot(kind='bar', ax=ax_loc, width=0.8, edgecolor='black', rot=0, color=colors_loc)
             ax_loc.set_title(f"{config} - Locating", fontsize=14, fontweight='bold')
             ax_loc.set_ylabel("Array Size (N)")
             ax_loc.grid(axis='y', linestyle='--', alpha=0.7)
             ax_loc.legend(loc='upper left', fontsize='small')
-
-            # Add labels
+            
             for container in ax_loc.containers:
                 ax_loc.bar_label(container, fmt='%d', padding=3, fontsize=8)
         else:
@@ -85,23 +91,26 @@ def generate_comparison_chart(df, configs, filename_suffix):
         # --- RIGHT PLOT: Detecting ---
         ax_det = axes[i][1]
         det_data = config_data[config_data['ArrayType'] == 'detecting']
-
+        
         if not det_data.empty:
             pivot_det = det_data.pivot_table(index='Lambda', columns='RunType', values='N_total')
-            pivot_det.plot(kind='bar', ax=ax_det, width=0.8, edgecolor='black', rot=0)
+            
+            # Map columns to fixed colors
+            colors_det = [COLOR_MAP.get(col, '#7f7f7f') for col in pivot_det.columns]
+            
+            pivot_det.plot(kind='bar', ax=ax_det, width=0.8, edgecolor='black', rot=0, color=colors_det)
             ax_det.set_title(f"{config} - Detecting", fontsize=14, fontweight='bold')
-            ax_det.set_ylabel("") # Hide Y label on right to save space? Or keep it.
+            ax_det.set_ylabel("") 
             ax_det.grid(axis='y', linestyle='--', alpha=0.7)
             ax_det.legend(loc='upper left', fontsize='small')
 
-            # Add labels
             for container in ax_det.containers:
                 ax_det.bar_label(container, fmt='%d', padding=3, fontsize=8)
         else:
             ax_det.text(0.5, 0.5, "No Detecting Data\n(Timeout?)", ha='center', va='center')
             ax_det.set_title(f"{config} - Detecting")
 
-    plt.tight_layout(rect=[0, 0.03, 1, 0.98]) # Make room for main title if needed
+    plt.tight_layout(rect=[0, 0.03, 1, 0.98]) 
     output_file = f"{OUTPUT_PREFIX}_{filename_suffix}.png"
     plt.savefig(output_file)
     print(f"Saved comparison chart to '{output_file}'")
@@ -112,22 +121,22 @@ if __name__ == "__main__":
     if not data:
         print("No data parsed.")
         sys.exit(0)
-
+        
     df = pd.DataFrame(data)
-
-    # 1. Aggregate Trials (Mean N)
+    
+    # Aggregate Trials (Mean N)
     df_agg = df.groupby(['Config', 'ArrayType', 'Lambda', 'RunType'])['N_total'].mean().reset_index()
 
-    # 2. Get unique configs and sort them
+    # Get unique configs and sort them
     all_configs = sorted(df_agg['Config'].unique())
-
-    # 3. Split into chunks (e.g., max 6 rows per image)
+    
+    # Split into chunks
     CHUNK_SIZE = 6
     total_chunks = math.ceil(len(all_configs) / CHUNK_SIZE)
-
+    
     for chunk_idx in range(total_chunks):
         start_i = chunk_idx * CHUNK_SIZE
         end_i = start_i + CHUNK_SIZE
         config_chunk = all_configs[start_i:end_i]
-
+        
         generate_comparison_chart(df_agg, config_chunk, f"part{chunk_idx+1}")
