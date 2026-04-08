@@ -1,760 +1,768 @@
 /* ----------------------------------------------------------------------------
  * phase2.cpp
  *
- * Implements Phase 2 of the LocAG algorithm: the optimization stage.
+ * Phase 2: optimization stage (GA / SA).
  *
- * This file contains two main optimization algorithms:
- *
- * 1.  A "meta" Genetic Algorithm (GA) (`percent_GA`):
- * - The "individuals" in this GA are not arrays, but *strategies*.
- * - A strategy is a vector of percentages (e.g., {0.02, 0.1, 0.5, 1.0}).
- * - This strategy means "First, generate rows to fix 2% of pairs, then
- * generate new rows to fix 10% of remaining, etc., until 100% are fixed."
- * - The GA's goal is to find a strategy (a `percents` vector) that
- * minimizes both the *total number of rows* (N) and the *total time*.
- * - This GA can be run in parallel, where each thread evaluates a
- * different strategy.
- *
- * 2.  A Simulated Annealing (SA) algorithm (`try_N_SA`):
- * - This is the "inner" search algorithm used by the GA to execute
- * one step of its strategy (e.g., "fix 2% of pairs").
- * - Given a target number of rows (N) and a list of pairs to fix,
- * the SA tries to find a *single* array of size N that fixes them all.
- * - It uses a binary search (`go` function) to find the *minimal* N
- * that the SA can successfully find a solution for.
+ * OPTIMIZATIONS APPLIED:
+ *   1. RowBitset — row sets stored as bitsets; symmetric difference is
+ *      XOR + popcount instead of O(N) merge scan.
+ *   2. Precomputed interaction→RowBitset table — built once per candidate
+ *      array, d-set bitsets derived via OR.
+ *   3. Incremental SA — on each mutation, only the affected interactions,
+ *      d-sets, and pairs are recomputed.  Accept/reject via undo.
  * ----------------------------------------------------------------------------
  */
 
 #include "../utils/utils.h"
+#include "../utils/row_bitset.h"
 #include "phase2.h"
-#include "../phase1/phase1.h" // For rows_of_interaction
-#include <execution> // For std::execution::par
+#include "../phase1/phase1.h"
+
+#ifdef HAS_TBB
+#include <execution>
+#endif
+
+/* ============================= helpers =================================== */
+
+/** Does row r of array A cover interaction ix? */
+static inline bool row_covers_ix(const std::vector<v_type>& row,
+                                 const interaction_type& ix) {
+    for (size_t j = 0; j < ix.first.size(); ++j)
+        if (row[ix.first[j]] != ix.second[j]) return false;
+    return true;
+}
+
+/** Build interaction→RowBitset table for an entire array. O(N·T·t) */
+static std::vector<RowBitset> build_interaction_bitsets(
+        const ca_type& A, int N, const InteractionCodec& codec) {
+    std::vector<RowBitset> irows(codec.T, RowBitset(N));
+    for (int r = 0; r < N; ++r)
+        for (interaction_id iid = 0; iid < codec.T; ++iid)
+            if (row_covers_ix(A[r], codec.decode_interaction(iid)))
+                irows[iid].set(r);
+    return irows;
+}
+
+/* ==================== static index structures ============================ */
 
 /**
- * @brief Fitness function: Calculates how many pairs an array 'ind' separates.
- *
- * This function is the core of the Simulated Annealing. It checks an
- * individual 'ind' (a candidate array) against a list of 'non_locating_pairs'.
- *
- * @param ind The candidate array (an "individual") to evaluate.
- * @param non_locating_pairs The list of (D1, D2, count) pairs to fix.
- * @param threshold An optimization: if the score reaches this, stop early.
- * @param is_detecting Flag to change requirement from lambda to 1.
- * @return The score (number of pairs successfully separated).
+ * SAIndexes: built ONCE per set of pairs, reused across every SA call
+ * in go().  Contains the column→interaction, interaction→d-set, and
+ * d-set→pair index mappings.
  */
-int fitness(const ca_type& ind, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, const int& threshold, bool is_detecting) {
-    int score = 0;
-    
-    // Memoization map to cache row sets for d-sets *within this individual*
-    std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map;
-    
-    // Lambda helper to get rows for a d-set, using the cache
-    auto rows_of_dset = [=,&rows_map](const d_set_type& d_set) {
-        if (rows_map.find(d_set) != rows_map.end()) {
-            return rows_map[d_set];
-        } else {
-            // Not in cache, compute it
-            robin_hood::unordered_set<N_type> the_rows;
-            for (const auto& interaction : d_set) {
-                // Find rows *in the new array 'ind'*
-                const auto& rows = rows_of_interaction(interaction,ind);
-                the_rows.insert(rows.begin(), rows.end());
-            }
-            // Store as a sorted vector for faster set operations
-            std::vector<int> vrows(the_rows.begin(), the_rows.end());
-            std::sort(vrows.begin(), vrows.end());
-            rows_map[d_set] = vrows;
-            return vrows;
+struct SAIndexes {
+    /* col → interaction_ids involving that column */
+    std::vector<std::vector<interaction_id>> col_to_iids;
+
+    /* For each unique d-set in the pair list: its constituent iids */
+    std::unordered_map<d_set_id, std::vector<interaction_id>> dset_iids;
+
+    /* iid → d-set ids containing it (restricted to d-sets in pairs) */
+    std::vector<std::vector<d_set_id>> iid_to_dsets;
+
+    /* d-set id → indices into the pair vector */
+    std::unordered_map<d_set_id, std::vector<size_t>> dset_to_pairs;
+
+    /* Per-pair requirement: how much MORE separation is needed */
+    std::vector<int> requirements;
+
+    void build(int k,
+               const InteractionCodec& codec,
+               const std::vector<undist_pair_type>& pairs,
+               bool is_detecting, lambda_type l)
+    {
+        /* 1. col → interactions */
+        col_to_iids.assign(k, {});
+        for (interaction_id iid = 0; iid < codec.T; ++iid)
+            for (auto c : codec.decode_interaction(iid).first)
+                col_to_iids[c].push_back(iid);
+
+        /* 2. unique d-sets → constituent iids */
+        dset_iids.clear();
+        for (auto& [id1, id2, sep] : pairs) {
+            if (!dset_iids.count(id1))
+                dset_iids[id1] = codec.decode_d_set_ids(id1);
+            if (!dset_iids.count(id2))
+                dset_iids[id2] = codec.decode_d_set_ids(id2);
         }
+
+        /* 3. iid → d-sets */
+        iid_to_dsets.assign(codec.T, {});
+        for (auto& [did, iids] : dset_iids)
+            for (auto iid : iids)
+                iid_to_dsets[iid].push_back(did);
+
+        /* 4. d-set → pair indices */
+        dset_to_pairs.clear();
+        for (size_t pi = 0; pi < pairs.size(); ++pi) {
+            auto& [id1, id2, sep] = pairs[pi];
+            dset_to_pairs[id1].push_back(pi);
+            dset_to_pairs[id2].push_back(pi);
+        }
+
+        /* 5. per-pair requirement */
+        requirements.resize(pairs.size());
+        for (size_t pi = 0; pi < pairs.size(); ++pi) {
+            auto& [id1, id2, sep] = pairs[pi];
+            requirements[pi] = (int)l - sep;
+        }
+    }
+};
+
+/* ========================= mutable SA state ============================== */
+
+/**
+ * SAState: holds the current candidate array and all derived bitset
+ * structures.  Supports apply_mutation / undo_mutation for the
+ * incremental SA.
+ */
+struct SAState {
+    ca_type A;
+    int N;
+    bool is_detecting = false;
+
+    std::vector<RowBitset>                     irows;      /* T entries */
+    std::unordered_map<d_set_id, RowBitset>    drows;
+    std::vector<int>                           pair_seps;  /* per-pair symm-diff */
+    int                                        score;
+
+    /* ---------- initialise from a fresh array ----------------------------- */
+    void init(const ca_type& arr,
+              const SAIndexes& idx,
+              const InteractionCodec& codec,
+              const std::vector<undist_pair_type>& pairs,
+              bool detecting)
+    {
+        A = arr;
+        N = (int)A.size();
+        is_detecting = detecting;
+
+        /* interaction bitsets */
+        irows = build_interaction_bitsets(A, N, codec);
+
+        /* d-set bitsets (OR of constituent interaction bitsets) */
+        drows.clear();
+        for (auto& [did, iids] : idx.dset_iids) {
+            RowBitset bs(N);
+            for (auto iid : iids) bs.union_with(irows[iid]);
+            drows[did] = std::move(bs);
+        }
+
+        /* pair separations & score */
+        pair_seps.resize(pairs.size());
+        score = 0;
+        for (size_t pi = 0; pi < pairs.size(); ++pi) {
+            auto& [id1, id2, sep] = pairs[pi];
+            pair_seps[pi] = drows.at(id1).separation(drows.at(id2), is_detecting);
+            if (pair_seps[pi] >= idx.requirements[pi]) ++score;
+        }
+    }
+
+    /* ---------- mutation + undo machinery -------------------------------- */
+
+    /* saved state for undo */
+    struct Undo {
+        int mut_row, mut_col;
+        std::vector<v_type> old_vals;                              /* array cells */
+        std::vector<std::pair<interaction_id, RowBitset>> old_irows;
+        std::vector<std::pair<d_set_id, RowBitset>>      old_drows;
+        std::vector<std::pair<size_t, int>>               old_pair_seps;
+        int old_score;
+    };
+    Undo undo;
+
+    /**
+     * Apply a random mutation, track changes, return the new score.
+     *   mut_type: 0 = row, 1 = column, 2 = cell  (matching original mutate())
+     */
+    int apply_mutation(int mut_type, std::mt19937& rng_local,
+                       const SAIndexes& idx, const InteractionCodec& codec,
+                       const std::vector<undist_pair_type>& pairs,
+                       const vs_type& vs)
+    {
+        undo.old_score = score;
+        undo.old_irows.clear();
+        undo.old_drows.clear();
+        undo.old_pair_seps.clear();
+
+        /* ---- choose what to mutate ---- */
+
+        if (mut_type == 0) {
+            /* mutate entire row */
+            int r = any_int(rng_local) % N;
+            undo.mut_row = r; undo.mut_col = -1;
+            undo.old_vals.assign(A[r].begin(), A[r].end());
+            for (size_t c = 0; c < vs.size(); ++c)
+                A[r][c] = any_int(rng_local) % vs[c];
+            update_after_row_change(r, idx, codec, pairs);
+
+        } else if (mut_type == 1) {
+            /* mutate entire column */
+            int c = any_int(rng_local) % (int)vs.size();
+            undo.mut_row = -1; undo.mut_col = c;
+            undo.old_vals.resize(N);
+            for (int r = 0; r < N; ++r) {
+                undo.old_vals[r] = A[r][c];
+                A[r][c] = any_int(rng_local) % vs[c];
+            }
+            update_after_col_change(c, idx, codec, pairs);
+
+        } else {
+            /* mutate single cell */
+            int r = any_int(rng_local) % N;
+            int c = any_int(rng_local) % (int)vs.size();
+            undo.mut_row = r; undo.mut_col = c;
+            undo.old_vals = { A[r][c] };
+            A[r][c] = any_int(rng_local) % vs[c];
+            update_after_cell_change(r, c, idx, codec, pairs);
+        }
+
+        return score;
+    }
+
+    void reject_mutation() {
+        /* restore array */
+        if (undo.mut_col == -1 && undo.mut_row >= 0) {
+            /* row mutation */
+            A[undo.mut_row] = undo.old_vals;
+        } else if (undo.mut_row == -1 && undo.mut_col >= 0) {
+            /* col mutation */
+            for (int r = 0; r < N; ++r)
+                A[r][undo.mut_col] = undo.old_vals[r];
+        } else {
+            /* cell mutation */
+            A[undo.mut_row][undo.mut_col] = undo.old_vals[0];
+        }
+        /* restore bitsets */
+        for (auto& [iid, old_bs] : undo.old_irows) irows[iid] = std::move(old_bs);
+        for (auto& [did, old_bs] : undo.old_drows) drows[did] = std::move(old_bs);
+        for (auto& [pi, old_sep] : undo.old_pair_seps) pair_seps[pi] = old_sep;
+        score = undo.old_score;
+    }
+
+    /* accept = do nothing (changes already in place) */
+    void accept_mutation() { }
+
+private:
+
+    /* ---- propagation after interaction bitset changes ---- */
+
+    void propagate(const std::vector<interaction_id>& changed_iids,
+                   const SAIndexes& idx,
+                   const std::vector<undist_pair_type>& pairs)
+    {
+        /* collect affected d-sets */
+        std::unordered_set<d_set_id> affected_dsets;
+        for (auto iid : changed_iids)
+            for (auto did : idx.iid_to_dsets[iid])
+                affected_dsets.insert(did);
+
+        /* recompute affected d-set bitsets */
+        for (auto did : affected_dsets) {
+            undo.old_drows.push_back({did, drows[did]});
+            RowBitset bs(N);
+            for (auto iid : idx.dset_iids.at(did))
+                bs.union_with(irows[iid]);
+            drows[did] = std::move(bs);
+        }
+
+        /* collect affected pairs */
+        std::unordered_set<size_t> affected_pairs;
+        for (auto did : affected_dsets)
+            if (idx.dset_to_pairs.count(did))
+                for (auto pi : idx.dset_to_pairs.at(did))
+                    affected_pairs.insert(pi);
+
+        /* recompute affected pair separations & update score */
+        for (auto pi : affected_pairs) {
+            undo.old_pair_seps.push_back({pi, pair_seps[pi]});
+            bool was_ok = (pair_seps[pi] >= idx.requirements[pi]);
+            auto& [id1, id2, sep] = pairs[pi];
+            pair_seps[pi] = drows.at(id1).separation(drows.at(id2), is_detecting);
+            bool now_ok = (pair_seps[pi] >= idx.requirements[pi]);
+            if (was_ok && !now_ok) --score;
+            else if (!was_ok && now_ok) ++score;
+        }
+    }
+
+    /* ---- cell change: only interactions involving column c, row r ---- */
+
+    void update_after_cell_change(int r, int c,
+            const SAIndexes& idx, const InteractionCodec& codec,
+            const std::vector<undist_pair_type>& pairs)
+    {
+        std::vector<interaction_id> changed;
+        for (auto iid : idx.col_to_iids[c]) {
+            bool was = irows[iid].test(r);
+            bool now = row_covers_ix(A[r], codec.decode_interaction(iid));
+            if (was != now) {
+                undo.old_irows.push_back({iid, irows[iid]});
+                if (now) irows[iid].set(r); else irows[iid].clear(r);
+                changed.push_back(iid);
+            }
+        }
+        if (!changed.empty()) propagate(changed, idx, pairs);
+    }
+
+    /* ---- row change: check all T interactions for row r ---- */
+
+    void update_after_row_change(int r,
+            const SAIndexes& idx, const InteractionCodec& codec,
+            const std::vector<undist_pair_type>& pairs)
+    {
+        std::vector<interaction_id> changed;
+        for (interaction_id iid = 0; iid < (interaction_id)codec.T; ++iid) {
+            bool was = irows[iid].test(r);
+            bool now = row_covers_ix(A[r], codec.decode_interaction(iid));
+            if (was != now) {
+                undo.old_irows.push_back({iid, irows[iid]});
+                if (now) irows[iid].set(r); else irows[iid].clear(r);
+                changed.push_back(iid);
+            }
+        }
+        if (!changed.empty()) propagate(changed, idx, pairs);
+    }
+
+    /* ---- column change: rebuild affected interaction bitsets ---- */
+
+    void update_after_col_change(int c,
+            const SAIndexes& idx, const InteractionCodec& codec,
+            const std::vector<undist_pair_type>& pairs)
+    {
+        std::vector<interaction_id> changed;
+        for (auto iid : idx.col_to_iids[c]) {
+            undo.old_irows.push_back({iid, irows[iid]});
+            /* rebuild this interaction's bitset from scratch */
+            RowBitset bs(N);
+            const auto& ix = codec.decode_interaction(iid);
+            for (int r = 0; r < N; ++r)
+                if (row_covers_ix(A[r], ix))
+                    bs.set(r);
+            if (bs != irows[iid]) {
+                irows[iid] = std::move(bs);
+                changed.push_back(iid);
+            }
+        }
+        if (!changed.empty()) propagate(changed, idx, pairs);
+    }
+};
+
+/* ========================== bitset-based fitness ========================= */
+
+/**
+ * Bitset-based fitness — used by the (deprecated) GA path.
+ * Builds the full bitset tables from scratch for a candidate array.
+ */
+int fitness(const ca_type& ind, d_type d, t_type t, const vs_type& vs,
+            lambda_type l,
+            const std::vector<undist_pair_type>& non_locating_pairs,
+            const int& threshold, bool is_detecting,
+            const InteractionCodec& codec)
+{
+    int N = (int)ind.size();
+    auto irows = build_interaction_bitsets(ind, N, codec);
+
+    /* d-set bitset cache (integer keys, no custom hasher) */
+    std::unordered_map<d_set_id, RowBitset> drows;
+    auto get_drow = [&](d_set_id did) -> const RowBitset& {
+        auto it = drows.find(did);
+        if (it != drows.end()) return it->second;
+        auto iids = codec.decode_d_set_ids(did);
+        RowBitset bs(N);
+        for (auto iid : iids) bs.union_with(irows[iid]);
+        drows[did] = std::move(bs);
+        return drows[did];
     };
 
-    // Check every pair that needs fixing
-    for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs) {
-        // Calculate how many *more* separating rows are needed
-        auto requirement = (is_detecting ? 1 : l) - num_times_sep_already;
-        
-        // Get row sets from the new array 'ind'
-        auto rows1 = rows_of_dset(dset_1);
-        auto rows2 = rows_of_dset(dset_2);
-        
-        // Calculate the symmetric difference (number of separating rows)
-        int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-        
-        if (n >= requirement) {
-            score += 1; // This pair is now fixed
-        }
-
-        if (score >= threshold) {
-            return threshold + 1; // Early exit optimization
-        }
+    int score = 0;
+    for (auto& [id1, id2, already] : non_locating_pairs) {
+        int req = l - already;
+        int n = get_drow(id1).separation(get_drow(id2), is_detecting);
+        if (n >= req) ++score;
+        if (score >= threshold) return threshold + 1;
     }
     return score;
 }
 
-/**
- * @brief GA Crossover operator (for the deprecated 'try_N' GA).
- *
- * Performs one-point or two-point crossover on the *rows* of two parent arrays.
- *
- * @param p1 Parent 1 array.
- * @param p2 Parent 2 array.
- * @return A new child array.
- */
-ca_type cross(const ca_type& p1, const ca_type& p2, d_type d, t_type t, const vs_type& vs, lambda_type l, std::mt19937& rng) {
-    int val = any_int(rng) % 2;
-    int n = p1.size();
+/* ========================= GA operators (unchanged) ====================== */
+
+ca_type cross(const ca_type& p1, const ca_type& p2,
+              d_type d, t_type t, const vs_type& vs, lambda_type l,
+              std::mt19937& rng_local) {
+    int val = any_int(rng_local) % 2;
+    int n = (int)p1.size();
     ca_type child;
     if (val == 0) {
-        // One-point crossover
-        auto rand_idx = any_int(rng) % p1.size();
-        for (int i=0; i<rand_idx; i++) {
-            child.push_back(p1[i]);
-        }
-        for (int i=rand_idx; i<n; i++) {
-            child.push_back(p2[i]);
-        }
+        auto ri = any_int(rng_local) % p1.size();
+        for (size_t i = 0; i < ri; i++) child.push_back(p1[i]);
+        for (size_t i = ri; i < (size_t)n; i++) child.push_back(p2[i]);
     } else if (p1.size() != 1) {
-        // Two-point crossover
-        auto rand_idx1 = any_int(rng) % (p1.size());
-        auto rand_idx2 = any_int(rng) % (p1.size());
-        while (rand_idx1 == rand_idx2) {
-            rand_idx2 = any_int(rng) % (p1.size());
-        }
-        auto lower = std::min(rand_idx1,rand_idx2);
-        auto higher = std::max(rand_idx1,rand_idx2);
-        for (int i=0; i<lower; i++) {
-            child.push_back(p1[i]);
-        }
-        for (int i=lower; i<higher; i++) {
-            child.push_back(p2[i]);
-        }
-        for (int i=higher; i<p1.size(); i++) {
-            child.push_back(p1[i]);
-        }
+        auto r1 = any_int(rng_local) % p1.size();
+        auto r2 = any_int(rng_local) % p1.size();
+        while (r1 == r2) r2 = any_int(rng_local) % p1.size();
+        auto lo = std::min(r1, r2), hi = std::max(r1, r2);
+        for (size_t i = 0; i < lo; i++)  child.push_back(p1[i]);
+        for (size_t i = lo; i < hi; i++) child.push_back(p2[i]);
+        for (size_t i = hi; i < p1.size(); i++) child.push_back(p1[i]);
     } else {
-        // Failsafe for N=1
-        val = any_int(rng) % 2;
-        if (val == 0) {
-            child = p1;
-        } else {
-            child = p2;
-        }
+        child = (any_int(rng_local) % 2 == 0) ? p1 : p2;
     }
     return child;
 }
 
-/**
- * @brief Mutation operator (used by Simulated Annealing).
- *
- * Randomly applies one of three mutations:
- * 1. Mutate a single cell.
- * 2. Mutate an entire row.
- * 3. Mutate an entire column.
- *
- * @param p1 The array to mutate.
- * @return A new, mutated array.
- */
-ca_type mutate(const ca_type& p1, d_type d, t_type t, const vs_type& vs, lambda_type l, std::mt19937& rng) {
-    int val = any_int(rng) % 3;
-    int n = p1.size();
+ca_type mutate(const ca_type& p1, d_type d, t_type t, const vs_type& vs,
+               lambda_type l, std::mt19937& rng_local) {
+    int val = any_int(rng_local) % 3;
+    int n = (int)p1.size();
     ca_type child = p1;
     if (val == 0) {
-        // Mutate an entire row
-        auto rand_row = any_int(rng) % n;
-        for (int col=0; col<p1[0].size(); col++) {
-            child[rand_row][col] = any_int(rng) % vs[col];
-        }
+        int r = any_int(rng_local) % n;
+        for (size_t c = 0; c < vs.size(); c++)
+            child[r][c] = any_int(rng_local) % vs[c];
     } else if (val == 1) {
-        // Mutate an entire column
-        auto rand_col = any_int(rng) % vs.size();
-        for (int row=0; row<n; row++) {
-            child[row][rand_col] = any_int(rng) % vs[rand_col];
-        }
+        int c = any_int(rng_local) % (int)vs.size();
+        for (int r = 0; r < n; r++)
+            child[r][c] = any_int(rng_local) % vs[c];
     } else {
-        // Mutate a single cell
-        auto rand_row = any_int(rng) % p1.size();
-        auto rand_col = any_int(rng) % p1[0].size();
-        auto rand_val = any_int(rng) % vs[rand_col];
-        child[rand_row][rand_col] = rand_val;
+        int r = any_int(rng_local) % n;
+        int c = any_int(rng_local) % (int)vs.size();
+        child[r][c] = any_int(rng_local) % vs[c];
     }
     return child;
 }
 
-// Struct to hold a GA individual (array) and its cached fitness
-struct Ind_NonRecompute_Fitness {
-    ca_type A;
-    int fitness;
-};
+struct Ind_NonRecompute_Fitness { ca_type A; int fitness; };
 
-/**
- * @brief A standard Genetic Algorithm (deprecated, not used by main).
- *
- * Tries to find an array of size 'N' that satisfies a 'percent' of
- * the 'non_locating_pairs'.
- *
- * @return The successful array, or an empty array on failure.
- */
-ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, double percent, bool is_detecting, std::mt19937& rng) {
+/* ==================== try_N (deprecated GA, uses bitset fitness) ========= */
 
+ca_type try_N(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l,
+              const std::vector<undist_pair_type>& pairs, double percent,
+              bool is_detecting, std::mt19937& rng_local,
+              const InteractionCodec& codec) {
     ca_type s;
-    int pop_size = 100;
-    int num_gens = 50;
-
-    // Initialize population
+    int pop_size = 100, num_gens = 50;
     std::vector<Ind_NonRecompute_Fitness> pop(pop_size);
-    for (auto& elem : pop) {
-        elem.A = random_array(N, vs.size(), vs);
-        elem.fitness = -1; // -1 means fitness not yet computed
-    }
-
-    const int max_possible_fitness = non_locating_pairs.size() * percent;
-
-    for (int gen=0; gen<num_gens; gen++) {
-        // Calculate fitness for all individuals
-        std::vector<std::pair<int, Ind_NonRecompute_Fitness>> fitnesses;
+    for (auto& e : pop) { e.A = random_array(N, vs.size(), vs); e.fitness = -1; }
+    const int max_f = (int)(pairs.size() * percent);
+    for (int gen = 0; gen < num_gens; gen++) {
+        std::vector<std::pair<int, Ind_NonRecompute_Fitness>> fits;
         for (auto& I : pop) {
             int f = I.fitness;
-            if (f == -1) {
-                // Compute fitness if not cached
-                f = fitness(I.A, d, t, vs, l, non_locating_pairs, max_possible_fitness, is_detecting);
-                I.fitness = f; 
-            }
-            if (f >= max_possible_fitness) {
-                return I.A; // Solution found!
-            }
-            fitnesses.push_back(std::make_pair(f,I));
+            if (f == -1) { f = fitness(I.A,d,t,vs,l,pairs,max_f,is_detecting,codec); I.fitness = f; }
+            if (f >= max_f) return I.A;
+            fits.push_back({f, I});
         }
-
-        // --- Selection ---
-        // Sort by fitness
-        std::sort(fitnesses.begin(), fitnesses.end(), [](const auto& first, const auto& second) {
-            return first.first < second.first;
-        });
-
-        // Elitism: Keep the top 50%
-        std::vector<Ind_NonRecompute_Fitness> new_vec;
-        for (int i=pop_size/2; i < pop_size; i++) {
-            new_vec.push_back(fitnesses[i].second);
-        }
-        pop = new_vec;
-        new_vec.clear();
-
-        // --- Crossover & Mutation ---
-        // Fill the other 50%
-        while (new_vec.size() < pop_size / 2) {
-            auto idx1 = any_int(rng) % pop.size();
-            auto idx2 = any_int(rng) % pop.size();
-            const auto& p1 = pop[idx1];
-            const auto& p2 = pop[idx2];
-
-            auto cross_percent = any_int(rng) % 10;
-            auto mut_percent = any_int(rng) % 10;
-            
-            if (cross_percent == 0 && mut_percent < 3) {
-                // Crossover + Mutate
-                auto new_ind = cross(p1.A,p2.A,d,t,vs,l, rng);
-                new_ind = mutate(new_ind,d,t,vs,l, rng);
-                Ind_NonRecompute_Fitness true_new_ind;
-                true_new_ind.A = new_ind;
-                true_new_ind.fitness = -1; // Mark for re-computation
-                new_vec.push_back(true_new_ind);
-            } else if (cross_percent == 0) {
-                // Crossover only
-                auto new_ind = cross(p1.A,p2.A,d,t,vs,l, rng);
-                Ind_NonRecompute_Fitness true_new_ind;
-                true_new_ind.A = new_ind;
-                true_new_ind.fitness = -1;
-                new_vec.push_back(true_new_ind);
+        std::sort(fits.begin(), fits.end(), [](auto& a, auto& b){ return a.first < b.first; });
+        std::vector<Ind_NonRecompute_Fitness> nv;
+        for (int i = pop_size/2; i < pop_size; i++) nv.push_back(fits[i].second);
+        pop = nv; nv.clear();
+        while (nv.size() < (size_t)pop_size/2) {
+            auto& p1 = pop[any_int(rng_local) % pop.size()];
+            auto& p2 = pop[any_int(rng_local) % pop.size()];
+            if (any_int(rng_local) % 10 == 0) {
+                auto c = cross(p1.A, p2.A, d,t,vs,l,rng_local);
+                if (any_int(rng_local) % 10 < 3) c = mutate(c,d,t,vs,l,rng_local);
+                nv.push_back({c, -1});
             }
-            // (Note: This GA has no "mutate only" path, and a high
-            // chance of doing nothing, which is unusual)
         }
-        pop.insert(pop.end(), new_vec.begin(), new_vec.end());
+        pop.insert(pop.end(), nv.begin(), nv.end());
     }
-
-    return s; // Failed to find a solution
+    return s;
 }
 
+/* ============= try_N_SA — INCREMENTAL Simulated Annealing ================ */
 
 /**
- * @brief Simulated Annealing (SA) search algorithm.
- *
- * Tries to find an array of size 'N' that fixes *all* pairs in
- * 'only_these_pairs'.
- *
- * @param N The number of rows in the array to generate.
- * @param only_these_pairs The list of pairs this array *must* fix.
- * @param rng The thread-local random number generator.
- * @return The successful array, or an empty array on failure.
+ * Tries to find an array of N rows that fixes all pairs.
+ * Uses the SAState + SAIndexes infrastructure for O(affected) updates
+ * instead of O(pairs·d·N) per iteration.
  */
-ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs, lambda_type l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& only_these_pairs, bool is_detecting, std::mt19937& rng) {
-
+ca_type try_N_SA(N_type N, d_type d, t_type t, const vs_type& vs,
+                 lambda_type l,
+                 const std::vector<undist_pair_type>& pairs,
+                 bool is_detecting, std::mt19937& rng_local,
+                 const InteractionCodec& codec,
+                 const SAIndexes& sa_idx)
+{
     ca_type empty;
-    // Start with a random array
-    ca_type A = random_array(N, vs.size(), vs);
-    
-    // SA parameters
-    auto temp = 1.0;
-    auto rate = 0.99; // Cooling rate
-    auto num_iter = 1000;
 
-    // Target fitness: must fix all pairs
-    auto required_fitness = only_these_pairs.size();
+    /* initialise SA state */
+    SAState state;
+    state.init(random_array(N, vs.size(), vs), sa_idx, codec, pairs, is_detecting);
 
-    auto f = fitness(A, d, t, vs, l, only_these_pairs, required_fitness, is_detecting);
-    
-    for (int it=0; it<num_iter; it++) {
-        
-        if (f >= required_fitness) {
-            return A; // Solution found!
-        }
-        
-        // Create a new candidate solution by mutating the current one
-        auto A_prime = mutate(A, d, t, vs, l, rng);
-        auto f_prime = fitness(A_prime, d, t, vs, l, only_these_pairs, required_fitness, is_detecting);
-        
-        auto diff = f_prime - f;
-        
-        if (f_prime >= f) {
-            // New solution is better, always accept it
-            A = A_prime;
-            f = f_prime;
+    int required = (int)pairs.size();
+    if (state.score >= required) return state.A;
+
+    double temp = 1.0, rate = 0.99;
+    int num_iter = 1000;
+    int f = state.score;
+
+    for (int it = 0; it < num_iter; ++it) {
+        if (f >= required) return state.A;
+
+        int mut_type = any_int(rng_local) % 3;
+        int f_new = state.apply_mutation(mut_type, rng_local, sa_idx, codec, pairs, vs);
+
+        if (f_new >= f) {
+            state.accept_mutation();
+            f = f_new;
         } else {
-            // New solution is worse. Accept it with probability e^(-diff/temp)
-            auto prob = std::exp(diff / temp); // Note: diff is negative
-            if (prob > unif(rng)) { // Use > for prob > random
-                A = A_prime;
-                f = f_prime;
+            double prob = std::exp((double)(f_new - f) / temp);
+            if (prob > unif(rng_local)) {
+                state.accept_mutation();
+                f = f_new;
+            } else {
+                state.reject_mutation();
+                /* f unchanged */
             }
         }
-        // Cool the temperature
-        temp = rate * temp;
+        temp *= rate;
     }
 
-    if (f >= required_fitness) {
-        return A; // Check one last time
-    }
-
-    return empty; // Failed to find a solution
+    return (f >= required) ? state.A : empty;
 }
 
+/* ========================= go() — binary-search wrapper ================== */
 
 /**
- * @brief Finds the *minimal* N required to fix a 'percent' of pairs.
- *
- * This function wraps `try_N_SA` and uses an exponential-then-binary
- * search to find the smallest 'N' that works.
- *
- * @param non_locating_pairs The *full* list of pairs.
- * @param percent The *percentage* of pairs from the full list to fix.
- * @return The minimal array that fixes the target subset of pairs.
+ * Finds the minimal N to fix a percentage of pairs.
+ * Builds SAIndexes ONCE and reuses across all SA calls.
  */
-ca_type go(const d_type& d, const t_type& t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, const double& percent, bool is_detecting, std::mt19937& rng) {
-    
+ca_type go(const d_type& d, const t_type& t, const vs_type& vs,
+           const lambda_type& l,
+           const std::vector<undist_pair_type>& non_locating_pairs,
+           const double& percent, bool is_detecting,
+           std::mt19937& rng_local,
+           const InteractionCodec& codec)
+{
     bool succ_first = true;
     ca_type result;
 
-    // Create the subset of pairs to fix in this step
-    const std::vector<std::tuple<d_set_type, d_set_type, int>> only_these_pairs(
-        non_locating_pairs.begin(), 
-        non_locating_pairs.begin() + non_locating_pairs.size() * percent
-    );
-    
-    // Set lower bound for N based on the max separation still needed
-    int N = 1;
-    for (const auto& [d_set1, d_set2, num] : only_these_pairs) {
-        N = std::max(N, l-num);
-    }
-    if (is_detecting) N = 1; // For detecting, N=1 is always a valid start
+    const std::vector<undist_pair_type> only(
+        non_locating_pairs.begin(),
+        non_locating_pairs.begin() + (size_t)(non_locating_pairs.size() * percent));
 
-    // --- 1. Exponential Search ---
-    // Double N until we find *any* solution
+    /* build static SA indexes once for this pair subset */
+    SAIndexes sa_idx;
+    sa_idx.build((int)vs.size(), codec, only, is_detecting, l);
+
+    int N = 1;
+    for (auto& [d1, d2, num] : only) N = std::max(N, (int)(l - num));
+
+    /* exponential search */
     while (true) {
-        result = try_N_SA(N, d, t, vs, l, only_these_pairs, is_detecting, rng);
-        if (succ_first &&  result.size() > 0) {
-            return result; // Succeeded on the first try (N=lower_bound)
-        }
-        if (result.size() > 0) {
-            break; // Found an upper bound
-        }
+        result = try_N_SA(N, d, t, vs, l, only, is_detecting, rng_local, codec, sa_idx);
+        if (succ_first && result.size() > 0) return result;
+        if (result.size() > 0) break;
         N *= 2;
         succ_first = false;
     }
 
-    // --- 2. Binary Search ---
-    // Now we know a solution exists at 'N', but not at 'N/2'.
-    // Binary search between [N/2, N] to find the minimum.
-    int N_hi = N;
-    int N_lo = N / 2;
+    /* binary search */
+    int N_hi = N, N_lo = N / 2;
     while (N_lo < N_hi) {
         int N_mid = (N_lo + N_hi) / 2;
-        auto result2 = try_N_SA(N_mid, d, t, vs, l, only_these_pairs, is_detecting, rng);
-        if (result2.size() > 0) {
-            // Solution found at N_mid, so this is our new upper bound
-            N_hi = N_mid;
-            result = result2;
-        } else {
-            // Failed at N_mid, so the solution must be > N_mid
-            N_lo = N_mid + 1;
-        }
+        auto r2 = try_N_SA(N_mid, d, t, vs, l, only, is_detecting, rng_local, codec, sa_idx);
+        if (r2.size() > 0) { N_hi = N_mid; result = r2; }
+        else                  N_lo = N_mid + 1;
     }
-    return result; // This 'result' is the one for the minimal N (N_hi)
-}
-
-/**
- * @brief Checks if 'ind' dominates 'other' (Pareto dominance).
- * An individual dominates if it is no worse in all objectives (N, time)
- * and strictly better in at least one.
- */
-bool dominates(const PercentGAFitnessInd& ind, const PercentGAFitnessInd& other) {
-    // Note: This implementation is slightly wrong.
-    // It should be (ind.N <= other.N && ind.time < other.time) || (ind.N < other.N && ind.time <= other.time)
-    // The current version finds the "weakly" non-dominated set.
-    return (ind.N <= other.N && 
-        ind.time <= other.time);
-}
-
-/**
- * @brief Finds the Pareto front from a set of points.
- *
- * @param points The population of solutions (individuals).
- * @return A pair containing:
- * 1. A vector of non-dominated points (the Pareto front).
- * 2. A vector of dominated points.
- */
-auto pareto_and_rest(std::vector<PercentGAFitnessInd> points) {
-    int candidate_ind_number = 0;
-    std::vector<PercentGAFitnessInd> dominated_pts;
-    std::vector<PercentGAFitnessInd> pareto;
-    
-    // This is a simple (but slow, O(n^2)) dominance check
-    while (true) {
-        auto candidate_ind = points[candidate_ind_number];
-        points.erase(points.begin() + candidate_ind_number);
-        bool non_dominated = true; 
-        int ind_number = 0;
-        
-        while (points.size() != 0 && ind_number < points.size()) {
-            auto ind = points[ind_number];
-            if (dominates(candidate_ind, ind)) {
-                // Candidate dominates 'ind', so 'ind' is removed
-                points.erase(points.begin() + ind_number);
-                dominated_pts.push_back(ind);
-            } else if (dominates(ind, candidate_ind)) {
-                // 'ind' dominates candidate, so candidate is dominated
-                non_dominated = false;
-                dominated_pts.push_back(candidate_ind);
-                ind_number++;
-            } else {
-                // Neither dominates, move on
-                ind_number++;
-            }
-        }
-        if (non_dominated) {
-            // Candidate was not dominated by any 'ind'
-            pareto.push_back(candidate_ind);
-        }
-        if (points.size() == 0) {
-            break;
-        }
-    }
-    return std::make_pair(pareto, dominated_pts);
-}
-
-/**
- * @brief Generates a random "strategy" (individual) for the percent-GA.
- * A strategy is a sorted vector of random percentages, ending in 1.0.
- */
-auto generate_rand_percent_individual() {
-    std::vector<double> percents;
-    int rand_length = ind_size(rng); // 10-30 stages
-    for (int i=0; i<rand_length; i++) {
-        percents.push_back(unif(rng));
-    }
-    std::sort(percents.begin(), percents.end());
-    percents[0] = 0.001; // Ensure at least 0.1%
-    percents.push_back(1.0); // Ensure it always finishes
-    PercentGAFitnessInd result;
-    result.percents = percents;
     return result;
 }
 
-/**
- * @brief Runs the "meta" Genetic Algorithm to find the best strategy.
- *
- * This function is templated to allow either serial (std::execution::seq)
- * or parallel (std::execution::par) execution.
- *
- * @param policy The execution policy (serial or parallel).
- * @param ... Other GA parameters.
- * @return The Pareto front of the *best strategies* found.
- */
-template<typename Policy>
-auto run_ga_with_policy(
-    Policy policy,
-    d_type d, 
-    t_type t, 
-    const vs_type& vs, 
-    lambda_type l, 
-    const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, 
-    bool use_default_percents, 
-    bool is_detecting) {
+/* ========================= Pareto helpers (unchanged) ==================== */
 
-    // --- Option 1: Use a single, hardcoded default strategy ---
-    if (use_default_percents) {
-        std::mt19937 main_rng(std::random_device{}());
-        const std::vector<double> percents = {0.021576,0.021576,0.022644,0.030792,0.090424,0.071014,0.083679,0.172455,0.220123,0.415283,1.000000};
-        
-        auto non_locating_pairs_copy = non_locating_pairs;
-        int num_rows = 0;
-        ca_type all_ga_rows; // <<< --- ADD THIS LINE
-        auto start = high_resolution_clock::now();
-        
-        // Execute the strategy step-by-step
-        for (const auto& percent : percents) { 
-            std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
-
-            // Find the minimal array 'ga_rows' to fix this percentage of pairs
-            auto ga_rows = go(d,t,vs,l,non_locating_pairs_copy,percent, is_detecting, main_rng);
-            num_rows += ga_rows.size();
-            all_ga_rows.insert(all_ga_rows.end(), ga_rows.begin(), ga_rows.end());
-            
-            // --- Update the remaining pairs ---
-            // This block checks which pairs were fixed by 'ga_rows' and
-            // updates the 'num_times_sep_already' count for the rest.
-            std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map_for_update;
-            auto rows_of_dset_in_ga = [&](const d_set_type& d_set) {
-                if (rows_map_for_update.count(d_set)) {
-                    return rows_map_for_update.at(d_set);
-                }
-                robin_hood::unordered_set<N_type> the_rows;
-                for (const auto& interaction : d_set) {
-                    const auto& rows = rows_of_interaction(interaction, ga_rows);
-                    the_rows.insert(rows.begin(), rows.end());
-                }
-                std::vector<int> vrows(the_rows.begin(), the_rows.end());
-                std::sort(vrows.begin(), vrows.end());
-                rows_map_for_update[d_set] = vrows;
-                return vrows;
-            };
-
-            for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs_copy) {
-                auto rows1 = rows_of_dset_in_ga(dset_1);
-                auto rows2 = rows_of_dset_in_ga(dset_2);
-
-                int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-                auto required_separation = is_detecting ? 1 : l;
-
-                // If still not fixed, add to the next generation's list
-                if (num_times_sep_already + n < required_separation) {
-                    new_non_locating_pairs.push_back({dset_1, dset_2, num_times_sep_already + n});
-                }
-            }
-            non_locating_pairs_copy = new_non_locating_pairs;
-            // --- End of update ---
-
-            if (non_locating_pairs_copy.size() == 0) {
-                break; // All pairs fixed
-            }
-
-            std::cout << "Added " << num_rows << " rows, there are " << non_locating_pairs_copy.size() << " remaining pairs\n";
-            new_non_locating_pairs.clear();
-        }
-        auto stop = high_resolution_clock::now();
-        auto total_time = duration_cast<milliseconds>(stop-start).count();
-        
-        // Return the single result
-        std::vector<PercentGAFitnessInd> result;
-        PercentGAFitnessInd ind;
-        ind.N = num_rows;
-        ind.percents = percents;
-        ind.time = total_time;
-        ind.generated_rows = all_ga_rows;
-        result.push_back(ind);
-        return result;
-    }
-
-    // --- Option 2: Run the full Genetic Algorithm to *find* a good strategy ---
-    int pop_size = 100;
-    int num_gens = 50;
-
-    std::vector<PercentGAFitnessInd> result;
-
-    // Initialize population with random strategies
-    std::vector<PercentGAFitnessInd> pop;
-    for (int i=0; i<pop_size; i++) {
-        pop.push_back(generate_rand_percent_individual());
-    }
-
-    // --- GA Generations Loop ---
-    for (int gen=0; gen<num_gens; gen++) {
-        std::cout << "Generation #" << gen << "\n";
-
-        // --- Fitness Evaluation (Parallel) ---
-        // This loop calculates the fitness (N, time) for every individual (strategy)
-        // in the population, using the parallel/sequential policy.
-        std::for_each(policy, pop.begin(), pop.end(), 
-            [&](PercentGAFitnessInd& I) { // Note: 'I' is one strategy
-            
-            if (I.N != -1 && I.time != -1) {
-                return; // Fitness already known, skip
-            }
-
-            // CRITICAL: Each thread needs its *own* private RNG.
-            std::mt19937 thread_rng(std::random_device{}());
-            
-            long long num_rows = 0;
-            ca_type all_ga_rows;
-            auto non_locating_pairs_copy = non_locating_pairs;
-            auto start = high_resolution_clock::now();
-            
-            // Execute the strategy (I.percents) step-by-step
-            for (const auto& percent : I.percents) { 
-                std::vector<std::tuple<d_set_type, d_set_type, int>> new_non_locating_pairs;
-
-                // Pass the thread-local RNG to the 'go' function
-                auto ga_rows = go(d, t, vs, l, non_locating_pairs_copy, percent, is_detecting, thread_rng);
-                num_rows += ga_rows.size();
-                all_ga_rows.insert(all_ga_rows.end(), ga_rows.begin(), ga_rows.end());
-
-                // --- Update remaining pairs (logic is identical to the default block) ---
-                std::unordered_map<d_set_type, std::vector<N_type>, DSetHasher> rows_map_for_update;
-                auto rows_of_dset_in_ga = [&](const d_set_type& d_set) {
-                    if (rows_map_for_update.count(d_set)) {
-                        return rows_map_for_update.at(d_set);
-                    }
-                    robin_hood::unordered_set<N_type> the_rows;
-                    for (const auto& interaction : d_set) {
-                        const auto& rows = rows_of_interaction(interaction, ga_rows);
-                        the_rows.insert(rows.begin(), rows.end());
-                    }
-                    std::vector<int> vrows(the_rows.begin(), the_rows.end());
-                    std::sort(vrows.begin(), vrows.end());
-                    rows_map_for_update[d_set] = vrows;
-                    return vrows;
-                };
-
-                for (const auto& [dset_1, dset_2, num_times_sep_already] : non_locating_pairs_copy) {
-                    auto rows1 = rows_of_dset_in_ga(dset_1);
-                    auto rows2 = rows_of_dset_in_ga(dset_2);
-                    int n = size_of_symmetric_difference(rows1.begin(), rows1.end(), rows2.begin(), rows2.end());
-                    auto required_separation = is_detecting ? 1 : l;
-                    if (num_times_sep_already + n < required_separation) {
-                        new_non_locating_pairs.push_back({dset_1, dset_2, num_times_sep_already + n});
-                    }
-                }
-                non_locating_pairs_copy = new_non_locating_pairs;
-                // --- End of update ---
-            }
-            auto stop = high_resolution_clock::now();
-
-            // Update the individual's fitness values.
-            I.N = num_rows;
-            I.time = duration_cast<milliseconds>(stop-start).count();
-            I.generated_rows = all_ga_rows;
-        });
-        // --- End of Parallel Fitness Evaluation ---
-
-        
-        std::vector<PercentGAFitnessInd> fitnesses = pop;
-
-        // --- Selection (Multi-objective) ---
-        // Find the Pareto front of the current population
-        auto target_size = pop_size/2;
-        auto [pareto, rest] = pareto_and_rest(fitnesses);
-        
-        // Print the current best results
-        for (auto& ind : pareto) { // Use 'ind' instead of structured binding
-            std::cout << ind.N << "," << ind.time << ",";
-            print_vec(ind.percents);
-            std::cout << "\n";
-        }
-        
-        // The new population starts with the Pareto front
-        std::vector<PercentGAFitnessInd> new_pop(pareto.begin(), pareto.end());
-        result = pareto; // Save the best front found so far
-
-        // Fill the rest of the new population with "second-best" fronts
-        while (new_pop.size() < target_size) {
-            for (auto& elem : pareto) {
-                fitnesses.erase(std::remove(fitnesses.begin(), fitnesses.end(), elem), fitnesses.end());
-            }
-            auto [pareto2, rest2] = pareto_and_rest(fitnesses); 
-            for (auto& elem : pareto2) {
-                if (new_pop.size() < target_size) {
-                    new_pop.push_back(elem);
-                } else {
-                    break;
-                }
-            }
-            pareto = pareto2;
-        }
-        pop.clear();
-        for (auto& elem : new_pop) {
-            pop.push_back(elem);
-        }
-        new_pop.clear();
-
-        // --- Crossover & Mutation (on the 'percents' vectors) ---
-        std::vector<PercentGAFitnessInd> children;
-
-        // Crossover
-        while (children.size() < pop_size/2) {
-            auto rand_p1 = pop[any_int(rng) % pop.size()]; // Parent 1 strategy
-            auto rand_p2 = pop[any_int(rng) % pop.size()]; // Parent 2 strategy
-            
-            // One-point crossover on the vector of percentages
-            auto rand_idx = any_int(rng) % std::min(rand_p1.percents.size(), rand_p2.percents.size());
-            while (rand_idx == 0) {
-                rand_idx = any_int(rng) % std::min(rand_p1.percents.size(), rand_p2.percents.size());
-            }
-
-            PercentGAFitnessInd child;
-            for (int i=0; i<rand_idx; i++) {
-                child.percents.push_back(rand_p1.percents[i]);
-            }
-            for (int i=rand_idx; i<rand_p2.percents.size(); i++) {
-                child.percents.push_back(rand_p2.percents[i]);
-            }
-            children.push_back(child);
-        }
-
-        // Mutate
-        for (auto& child : children) {
-            auto r = any_int(rng) % 10;
-            if (r == 0) {
-                // "split": insert a new random percent
-                auto rand_idx = any_int(rng) % (child.percents.size()-1); 
-                auto rand_val = unif(rng);
-                child.percents.insert(child.percents.begin() + rand_idx, rand_val);
-            } else if (r == 1) {
-                // "join": remove a percent
-                auto rand_idx = any_int(rng) % (child.percents.size()-1); 
-                child.percents.erase(child.percents.begin() + rand_idx);
-            } else if (r == 2) {
-                // "mutate": change one percent
-                auto rand_idx = any_int(rng) % (child.percents.size()-1); 
-                child.percents[rand_idx] = unif(rng);
-            }
-            // Add child to population
-            pop.push_back(child);
-        }
-    }
-    return result; // Return the last-computed Pareto front
+bool dominates(const PercentGAFitnessInd& a, const PercentGAFitnessInd& b) {
+    return a.N <= b.N && a.time <= b.time;
 }
 
-/**
- * @brief Public wrapper function for the 'percent_GA'.
- *
- * This function selects the execution policy (parallel or sequential)
- * based on the input string and calls the templated 'run_ga_with_policy'.
- */
-std::vector<PercentGAFitnessInd> percent_GA(d_type d, t_type t, const vs_type& vs, const lambda_type& l, const std::vector<std::tuple<d_set_type, d_set_type, int>>& non_locating_pairs, bool use_default_percents, bool is_detecting, const std::string& execution_policy) {
+auto pareto_and_rest(std::vector<PercentGAFitnessInd> pts) {
+    std::vector<PercentGAFitnessInd> dom, par;
+    int ci = 0;
+    while (true) {
+        auto cand = pts[ci]; pts.erase(pts.begin() + ci);
+        bool nd = true; size_t i = 0;
+        while (!pts.empty() && i < pts.size()) {
+            if (dominates(cand, pts[i]))      { dom.push_back(pts[i]); pts.erase(pts.begin()+i); }
+            else if (dominates(pts[i], cand)) { nd = false; dom.push_back(cand); i++; }
+            else                                i++;
+        }
+        if (nd) par.push_back(cand);
+        if (pts.empty()) break;
+    }
+    return std::make_pair(par, dom);
+}
+
+auto generate_rand_percent_individual() {
+    std::vector<double> p;
+    for (int i = 0, n = ind_size(rng); i < n; i++) p.push_back(unif(rng));
+    std::sort(p.begin(), p.end());
+    p[0] = 0.001; p.push_back(1.0);
+    PercentGAFitnessInd r; r.percents = p; return r;
+}
+
+/* ==================== helper: compute rows for update loop =============== */
+
+static std::vector<N_type> compute_rows_of_dset(
+        d_set_id id, const InteractionCodec& codec, const ca_type& arr) {
+    d_set_type dset = codec.decode_d_set(id);
+    robin_hood::unordered_set<N_type> rs;
+    for (auto& ix : dset) {
+        auto rows = rows_of_interaction(ix, arr);
+        rs.insert(rows.begin(), rows.end());
+    }
+    std::vector<N_type> v(rs.begin(), rs.end());
+    std::sort(v.begin(), v.end());
+    return v;
+}
+
+/* ==================== run_ga_with_policy ================================= */
+
+template<typename Policy>
+auto run_ga_with_policy(
+    Policy policy, d_type d, t_type t, const vs_type& vs, lambda_type l,
+    const std::vector<undist_pair_type>& non_locating_pairs,
+    bool use_default_percents, bool is_detecting,
+    const InteractionCodec& codec)
+{
+    if (use_default_percents) {
+        std::mt19937 main_rng(std::random_device{}());
+        const std::vector<double> percents = {0.021576,0.021576,0.022644,0.030792,
+            0.090424,0.071014,0.083679,0.172455,0.220123,0.415283,1.0};
+        auto pairs_copy = non_locating_pairs;
+        int num_rows = 0;
+        ca_type all_rows;
+        auto start = high_resolution_clock::now();
+        for (auto pct : percents) {
+            std::vector<undist_pair_type> next;
+            auto ga = go(d,t,vs,l,pairs_copy,pct,is_detecting,main_rng,codec);
+            num_rows += (int)ga.size();
+            all_rows.insert(all_rows.end(), ga.begin(), ga.end());
+            std::unordered_map<d_set_id, std::vector<N_type>> cache;
+            auto get = [&](d_set_id id) -> std::vector<N_type> {
+                auto it = cache.find(id); if (it != cache.end()) return it->second;
+                auto v = compute_rows_of_dset(id, codec, ga); cache[id]=v; return v;
+            };
+            for (auto& [d1,d2,sep] : pairs_copy) {
+                auto r1=get(d1), r2=get(d2);
+                int n = is_detecting
+                    ? size_of_set_minus(r1.begin(),r1.end(),r2.begin(),r2.end())
+                    : size_of_symmetric_difference(r1.begin(),r1.end(),r2.begin(),r2.end());
+                int req = l;
+                if (sep + n < req) next.push_back({d1,d2,sep+n});
+            }
+            pairs_copy = next;
+            if (pairs_copy.empty()) break;
+            std::cout << "Added " << num_rows << " rows, " << pairs_copy.size() << " pairs remaining\n";
+        }
+        auto stop = high_resolution_clock::now();
+        PercentGAFitnessInd ind;
+        ind.N = num_rows; ind.percents = percents;
+        ind.time = duration_cast<milliseconds>(stop-start).count();
+        ind.generated_rows = all_rows;
+        return std::vector<PercentGAFitnessInd>{ind};
+    }
+
+    /* ---- full GA ---- */
+    int pop_size = 100, num_gens = 50;
+    std::vector<PercentGAFitnessInd> result, pop;
+    for (int i = 0; i < pop_size; i++) pop.push_back(generate_rand_percent_individual());
+
+    for (int gen = 0; gen < num_gens; gen++) {
+        std::cout << "Generation #" << gen << "\n";
+        std::for_each(
+#ifdef HAS_TBB
+            policy,
+#endif
+            pop.begin(), pop.end(), [&](PercentGAFitnessInd& I) {
+            if (I.N != -1 && I.time != -1) return;
+            std::mt19937 thr(std::random_device{}());
+            long long nr = 0; ca_type all;
+            auto pc = non_locating_pairs;
+            auto t0 = high_resolution_clock::now();
+            for (auto pct : I.percents) {
+                std::vector<undist_pair_type> next;
+                auto ga = go(d,t,vs,l,pc,pct,is_detecting,thr,codec);
+                nr += (long long)ga.size();
+                all.insert(all.end(), ga.begin(), ga.end());
+                std::unordered_map<d_set_id, std::vector<N_type>> cache;
+                auto get = [&](d_set_id id) -> std::vector<N_type> {
+                    auto it = cache.find(id); if (it != cache.end()) return it->second;
+                    auto v = compute_rows_of_dset(id, codec, ga); cache[id]=v; return v;
+                };
+                for (auto& [d1,d2,sep] : pc) {
+                    auto r1=get(d1), r2=get(d2);
+                    int n = is_detecting
+                        ? size_of_set_minus(r1.begin(),r1.end(),r2.begin(),r2.end())
+                        : size_of_symmetric_difference(r1.begin(),r1.end(),r2.begin(),r2.end());
+                    int req = l;
+                    if (sep + n < req) next.push_back({d1,d2,sep+n});
+                }
+                pc = next;
+            }
+            auto t1 = high_resolution_clock::now();
+            I.N = (int)nr; I.time = duration_cast<milliseconds>(t1-t0).count();
+            I.generated_rows = all;
+        });
+
+        auto fits = pop;
+        auto target = (size_t)pop_size/2;
+        auto [par, rest] = pareto_and_rest(fits);
+        for (auto& x : par) { std::cout << x.N << "," << x.time << ","; print_vec(x.percents); std::cout << "\n"; }
+        std::vector<PercentGAFitnessInd> np(par.begin(), par.end());
+        result = par;
+        while (np.size() < target) {
+            for (auto& e : par) fits.erase(std::remove(fits.begin(),fits.end(),e),fits.end());
+            auto [p2, r2] = pareto_and_rest(fits);
+            for (auto& e : p2) { if (np.size() < target) np.push_back(e); else break; }
+            par = p2;
+        }
+        pop.clear(); for (auto& e : np) pop.push_back(e);
+
+        std::vector<PercentGAFitnessInd> children;
+        while (children.size() < (size_t)pop_size/2) {
+            auto& p1 = pop[any_int(rng)%pop.size()], &p2 = pop[any_int(rng)%pop.size()];
+            auto ri = any_int(rng) % std::min(p1.percents.size(),p2.percents.size());
+            while (ri == 0) ri = any_int(rng) % std::min(p1.percents.size(),p2.percents.size());
+            PercentGAFitnessInd ch;
+            for (size_t i=0; i<ri; i++) ch.percents.push_back(p1.percents[i]);
+            for (size_t i=ri; i<p2.percents.size(); i++) ch.percents.push_back(p2.percents[i]);
+            children.push_back(ch);
+        }
+        for (auto& ch : children) {
+            int r = any_int(rng)%10;
+            if (r==0) { auto i=any_int(rng)%(ch.percents.size()-1); ch.percents.insert(ch.percents.begin()+i, unif(rng)); }
+            else if (r==1) { auto i=any_int(rng)%(ch.percents.size()-1); ch.percents.erase(ch.percents.begin()+i); }
+            else if (r==2) { auto i=any_int(rng)%(ch.percents.size()-1); ch.percents[i]=unif(rng); }
+            pop.push_back(ch);
+        }
+    }
+    return result;
+}
+
+/* =========================== public API ================================== */
+
+std::vector<PercentGAFitnessInd> percent_GA(
+    d_type d, t_type t, const vs_type& vs, const lambda_type& l,
+    const std::vector<undist_pair_type>& non_locating_pairs,
+    bool use_default_percents, bool is_detecting,
+    const std::string& execution_policy,
+    const InteractionCodec& codec)
+{
+#ifdef HAS_TBB
     if (execution_policy == "parallel") {
         std::cout << "Running GA with std::execution::par\n";
-        return run_ga_with_policy(std::execution::par, d, t, vs, l, non_locating_pairs, use_default_percents, is_detecting);
+        return run_ga_with_policy(std::execution::par, d,t,vs,l,non_locating_pairs,
+                                  use_default_percents, is_detecting, codec);
     } else {
         std::cout << "Running GA with std::execution::seq\n";
-        return run_ga_with_policy(std::execution::seq, d, t, vs, l, non_locating_pairs, use_default_percents, is_detecting);
+        return run_ga_with_policy(std::execution::seq, d,t,vs,l,non_locating_pairs,
+                                  use_default_percents, is_detecting, codec);
     }
+#else
+    if (execution_policy == "parallel")
+        std::cout << "WARNING: Parallel not available (no TBB). Falling back to serial.\n";
+    std::cout << "Running GA (serial)\n";
+    return run_ga_with_policy(0, d,t,vs,l,non_locating_pairs,
+                              use_default_percents, is_detecting, codec);
+#endif
 }

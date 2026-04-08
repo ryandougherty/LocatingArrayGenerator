@@ -281,6 +281,11 @@ int main(int argc, char** argv) {
         return -1;
     }
 
+    // --- Set Experiment Flags ---
+    const bool d_bar = false; // Use "at most d" interactions
+    const bool t_bar = true; // Use "at most t" interactions
+    const int X = 12; // Number of partitions for Phase 1 heuristic
+
     std::string algorithm_type = "ga"; // Default
     std::string array_type = argv[2];
     const std::string policy = argv[4]; // "serial" or "parallel"
@@ -297,27 +302,22 @@ int main(int argc, char** argv) {
         return -1;
     }
     
+    bool is_detecting = array_type == "detecting";
 
     // --- Main Experiment Loop ---
-    // Note: These loops are hardcoded to only run d=1, t=2
-    for (d_type d = 2; d <= 2; d++) {
-        for (t_type t = 2; t <= 2; t++) {
+    // Note: These loops are hardcoded to only run d=2, t=2
+    for (d_type d = 1; d <= 1; d++) {
+        for (t_type t = 2; t <= 4; t++) {
             for (lambda_type lambda = 1; lambda <= 4; lambda++) {
                 const std::string config_name = argv[1];
                 
                 // Get parameters (vs) and input filename
                 const auto& [vs, filename] = lookup_config_and_params(config_name, t, lambda);
 
-                // --- Set Experiment Flags ---
-                const bool d_bar = true; // Use "at most d" interactions
-                const bool t_bar = true; // Use "at most t" interactions
-                bool is_detecting = false;
-                const int X = 10; // Number of partitions for Phase 1 heuristic
-
                 // 'd' must be less than the smallest column level
                 assert(d < *std::min_element(vs.begin(), vs.end()));
 
-                std::cout << "------------d=" << std::to_string(d) << ", t=" << std::to_string(t) << ", lambda=" << std::to_string(lambda) << ", filename=" << filename << "------------\n";
+                std::cout << "------------" << (is_detecting ? "detecting" : "locating") << ", d=" << std::to_string(d) << ", t=" << std::to_string(t) << ", lambda=" << std::to_string(lambda) << ", filename=" << filename << "------------\n";
 
                 // --- STAGE 1: Analysis ---
                 auto start = high_resolution_clock::now();
@@ -326,14 +326,18 @@ int main(int argc, char** argv) {
                 ca_type A = read_ca_from_cagen(filename, vs);
                 // std::cout << "Read file with " << A.size() << " rows.\n";
 
+                // Codec for encoding/decoding interactions and d-sets as integers.
+                // Initialized inside find_non_locating_sets / find_non_detecting_sets.
+                InteractionCodec codec;
+
                 // Find all pairs of d-sets that are not correctly located/detected
-                std::vector<std::tuple<d_set_type, d_set_type, int>> non_valid_pairs;
+                std::vector<undist_pair_type> non_valid_pairs;
                 if (array_type == "locating") {
-                    non_valid_pairs = find_non_locating_sets(A, t, vs, lambda, d, d_bar, t_bar, X);
+                    non_valid_pairs = find_non_locating_sets(A, t, vs, lambda, d, d_bar, t_bar, X, codec);
                 }
                 else if (array_type == "detecting") {
                     is_detecting = true;
-                    non_valid_pairs = find_non_detecting_sets(A, t, vs, lambda, d, d_bar, t_bar, X);
+                    non_valid_pairs = find_non_detecting_sets(A, t, vs, lambda, d, d_bar, t_bar, X, codec);
                 }
                 else {
                     std::cerr << "Array type " + array_type + " is not valid.\n";
@@ -344,7 +348,11 @@ int main(int argc, char** argv) {
                 auto first_stage_time = duration_cast<milliseconds>(stop-start).count();
 
                 std::cout << "First Stage N=" << first_stage_N << ", Time=" << first_stage_time << "\n"; 
-                std::cout << "There are " << non_valid_pairs.size() << " remaining non-locating pairs\n";
+                if (is_detecting) {
+                    std::cout << "There are " << non_valid_pairs.size() << " remaining non-detecting pairs\n";
+                } else {
+                    std::cout << "There are " << non_valid_pairs.size() << " remaining non-locating pairs\n";
+                }
 
                 /* ------------------------------------- Stage 2: GA / Density ------------------------------ */
 
@@ -363,7 +371,7 @@ int main(int argc, char** argv) {
                     std::cout << "--- Running GA Algorithm (phase2) ---" << std::endl;
                     // Run the genetic algorithm (Phase 2) to find new rows
                     // This GA optimizes the *percentage* of pairs to fix at each step
-                    pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,false, is_detecting, policy);
+                    pareto = percent_GA(d,t,vs,lambda,non_valid_pairs,false, is_detecting, policy, codec);
                     
                 }
                 // --- GLUE CODE FOR DENSITY ALGORITHM ---
@@ -379,6 +387,7 @@ int main(int argc, char** argv) {
                     loc_array.k = vs.size();
                     loc_array.d = d;
                     loc_array.is_detecting = is_detecting;
+                    loc_array.codec = codec; // Pass the initialized codec
                     
                     if (!vs.empty()) {
                         double sum_levels = 0.0;
@@ -429,6 +438,7 @@ int main(int argc, char** argv) {
                     loc_array.k = vs.size();
                     loc_array.d = d;
                     loc_array.is_detecting = is_detecting;
+                    loc_array.codec = codec; // Pass the initialized codec
                     
                     if (!vs.empty()) {
                         double sum_levels = 0.0;
@@ -477,7 +487,7 @@ int main(int argc, char** argv) {
                     final_array.insert(final_array.end(), ind.generated_rows.begin(), ind.generated_rows.end());
 
                     // 2. Create a unique output filename
-                    std::string output_filename = "./results/" + config_name + "_t" + std::to_string(t) + "_l" + 
+                    std::string output_filename = "./results/" + config_name + "_" + (is_detecting ? "det" : "loc") + "_t" + std::to_string(t) + "_l" + 
                                                 std::to_string(lambda) + "_pareto_" + 
                                                 std::to_string(pareto_solution_index) + ".csv";
                     

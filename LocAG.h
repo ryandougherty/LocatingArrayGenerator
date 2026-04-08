@@ -34,6 +34,9 @@
 // (ca_type, t_type, interaction_type, etc.) and hashers.
 #include "utils/utils.h"
 
+// 1.5 Include the interaction codec for integer encoding of interactions/d-sets.
+#include "utils/interaction_codec.h"
+
 // 2. Include phase1.h
 #include "phase1/phase1.h"
 
@@ -52,9 +55,13 @@ struct LocatingArray {
     d_type d;           // d-set size
     bool is_detecting;  // Flag for detecting vs locating
 
+    // Codec for encoding/decoding interactions and d-sets as integers.
+    InteractionCodec codec;
+
     // The list of pairs that Phase 1 found to be undistinguished.
-    // This is the problem the algorithm needs to solve.
-    std::vector<std::tuple<d_set_type, d_set_type, int>> undistinguished_pairs;
+    // Each entry is (d_set_id_1, d_set_id_2, times_separated).
+    // Use codec.decode_d_set(id) to recover the interaction_type objects.
+    std::vector<undist_pair_type> undistinguished_pairs;
 };
 
 
