@@ -4,8 +4,8 @@
 EXECUTABLE="./LocAG"
 OUTPUT_FILE="benchmark_results_subset.csv" # CHANGED: New output file
 LOG_DIR="benchmark_logs_subset"            # CHANGED: New log directory
-TIMEOUT_DURATION="45m"
-TRIALS=5
+TIMEOUT_DURATION="1440m"
+TRIALS=1
 
 # CHANGED: Only running Make, SPINS, and SPINV
 CONFIGS=(
@@ -14,9 +14,9 @@ CONFIGS=(
 #    "SPINV"
      "3^10"
      "3^20"
-     "3^50"
-     "4^50"
-     "5^50"
+#     "3^50"
+#     "4^50"
+#     "5^50"
 )
 # --- End of Configuration ---
 

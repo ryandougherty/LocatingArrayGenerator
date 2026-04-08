@@ -1,6 +1,26 @@
 ------------d=2, t=2, lambda=1, filename=./evaluation/3^10-t2_l1.csv------------
 Grouping d-sets by partitioned row counts for detecting arrays...
 Ready to look at pairs for detecting arrays...
-First Stage N=15, Time=8865
+First Stage N=15, Time=8804
 There are 24984099 remaining non-locating pairs
 --- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) WARNING: Could not find N < 2017. Using 2017.
+  (CE) Initial N_target calculated as: 2017 (M=15)
+  (CE) Row 16 built. 24984099 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 4018. Using 4018.
+  (CE) N_target recalculated as: 4018
+  (CE) Row 17 built. 24984099 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 6019. Using 6019.
+  (CE) N_target recalculated as: 6019
+  (CE) Row 18 built. 24984099 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 8020. Using 8020.
+  (CE) N_target recalculated as: 8020
+  (CE) Row 19 built. 24984099 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 10021. Using 10021.
+  (CE) N_target recalculated as: 10021
+  (CE) Row 20 built. 24984099 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 12022. Using 12022.
+  (CE) N_target recalculated as: 12022
+  (CE) Row 21 built. 24984099 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 14023. Using 14023.
+  (CE) N_target recalculated as: 14023

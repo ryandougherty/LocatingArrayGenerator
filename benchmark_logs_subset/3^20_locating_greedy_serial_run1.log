@@ -1,9 +1,12 @@
 ------------d=2, t=2, lambda=1, filename=./evaluation/3^20-t2_l1.csv------------
 Computing partitioned counts of d-sets...
 Ready to look at pairs based on partitioned counts...
-First Stage N=23, Time=840329
+First Stage N=23, Time=896115
 There are 142250261 remaining non-locating pairs
 --- Running Density Algorithm (phase2_ce) for Locating ---
   (CE) DEBUG: Trying to distinguish 142250261 pairs. Example:
        Pair 0: (18,),(2,) (4,7,),(0,1,)  vs (18,),(2,) (4,7,),(0,1,)  (already separated 0 times)
   (CE) Using greedy column-by-column strategy.
+  (CE) Row 30 built (best score: 4010676). 105190513 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 2194604). 74556173 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 1721748). 55858125 pairs remaining to distinguish.

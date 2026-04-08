@@ -4,3 +4,57 @@ Ready to look at pairs based on partitioned counts...
 First Stage N=15, Time=30750
 There are 14769435 remaining non-locating pairs
 --- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) WARNING: Could not find N < 2017. Using 2017.
+  (CE) Initial N_target calculated as: 2017 (M=15)
+  (CE) Row 16 built. 11778243 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 4018. Using 4018.
+  (CE) N_target recalculated as: 4018
+  (CE) Row 17 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 6019. Using 6019.
+  (CE) N_target recalculated as: 6019
+  (CE) Row 18 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 8020. Using 8020.
+  (CE) N_target recalculated as: 8020
+  (CE) Row 19 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 10021. Using 10021.
+  (CE) N_target recalculated as: 10021
+  (CE) Row 20 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 12022. Using 12022.
+  (CE) N_target recalculated as: 12022
+  (CE) Row 21 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 14023. Using 14023.
+  (CE) N_target recalculated as: 14023
+  (CE) Row 22 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 16024. Using 16024.
+  (CE) N_target recalculated as: 16024
+  (CE) Row 23 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 18025. Using 18025.
+  (CE) N_target recalculated as: 18025
+  (CE) Row 24 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 20026. Using 20026.
+  (CE) N_target recalculated as: 20026
+  (CE) Row 25 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 22027. Using 22027.
+  (CE) N_target recalculated as: 22027
+  (CE) Row 26 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 24028. Using 24028.
+  (CE) N_target recalculated as: 24028
+  (CE) Row 27 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 26029. Using 26029.
+  (CE) N_target recalculated as: 26029
+  (CE) Row 28 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 28030. Using 28030.
+  (CE) N_target recalculated as: 28030
+  (CE) Row 29 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 30031. Using 30031.
+  (CE) N_target recalculated as: 30031
+  (CE) Row 30 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 32032. Using 32032.
+  (CE) N_target recalculated as: 32032
+  (CE) Row 31 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 34033. Using 34033.
+  (CE) N_target recalculated as: 34033
+  (CE) Row 32 built. 9849027 pairs remaining to distinguish.
+  (CE) WARNING: Could not find N < 36034. Using 36034.
+  (CE) N_target recalculated as: 36034
+  (CE) Row 33 built. 9849027 pairs remaining to distinguish.
