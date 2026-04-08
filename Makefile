@@ -4,16 +4,22 @@ CXX = g++
 # C++ flags: C++20 standard, all warnings, high optimization
 CXXFLAGS = -std=c++20 -Wall -O3
 
+# --- TBB (optional parallel support) ---
+# To enable: make USE_TBB=1
+# Requires libtbb-dev (Linux) or mingw-w64-ucrt-x86_64-tbb (MSYS2)
+ifdef USE_TBB
+    CXXFLAGS += -DHAS_TBB
+    LDFLAGS = -ltbb
+else
+    LDFLAGS =
+endif
+
 # --- OS Specific Configuration ---
-# Check for Unix-like systems (Linux, macOS, WSL, Git Bash, etc.)
-# The 'shell' command is used to run 'uname'
-UNAME_S := $(shell uname -s)
+UNAME_S := $(shell uname -s 2>/dev/null)
 
 # Default to Linux/Unix settings
 TARGET = LocAG
-LDFLAGS = -ltbb
 RM = rm -f
-# We will use / for all paths, as g++ and make handle this well
 OBJS_LIST = LocAG.o \
             phase1/phase1.o \
             phase2/phase2.o \
@@ -22,21 +28,15 @@ OBJS_LIST = LocAG.o \
             utils/utils.o
 
 # --- OS Overrides ---
-# Check for MINGW (e.g., Git Bash on Windows)
 ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
     TARGET = LocAG.exe
     RM = rm -f
-# Check for Cygwin
 else ifeq ($(findstring CYGWIN,$(UNAME_S)),CYGWIN)
     TARGET = LocAG.exe
     RM = rm -f
-# Check for native Windows (cmd.exe)
 else ifeq ($(OS),Windows_NT)
     TARGET = LocAG.exe
-#     LDFLAGS = -ltbb
-    LDFLAGS = 
     RM = del /F /Q
-    # Use backslashes for native Windows 'del' command
     OBJS_LIST = LocAG.o \
                 phase1\phase1.o \
                 phase2\phase2.o \

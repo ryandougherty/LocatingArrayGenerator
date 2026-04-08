@@ -1,12 +1,23 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
+import numpy as np
 
 # --- Configuration ---
-INPUT_FILE = "benchmark_results.csv"
-# Configurations that take significantly longer and skew the chart scale
-OUTLIER_CONFIGS = ["GCC", "Mobile"]
-# ---
+INPUT_FILE = "benchmark_results.csv" # Change to subset if needed
+OUTPUT_LOCATING = "benchmark_time_locating_log.png"
+OUTPUT_DETECTING = "benchmark_time_detecting_log.png"
+
+# --- FIXED COLOR PALETTE ---
+COLOR_MAP = {
+    'ga-parallel': '#1f77b4',    # Blue
+    'greedy-serial': '#ff7f0e',  # Orange
+    'ce-serial': '#2ca02c',      # Green
+    'ga-serial': '#9467bd',      # Purple
+    'greedy-parallel': '#8c564b',# Brown
+    'ce-parallel': '#e377c2'     # Pink
+}
+# ---------------------
 
 def plot_data(df, title, output_file):
     if df.empty:
@@ -25,30 +36,50 @@ def plot_data(df, title, output_file):
     final_stats['std'] = final_stats['std'].fillna(0)
     final_stats['RunType'] = final_stats['Method'] + '-' + final_stats['Policy']
 
-    # Pivot
-    pivot_mean = final_stats.pivot(index='Config', columns='RunType', values='mean').fillna(0)
-    pivot_std = final_stats.pivot(index='Config', columns='RunType', values='std').fillna(0)
+    # Pivot (Notice we DO NOT fill NaNs with 0 here anymore, because log(0) breaks the chart)
+    pivot_mean = final_stats.pivot(index='Config', columns='RunType', values='mean')
+    pivot_std = final_stats.pivot(index='Config', columns='RunType', values='std')
+
+    # Map the columns to our fixed colors
+    bar_colors = [COLOR_MAP.get(col, '#7f7f7f') for col in pivot_mean.columns]
 
     # Plot
     ax = pivot_mean.plot(
         kind='bar',
-        figsize=(14, 8),
+        figsize=(15, 8),
         width=0.8,
         yerr=pivot_std,
         capsize=4,
         edgecolor="black",
-        rot=0
+        rot=0,
+        color=bar_colors
     )
 
-    ax.set_title(f'{title} Performance (Avg Total Time)', fontsize=16, pad=20)
-    ax.set_ylabel('Time (seconds)', fontsize=12)
+    # --- THE MAGIC: Set Y-Axis to Logarithmic Scale ---
+    ax.set_yscale('log')
+
+    ax.set_title(f'{title} Performance (Avg Total Time - Log Scale)', fontsize=16, pad=20)
+    ax.set_ylabel('Time (seconds) [Log10 Scale]', fontsize=12)
     ax.set_xlabel('Configuration', fontsize=12)
-    ax.yaxis.grid(True, linestyle='--', alpha=0.7)
     
-    # Add labels
+    # Add minor grid lines which look great on log charts
+    ax.yaxis.grid(True, linestyle='-', alpha=0.7, which='major')
+    ax.yaxis.grid(True, linestyle='--', alpha=0.3, which='minor')
+    ax.set_axisbelow(True)
+    
+    # Add labels to the top of the bars
     for container in ax.containers:
         if isinstance(container[0], plt.Rectangle):
-            labels = [f'{v:.2f}' if v > 0 else "T/O" for v in container.datavalues]
+            labels = []
+            for v in container.datavalues:
+                if pd.isna(v) or v <= 0:
+                    labels.append("T/O") # Timeout / No Data
+                else:
+                    # Format standard numbers cleanly
+                    if v < 10:
+                        labels.append(f'{v:.2f}')
+                    else:
+                        labels.append(f'{int(v)}')
             ax.bar_label(container, labels=labels, padding=3, fontsize=8)
 
     plt.tight_layout()
@@ -63,34 +94,21 @@ def main():
         print(f"Error reading {INPUT_FILE}: {e}")
         sys.exit(1)
 
-    # 1. Clean Data
+    # Clean Data
     if 'Status' in data.columns:
         data = data[data['Status'] == 'COMPLETED']
     
-    # Drop duplicates from appended runs
     data = data.drop_duplicates(subset=['Config', 'ArrayType', 'Method', 'Policy', 'd', 't', 'lambda', 'Trial'])
-    
     data['Time_s'] = pd.to_numeric(data['Time_ms'], errors='coerce') / 1000.0
     data = data.dropna(subset=['Time_s'])
 
-    # 2. Split by Array Type
+    # Split by Array Type (No longer splitting by outliers!)
     locating_df = data[data['ArrayType'] == 'locating']
     detecting_df = data[data['ArrayType'] == 'detecting']
 
-    # 3. Split by Standard vs Large Scale (Outliers)
-    loc_outliers = locating_df[locating_df['Config'].isin(OUTLIER_CONFIGS)]
-    loc_normal = locating_df[~locating_df['Config'].isin(OUTLIER_CONFIGS)]
-
-    det_outliers = detecting_df[detecting_df['Config'].isin(OUTLIER_CONFIGS)]
-    det_normal = detecting_df[~detecting_df['Config'].isin(OUTLIER_CONFIGS)]
-
-    # 4. Plot Locating
-    plot_data(loc_normal, "Locating Array (Standard Scale)", "benchmark_time_locating_standard.png")
-    plot_data(loc_outliers, "Locating Array (Large Scale: GCC, Mobile)", "benchmark_time_locating_large.png")
-    
-    # 5. Plot Detecting
-    plot_data(det_normal, "Detecting Array (Standard Scale)", "benchmark_time_detecting_standard.png")
-    plot_data(det_outliers, "Detecting Array (Large Scale: GCC, Mobile)", "benchmark_time_detecting_large.png")
+    # Plot everything onto just two charts
+    plot_data(locating_df, "Locating Array", OUTPUT_LOCATING)
+    plot_data(detecting_df, "Detecting Array", OUTPUT_DETECTING)
 
 if __name__ == "__main__":
     main()

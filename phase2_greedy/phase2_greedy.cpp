@@ -1,5 +1,13 @@
+/* ----------------------------------------------------------------------------
+ * phase2_greedy.cpp
+ *
+ * MODIFIED: Uses d_set_id from InteractionCodec. Decodes on-the-fly for
+ * row coverage checks.
+ * ----------------------------------------------------------------------------
+ */
+
 #include "phase2_greedy.h"
-#include "../utils/utils.h" // For any_int, rng, d_set_to_str
+#include "../utils/utils.h"
 #include <cmath>
 #include <limits>
 #include <iostream>
@@ -7,25 +15,23 @@
 #include <vector>
 #include <set>
 
-// --- Helper Functions for Locating Algorithm ---
-// (These are unchanged)
+// --- Helper Functions ---
 
 /**
  * @brief Checks if a given row covers a d-set.
- * A row covers a d-set if it covers all interactions within that d-set.
+ * A row covers a d-set if it covers at least one interaction within that d-set.
+ * (Because R(D) = UNION of R(I) for each I in D.)
  */
 static bool row_covers_d_set(const std::vector<v_type>& row, const d_set_type& d_set) {
     if (d_set.empty()) {
         return false; 
     }
     for (const auto& interaction : d_set) {
-        // Check if row covers this single interaction
         bool covers_interaction = true;
         if (interaction.first.empty()) {
              continue;
         }
         for (size_t i = 0; i < interaction.first.size(); ++i) {
-            // Bounds check
             if (interaction.first[i] >= row.size() || interaction.second.size() <= i) {
                 covers_interaction = false; 
                 break;
@@ -35,13 +41,13 @@ static bool row_covers_d_set(const std::vector<v_type>& row, const d_set_type& d
                 break;
             }
         }
-        // If the row fails to cover even one interaction, it fails to cover the d-set
-        if (!covers_interaction) {
-            return false;
+        // ANY semantics: if this interaction is covered, the d-set is covered
+        if (covers_interaction) {
+            return true;
         }
     }
-    // If we get here, the row covered all interactions in the d-set
-    return true;
+    // No interaction was covered
+    return false;
 }
 
 /**
@@ -61,8 +67,19 @@ static std::vector<v_type> generate_random_row(int k, const vs_type& vs) {
 void run_phase_2_greedy(LocatingArray *array) {
 	
 	int k = array->k;
-    const vs_type& vs = array->vs; // Get vs
-	int M = array->array.size(); // Start counting from existing rows
+    const vs_type& vs = array->vs;
+	int M = array->array.size();
+    const InteractionCodec& codec = array->codec;
+    bool is_detecting = array->is_detecting;
+
+    // For detecting: pair is (X_singleton, T_dset). A row separates if it covers X but not T.
+    // For locating:  pair is (D1, D2). A row separates if it covers one but not the other.
+    auto row_separates = [&](bool covers1, bool covers2) -> bool {
+        if (is_detecting)
+            return covers1 && !covers2;
+        else
+            return covers1 != covers2;
+    };
 
     // A set of indices into array->undistinguished_pairs
     std::set<size_t> pair_indices;
@@ -72,125 +89,161 @@ void run_phase_2_greedy(LocatingArray *array) {
 
     if (!pair_indices.empty()) {
         std::cout << "  (CE) DEBUG: Trying to distinguish " << pair_indices.size() << " pairs. Example:" << std::endl;
-        const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[*pair_indices.begin()];
-        // Use the utility function from utils/utils.h (which must be linked)
+        const auto& [id1, id2, needed] = array->undistinguished_pairs[*pair_indices.begin()];
+        // Decode for display
+        d_set_type d_set1 = codec.decode_d_set(id1);
+        d_set_type d_set2 = codec.decode_d_set(id2);
         std::cout << "       Pair 0: " << d_set_to_str(d_set1) << " vs " << d_set_to_str(d_set2) << " (already separated " << needed << " times)" << std::endl;
     }
 
-    // --- NEW: Using greedy, column-by-column construction ---
-    // This implements the "Conditional Expectation" heuristic.
     std::cout << "  (CE) Using greedy column-by-column strategy." << std::endl;
     
-    // Number of random samples to take when evaluating each value
     const int SAMPLES = 10; 
+    int consecutive_zero_score = 0;
+    bool using_random_fallback = false;
+    int random_fail_attempts = 0;
 
+    // Cache: d_set_id -> decoded d_set_type (avoids repeated decoding)
+    std::unordered_map<d_set_id, d_set_type> decode_cache;
+    auto get_decoded = [&](d_set_id id) -> const d_set_type& {
+        auto it = decode_cache.find(id);
+        if (it != decode_cache.end()) return it->second;
+        decode_cache[id] = codec.decode_d_set(id);
+        return decode_cache[id];
+    };
 
 	while (!pair_indices.empty()) {
 		M++;
 
-        // --- Greedy Row Construction (Unchanged) ---
-        std::vector<v_type> currentRow(k); // We will build this row greedily
-        
-        for(int j = 0; j < k; ++j) { // For each column j
-            v_type best_v_for_col = 0;     // Best value for this column
-            int best_score_for_col = -1; // Best score seen for this column
+        std::vector<v_type> bestRow(k);
 
-            // Try every possible value 'v' for column 'j'
-            for(v_type v = 0; v < vs[j]; ++v) {
-                currentRow[j] = v; // Set the value for this column
-                int score_for_v = 0;
+        if (!using_random_fallback) {
+            // --- Greedy column-by-column construction ---
+            std::vector<v_type> currentRow(k);
+            
+            for(int j = 0; j < k; ++j) {
+                v_type best_v_for_col = 0;
+                int best_score_for_col = -1;
 
-                // To score this choice, we randomly fill the *rest* of the
-                // row SAMPLES times and sum the scores.
-                for (int s = 0; s < SAMPLES; ++s) {
-                    
-                    // Fill columns j+1 to k-1 randomly
-                    for (int r = j + 1; r < k; ++r) {
-                        currentRow[r] = any_int(rng) % vs[r];
-                    }
+                for(v_type v = 0; v < vs[j]; ++v) {
+                    currentRow[j] = v;
+                    int score_for_v = 0;
 
-                    // Now that `currentRow` is complete, score it
-                    // against all remaining pairs
-                    for (const auto& index : pair_indices) {
-                        const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[index];
+                    for (int s = 0; s < SAMPLES; ++s) {
                         
-                        bool covers1 = row_covers_d_set(currentRow, d_set1);
-                        bool covers2 = row_covers_d_set(currentRow, d_set2);
+                        for (int r = j + 1; r < k; ++r) {
+                            currentRow[r] = any_int(rng) % vs[r];
+                        }
 
-                        if ((covers1 && !covers2) || (!covers1 && covers2)) {
-                            score_for_v++;
+                        for (const auto& index : pair_indices) {
+                            const auto& [id1, id2, needed] = array->undistinguished_pairs[index];
+                            
+                            const d_set_type& d_set1 = get_decoded(id1);
+                            const d_set_type& d_set2 = get_decoded(id2);
+
+                            bool covers1 = row_covers_d_set(currentRow, d_set1);
+                            bool covers2 = row_covers_d_set(currentRow, d_set2);
+
+                            if (row_separates(covers1, covers2)) {
+                                score_for_v++;
+                            }
                         }
                     }
-                } // End sampling loop
 
-                // If this value 'v' gave the best score so far, keep it
-                if (score_for_v > best_score_for_col) {
-                    best_score_for_col = score_for_v;
-                    best_v_for_col = v;
+                    if (score_for_v > best_score_for_col) {
+                        best_score_for_col = score_for_v;
+                        best_v_for_col = v;
+                    }
                 }
-            } // End value loop
 
-            // We've tried all values for col j. Lock in the best one.
-            currentRow[j] = best_v_for_col;
+                currentRow[j] = best_v_for_col;
+            }
+
+            bestRow = currentRow;
+        } else {
+            // --- Random row fallback ---
+            // The greedy has plateaued; just generate a random row.
+            // The diagnostic proved random rows always fix remaining pairs.
+            for (int c = 0; c < k; ++c) {
+                bestRow[c] = any_int(rng) % vs[c];
+            }
         }
-        // --- END GREEDY HEURISTIC ---
 
-        // `currentRow` is now the complete, greedily-constructed row
-        std::vector<v_type> bestRow = currentRow;
-
-        // Calculate the *actual* score for this row for logging
+        // Score the row
         int bestScore = 0;
         for (const auto& index : pair_indices) {
-            const auto& [d_set1, d_set2, needed] = array->undistinguished_pairs[index];
+            const auto& [id1, id2, needed] = array->undistinguished_pairs[index];
+            const d_set_type& d_set1 = get_decoded(id1);
+            const d_set_type& d_set2 = get_decoded(id2);
             bool covers1 = row_covers_d_set(bestRow, d_set1);
             bool covers2 = row_covers_d_set(bestRow, d_set2);
-            if ((covers1 && !covers2) || (!covers1 && covers2)) {
+            if (row_separates(covers1, covers2)) {
                 bestScore++;
             }
         }
 
-		// --- ADD THE *BEST* ROW TO THE OBJECT'S ARRAY ---
+        // Detect plateau and switch to random fallback
+        if (bestScore == 0) {
+            consecutive_zero_score++;
+            if (!using_random_fallback && consecutive_zero_score >= 3) {
+                std::cout << "  (CE) Greedy plateaued (3 consecutive zero-score rows). "
+                          << "Switching to random row generation.\n";
+                using_random_fallback = true;
+                // Don't add this useless row, retry with random
+                M--;
+                continue;
+            }
+            if (using_random_fallback) {
+                // Random row didn't help this time, just skip it
+                M--;
+                random_fail_attempts++;
+                if (random_fail_attempts > 10000) {
+                    std::cout << "  (CE) WARNING: 10000 random rows failed. "
+                              << pair_indices.size() << " pairs left.\n";
+                    break;
+                }
+                continue;
+            }
+        } else {
+            consecutive_zero_score = 0;
+        }
+
 		array->array.push_back(bestRow);
 
-		// --- *** LOGIC FIX HERE *** ---
-        // --- UPDATE THE LIST OF UNDISTINGUISHED PAIRS ---
 		std::vector<size_t> distinguished_this_round;
 
         for (const auto& index : pair_indices) {
-            // Get the tuple by reference
             auto& pair_tuple = array->undistinguished_pairs[index];
-            const auto& d_set1 = std::get<0>(pair_tuple);
-            const auto& d_set2 = std::get<1>(pair_tuple);
-            
-            // This int is 'times_separated_already', not 'needed'
+            const d_set_id id1 = std::get<0>(pair_tuple);
+            const d_set_id id2 = std::get<1>(pair_tuple);
             int& times_separated = std::get<2>(pair_tuple); 
             
+            const d_set_type& d_set1 = get_decoded(id1);
+            const d_set_type& d_set2 = get_decoded(id2);
+
             bool covers1 = row_covers_d_set(bestRow, d_set1);
             bool covers2 = row_covers_d_set(bestRow, d_set2);
 
-            // Check for distinguishing
-            if ((covers1 && !covers2) || (!covers1 && covers2)) {
-                times_separated++; // <-- INCREMENT the separation count
+            if (row_separates(covers1, covers2)) {
+                times_separated++;
                 
-                // Check if it has now met the lambda requirement
                 if (times_separated >= array->lambda) { 
                     distinguished_this_round.push_back(index);
                 }
             }
         } 
 		
-        // Remove the pairs that are now fully distinguished
 		for (const auto& index : distinguished_this_round) {
 			pair_indices.erase(index);
 		}
-        // --- *** END LOGIC FIX *** ---
 		
 		if (M % 10 == 0 || pair_indices.empty()) {
-			std::cout << "  (CE) Row " << M << " built (best score: " << bestScore << "). "
+			std::cout << "  (CE) Row " << M << " built"
+                      << (using_random_fallback ? " [random]" : "")
+                      << " (best score: " << bestScore << "). "
 					  << pair_indices.size() << " pairs remaining to distinguish." << std::endl;
 		}
 
-        // --- SAFETY BREAK ---
         if (M > (int(array->array.size()) + k * 20) && M > 200) { 
              std::cout << "  (CE) WARNING: Algorithm seems stuck. Forcefully exiting loop." << std::endl;
              std::cout << "  (CE) " << pair_indices.size() << " pairs were left undistinguished." << std::endl;
