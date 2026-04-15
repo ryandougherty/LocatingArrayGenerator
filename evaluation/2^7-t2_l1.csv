@@ -1,0 +1,9 @@
+todo0,todo1,todo2,todo3,todo4,todo5,todo6
+true,true,true,true,true,true,true
+true,false,false,false,false,false,false
+false,true,false,true,false,true,false
+false,false,true,false,true,false,true
+false,true,true,false,false,true,false
+true,false,false,true,true,false,true
+true,true,true,true,true,false,false
+true,false,false,false,false,true,true
