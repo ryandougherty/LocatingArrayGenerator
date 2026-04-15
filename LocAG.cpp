@@ -307,7 +307,7 @@ int main(int argc, char** argv) {
     // --- Main Experiment Loop ---
     // Note: These loops are hardcoded to only run d=2, t=2
     for (d_type d = 1; d <= 1; d++) {
-        for (t_type t = 3; t <= 3; t++) {
+        for (t_type t = 2; t <= 2; t++) {
             for (lambda_type lambda = 1; lambda <= 4; lambda++) {
                 const std::string config_name = argv[1];
                 

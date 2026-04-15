@@ -356,7 +356,7 @@ std::vector<undist_pair_type> find_non_detecting_sets( const ca_type& A, t_type 
     std::cout << "Codec initialized: T=" << codec.T << " interactions, d_max=" << codec.d_max << ", M=" << codec.M << " possible d-sets\n";
 
     int N = (int)A.size();
-    int partition_size = N / X;
+    int partition_size = std::max(1, N / X);
 
     // 2. Build RowBitsets for each interaction (fast set-minus via AND-NOT)
     std::vector<RowBitset> ix_bitsets(codec.T, RowBitset(N));
@@ -534,7 +534,7 @@ std::vector<undist_pair_type> find_non_locating_sets(const ca_type& A, t_type t,
     };
     std::vector<DSetEntry> all_d_sets;
 
-    int partition_size = A.size() / X;
+    int partition_size = std::max(1, static_cast<int>(A.size() / X));
 
     std::cout << "Computing actual partitioned row counts of d-sets...\n";
 
