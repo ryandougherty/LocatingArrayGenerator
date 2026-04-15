@@ -1,0 +1,36 @@
+------------locating, d=1, t=3, lambda=1, filename=./evaluation/Apache/Apache_3_1.csv------------
+Codec initialized: T=8154345 interactions, d_max=1, M=8154346 possible d-sets
+Computing actual partitioned row counts of d-sets...
+L1 ball size for radius 0 in Z^12: 1 vectors
+Ready to look at pairs via neighbor enumeration...
+Checked 5809504 bucket pairs (of 5809504 total buckets)
+First Stage N=170, Time=228608
+There are 377526 remaining non-locating pairs
+--- Running Conditional Expectation Algorithm (phase2_ce) for Locating ---
+  (CE) Initial N_target calculated as: 858 (M=170)
+  (CE) Row 171 built. 358486 pairs remaining to distinguish.
+  (CE) Row 172 built. 338385 pairs remaining to distinguish.
+  (CE) Row 173 built. 325677 pairs remaining to distinguish.
+  (CE) Row 174 built. 309103 pairs remaining to distinguish.
+  (CE) Row 175 built. 295023 pairs remaining to distinguish.
+  (CE) Row 176 built. 285570 pairs remaining to distinguish.
+  (CE) Row 177 built. 275965 pairs remaining to distinguish.
+  (CE) Row 178 built. 268048 pairs remaining to distinguish.
+  (CE) Row 179 built. 257906 pairs remaining to distinguish.
+  (CE) Row 180 built. 248129 pairs remaining to distinguish.
+  (CE) Row 181 built. 237976 pairs remaining to distinguish.
+  (CE) Row 182 built. 231520 pairs remaining to distinguish.
+  (CE) Row 183 built. 226719 pairs remaining to distinguish.
+  (CE) Row 184 built. 212464 pairs remaining to distinguish.
+  (CE) Row 185 built. 206093 pairs remaining to distinguish.
+  (CE) Row 186 built. 199155 pairs remaining to distinguish.
+  (CE) Row 187 built. 192649 pairs remaining to distinguish.
+  (CE) Row 188 built. 185808 pairs remaining to distinguish.
+  (CE) Row 189 built. 178564 pairs remaining to distinguish.
+  (CE) Row 190 built. 171291 pairs remaining to distinguish.
+  (CE) Row 191 built. 166200 pairs remaining to distinguish.
+  (CE) Row 192 built. 160560 pairs remaining to distinguish.
+  (CE) Row 193 built. 154962 pairs remaining to distinguish.
+  (CE) Row 194 built. 151205 pairs remaining to distinguish.
+  (CE) Row 195 built. 141948 pairs remaining to distinguish.
+  (CE) Row 196 built. 134614 pairs remaining to distinguish.

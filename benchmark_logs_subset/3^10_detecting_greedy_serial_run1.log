@@ -1,171 +1,115 @@
-------------d=2, t=2, lambda=1, filename=./evaluation/3^10-t2_l1.csv------------
-Grouping d-sets by partitioned row counts for detecting arrays...
-Ready to look at pairs for detecting arrays...
-First Stage N=15, Time=8710
-There are 24984099 remaining non-locating pairs
+------------detecting, d=2, t=2, lambda=1, filename=./evaluation/3^10-t2_l1.csv------------
+Codec initialized: T=435 interactions, d_max=2, M=94831 possible d-sets
+Generating d-sets for detecting array check...
+Generated 93585 valid d-sets. Checking detecting condition for 435 interactions...
+Detecting check complete: 7281702 pairs checked, 32571948 pruned by partition bound, 4843881 violations found.
+First Stage N=15, Time=885
+There are 4843881 remaining non-detecting pairs
 --- Running Density Algorithm (phase2_ce) for Locating ---
-  (CE) DEBUG: Trying to distinguish 24984099 pairs. Example:
-       Pair 0: (2,),(2,) (0,1,),(2,1,)  vs (2,),(2,) (0,3,),(2,2,)  (already separated 0 times)
+  (CE) DEBUG: Trying to distinguish 4843881 pairs. Example:
+       Pair 0: (1,),(0,)  vs (2,),(0,) (4,),(0,)  (already separated 0 times)
   (CE) Using greedy column-by-column strategy.
-  (CE) Row 20 built (best score: 731331). 21089794 pairs remaining to distinguish.
-  (CE) Row 30 built (best score: 446798). 15501898 pairs remaining to distinguish.
-  (CE) Row 40 built (best score: 323863). 11737730 pairs remaining to distinguish.
-  (CE) Row 50 built (best score: 202596). 9203650 pairs remaining to distinguish.
-  (CE) Row 60 built (best score: 161392). 7372832 pairs remaining to distinguish.
-  (CE) Row 70 built (best score: 116333). 6008075 pairs remaining to distinguish.
-  (CE) Row 80 built (best score: 90759). 5024945 pairs remaining to distinguish.
-  (CE) Row 90 built (best score: 70831). 4258396 pairs remaining to distinguish.
-  (CE) Row 100 built (best score: 48154). 3656934 pairs remaining to distinguish.
-  (CE) Row 110 built (best score: 46031). 3167029 pairs remaining to distinguish.
-  (CE) Row 120 built (best score: 24055). 2790038 pairs remaining to distinguish.
-  (CE) Row 130 built (best score: 29555). 2492116 pairs remaining to distinguish.
-  (CE) Row 140 built (best score: 16706). 2257566 pairs remaining to distinguish.
-  (CE) Row 150 built (best score: 15036). 2063452 pairs remaining to distinguish.
-  (CE) Row 160 built (best score: 10330). 1915147 pairs remaining to distinguish.
-  (CE) Row 170 built (best score: 8994). 1809688 pairs remaining to distinguish.
-  (CE) Row 180 built (best score: 5284). 1734433 pairs remaining to distinguish.
-  (CE) Row 190 built (best score: 5016). 1664814 pairs remaining to distinguish.
-  (CE) Row 200 built (best score: 4406). 1622514 pairs remaining to distinguish.
-  (CE) Row 210 built (best score: 4133). 1583291 pairs remaining to distinguish.
-  (CE) Row 220 built (best score: 2095). 1555109 pairs remaining to distinguish.
-  (CE) Row 230 built (best score: 2402). 1536447 pairs remaining to distinguish.
-  (CE) Row 240 built (best score: 1378). 1520229 pairs remaining to distinguish.
-  (CE) Row 250 built (best score: 620). 1508775 pairs remaining to distinguish.
-  (CE) Row 260 built (best score: 570). 1503096 pairs remaining to distinguish.
-  (CE) Row 270 built (best score: 68). 1500025 pairs remaining to distinguish.
-  (CE) Row 280 built (best score: 36). 1498447 pairs remaining to distinguish.
-  (CE) Row 290 built (best score: 25). 1498022 pairs remaining to distinguish.
-  (CE) Row 300 built (best score: 25). 1497722 pairs remaining to distinguish.
-  (CE) Row 310 built (best score: 11). 1497544 pairs remaining to distinguish.
-  (CE) Row 320 built (best score: 10). 1497416 pairs remaining to distinguish.
-  (CE) Row 330 built (best score: 6). 1497334 pairs remaining to distinguish.
-  (CE) Row 340 built (best score: 4). 1497281 pairs remaining to distinguish.
-  (CE) Row 350 built (best score: 3). 1497246 pairs remaining to distinguish.
-  (CE) Row 360 built (best score: 1). 1497228 pairs remaining to distinguish.
-  (CE) Row 370 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 380 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 390 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 400 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 410 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 420 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 430 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 440 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 450 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 460 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 470 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 480 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 490 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 500 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 510 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 520 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 530 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 540 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 550 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 560 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 570 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 580 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 590 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 600 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 610 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 620 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 630 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 640 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 650 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 660 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 670 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 680 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 690 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 700 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 710 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 720 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 730 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 740 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 750 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 760 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 770 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 780 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 790 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 800 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 810 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 820 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 830 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 840 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 850 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 860 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 870 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 880 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 890 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 900 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 910 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 920 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 930 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 940 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 950 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 960 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 970 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 980 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 990 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1000 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1010 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1020 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1030 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1040 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1050 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1060 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1070 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1080 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1090 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1100 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1110 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1120 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1130 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1140 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1150 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1160 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1170 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1180 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1190 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1200 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1210 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1220 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1230 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1240 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1250 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1260 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1270 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1280 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1290 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1300 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1310 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1320 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1330 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1340 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1350 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1360 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1370 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1380 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1390 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1400 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1410 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1420 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1430 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1440 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1450 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1460 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1470 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1480 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1490 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1500 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1510 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1520 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1530 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1540 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1550 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1560 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1570 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1580 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1590 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1600 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1610 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1620 built (best score: 0). 1497222 pairs remaining to distinguish.
-  (CE) Row 1630 built (best score: 0). 1497222 pairs remaining to distinguish.
+  (CE) Row 20 built (best score: 374471). 2559021 pairs remaining to distinguish.
+  (CE) Row 30 built (best score: 103256). 610013 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 26344). 134059 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 4670). 28778 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 1570). 8159 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 372). 2250 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 78). 414 pairs remaining to distinguish.
+  (CE) Row 89 built (best score: 18). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=89 (N_initial=15, N_added=74), Time total=885073 ms, Saved to: ./results/3^10_det_t2_l1_pareto_0.csv, percents=1, 
+
+------------detecting, d=2, t=2, lambda=2, filename=./evaluation/3^10-t2_l2.csv------------
+Codec initialized: T=435 interactions, d_max=2, M=94831 possible d-sets
+Generating d-sets for detecting array check...
+Generated 93585 valid d-sets. Checking detecting condition for 435 interactions...
+Detecting check complete: 16666519 pairs checked, 23187131 pruned by partition bound, 9502713 violations found.
+First Stage N=24, Time=1045
+There are 9502713 remaining non-detecting pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 9502713 pairs. Example:
+       Pair 0: (0,1,),(0,0,)  vs (0,),(1,) (2,),(0,)  (already separated 1 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 30 built (best score: 691107). 4838134 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 208262). 1533030 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 60005). 578734 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 24684). 210959 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 9055). 69370 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 2447). 22495 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 1366). 7297 pairs remaining to distinguish.
+  (CE) Row 100 built (best score: 213). 2442 pairs remaining to distinguish.
+  (CE) Row 110 built (best score: 108). 441 pairs remaining to distinguish.
+  (CE) Row 119 built (best score: 9). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=119 (N_initial=24, N_added=95), Time total=2379401 ms, Saved to: ./results/3^10_det_t2_l2_pareto_0.csv, percents=1, 
+
+------------detecting, d=2, t=2, lambda=3, filename=./evaluation/3^10-t2_l3.csv------------
+Codec initialized: T=435 interactions, d_max=2, M=94831 possible d-sets
+Generating d-sets for detecting array check...
+Generated 93585 valid d-sets. Checking detecting condition for 435 interactions...
+Detecting check complete: 30547747 pairs checked, 9305903 pruned by partition bound, 27487692 violations found.
+First Stage N=24, Time=1285
+There are 27487692 remaining non-detecting pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 27487692 pairs. Example:
+       Pair 0: (0,),(1,)  vs (1,),(0,) (1,),(2,)  (already separated 2 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 30 built (best score: 2343935). 17251015 pairs remaining to distinguish.
+  (CE) Row 40 built (best score: 999111). 7503826 pairs remaining to distinguish.
+  (CE) Row 50 built (best score: 348334). 3111853 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 147424). 1261565 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 51799). 549703 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 19123). 219677 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 10110). 95402 pairs remaining to distinguish.
+  (CE) Row 100 built (best score: 3586). 41343 pairs remaining to distinguish.
+  (CE) Row 110 built (best score: 2094). 16770 pairs remaining to distinguish.
+  (CE) Row 120 built (best score: 699). 6561 pairs remaining to distinguish.
+  (CE) Row 130 built (best score: 267). 2145 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 90). 504 pairs remaining to distinguish.
+  (CE) Row 150 built (best score: 36). 18 pairs remaining to distinguish.
+  (CE) Row 153 built (best score: 9). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=153 (N_initial=24, N_added=129), Time total=8238120 ms, Saved to: ./results/3^10_det_t2_l3_pareto_0.csv, percents=1, 
+
+------------detecting, d=2, t=2, lambda=4, filename=./evaluation/3^10-t2_l4.csv------------
+Codec initialized: T=435 interactions, d_max=2, M=94831 possible d-sets
+Generating d-sets for detecting array check...
+Generated 93585 valid d-sets. Checking detecting condition for 435 interactions...
+Detecting check complete: 35988747 pairs checked, 3864903 pruned by partition bound, 16478409 violations found.
+First Stage N=42, Time=954
+There are 16478409 remaining non-detecting pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 16478409 pairs. Example:
+       Pair 0: (0,1,),(0,0,)  vs (0,),(1,) (2,),(0,)  (already separated 2 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 50 built (best score: 1012937). 9632461 pairs remaining to distinguish.
+  (CE) Row 60 built (best score: 451606). 4462330 pairs remaining to distinguish.
+  (CE) Row 70 built (best score: 198613). 2329981 pairs remaining to distinguish.
+  (CE) Row 80 built (best score: 108739). 1286190 pairs remaining to distinguish.
+  (CE) Row 90 built (best score: 70054). 690712 pairs remaining to distinguish.
+  (CE) Row 100 built (best score: 31803). 333498 pairs remaining to distinguish.
+  (CE) Row 110 built (best score: 16840). 155405 pairs remaining to distinguish.
+  (CE) Row 120 built (best score: 5653). 74924 pairs remaining to distinguish.
+  (CE) Row 130 built (best score: 2799). 34830 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 957). 14985 pairs remaining to distinguish.
+  (CE) Row 150 built (best score: 690). 6339 pairs remaining to distinguish.
+  (CE) Row 160 built (best score: 327). 2157 pairs remaining to distinguish.
+  (CE) Row 170 built (best score: 153). 597 pairs remaining to distinguish.
+  (CE) Row 180 built (best score: 9). 36 pairs remaining to distinguish.
+  (CE) Row 182 built (best score: 27). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=182 (N_initial=42, N_added=140), Time total=6466569 ms, Saved to: ./results/3^10_det_t2_l4_pareto_0.csv, percents=1, 
+
+------------detecting, d=2, t=3, lambda=1, filename=./evaluation/3^10-t3_l1.csv------------
+Codec initialized: T=3675 interactions, d_max=2, M=6754651 possible d-sets
+Generating d-sets for detecting array check...
+Generated 6730725 valid d-sets. Checking detecting condition for 3675 interactions...
+Detecting check complete: 3956320169 pairs checked, 20622886861 pruned by partition bound, 488100312 violations found.
+First Stage N=68, Time=512489
+There are 488100312 remaining non-detecting pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 488100312 pairs. Example:
+       Pair 0: (0,2,),(0,0,)  vs (1,),(1,) (5,),(0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 70 built (best score: 25810379). 438449537 pairs remaining to distinguish.

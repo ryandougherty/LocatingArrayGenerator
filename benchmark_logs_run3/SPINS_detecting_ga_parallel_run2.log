@@ -1,0 +1,8 @@
+------------detecting, d=1, t=3, lambda=1, filename=./evaluation/SPINS/SPINS_3_1.csv------------
+Codec initialized: T=14366 interactions, d_max=1, M=14367 possible d-sets
+Generating d-sets for detecting array check...
+Generated 14366 valid d-sets. Checking detecting condition for 14366 interactions...
+Detecting check complete: 15054412 pairs checked, 191149274 pruned by partition bound, 1050801 violations found.
+First Stage N=93, Time=2672
+There are 1050801 remaining non-detecting pairs
+--- Running GA Algorithm (phase2) ---

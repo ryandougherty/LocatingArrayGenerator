@@ -1,0 +1,9 @@
+------------locating, d=1, t=3, lambda=1, filename=./evaluation/Bugzilla/Bugzilla_3_1.csv------------
+Codec initialized: T=209035 interactions, d_max=1, M=209036 possible d-sets
+Computing actual partitioned row counts of d-sets...
+L1 ball size for radius 0 in Z^12: 1 vectors
+Ready to look at pairs via neighbor enumeration...
+Checked 80988 bucket pairs (of 80988 total buckets)
+First Stage N=62, Time=2441
+There are 104973 remaining non-locating pairs
+--- Running GA Algorithm (phase2) ---

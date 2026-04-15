@@ -1,0 +1,9 @@
+------------locating, d=1, t=3, lambda=1, filename=./evaluation/Apache/Apache_3_1.csv------------
+Codec initialized: T=8154345 interactions, d_max=1, M=8154346 possible d-sets
+Computing actual partitioned row counts of d-sets...
+L1 ball size for radius 0 in Z^12: 1 vectors
+Ready to look at pairs via neighbor enumeration...
+Checked 5809504 bucket pairs (of 5809504 total buckets)
+First Stage N=170, Time=229128
+There are 377526 remaining non-locating pairs
+--- Running GA Algorithm (phase2) ---

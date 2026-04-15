@@ -1,0 +1,108 @@
+------------locating, d=1, t=3, lambda=1, filename=./evaluation/SPINS/SPINS_3_1.csv------------
+Codec initialized: T=14366 interactions, d_max=1, M=14367 possible d-sets
+Computing actual partitioned row counts of d-sets...
+L1 ball size for radius 0 in Z^12: 1 vectors
+Ready to look at pairs via neighbor enumeration...
+Checked 7903 bucket pairs (of 7903 total buckets)
+First Stage N=93, Time=83
+There are 6014 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 6014 pairs. Example:
+       Pair 0: (5,13,17,),(1,1,3,)  vs (8,13,17,),(0,1,3,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 100 built (best score: 345). 3531 pairs remaining to distinguish.
+  (CE) Row 110 built (best score: 103). 1847 pairs remaining to distinguish.
+  (CE) Row 120 built (best score: 56). 971 pairs remaining to distinguish.
+  (CE) Row 130 built (best score: 29). 510 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 12). 274 pairs remaining to distinguish.
+  (CE) Row 150 built (best score: 11). 125 pairs remaining to distinguish.
+  (CE) Row 160 built (best score: 5). 42 pairs remaining to distinguish.
+  (CE) Row 170 built (best score: 2). 8 pairs remaining to distinguish.
+  (CE) Row 176 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=176 (N_initial=93, N_added=83), Time total=1477 ms, Saved to: ./results/SPINS_loc_t3_l1_pareto_0.csv, percents=1, 
+
+------------locating, d=1, t=3, lambda=2, filename=./evaluation/SPINS/SPINS_3_2.csv------------
+Codec initialized: T=14366 interactions, d_max=1, M=14367 possible d-sets
+Computing actual partitioned row counts of d-sets...
+L1 ball size for radius 1 in Z^12: 25 vectors
+Ready to look at pairs via neighbor enumeration...
+Checked 19622 bucket pairs (of 9645 total buckets)
+First Stage N=129, Time=248
+There are 3806 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 3806 pairs. Example:
+       Pair 0: (0,13,17,),(0,2,0,)  vs (9,13,17,),(0,2,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 130 built (best score: 183). 3652 pairs remaining to distinguish.
+  (CE) Row 140 built (best score: 122). 2426 pairs remaining to distinguish.
+  (CE) Row 150 built (best score: 86). 1576 pairs remaining to distinguish.
+  (CE) Row 160 built (best score: 55). 991 pairs remaining to distinguish.
+  (CE) Row 170 built (best score: 27). 608 pairs remaining to distinguish.
+  (CE) Row 180 built (best score: 23). 362 pairs remaining to distinguish.
+  (CE) Row 190 built (best score: 12). 201 pairs remaining to distinguish.
+  (CE) Row 200 built (best score: 11). 98 pairs remaining to distinguish.
+  (CE) Row 210 built (best score: 4). 43 pairs remaining to distinguish.
+  (CE) Row 220 built (best score: 3). 16 pairs remaining to distinguish.
+  (CE) Row 230 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=230 (N_initial=129, N_added=101), Time total=1741 ms, Saved to: ./results/SPINS_loc_t3_l2_pareto_0.csv, percents=1, 
+
+------------locating, d=1, t=3, lambda=3, filename=./evaluation/SPINS/SPINS_3_3.csv------------
+Codec initialized: T=14366 interactions, d_max=1, M=14367 possible d-sets
+Computing actual partitioned row counts of d-sets...
+L1 ball size for radius 2 in Z^12: 313 vectors
+Ready to look at pairs via neighbor enumeration...
+Checked 50426 bucket pairs (of 12734 total buckets)
+First Stage N=220, Time=507
+There are 1180 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 1180 pairs. Example:
+       Pair 0: (3,13,17,),(0,0,1,)  vs (1,13,17,),(0,0,1,)  (already separated 2 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 230 built (best score: 42). 809 pairs remaining to distinguish.
+  (CE) Row 240 built (best score: 25). 575 pairs remaining to distinguish.
+  (CE) Row 250 built (best score: 25). 410 pairs remaining to distinguish.
+  (CE) Row 260 built (best score: 15). 301 pairs remaining to distinguish.
+  (CE) Row 270 built (best score: 10). 206 pairs remaining to distinguish.
+  (CE) Row 280 built (best score: 10). 140 pairs remaining to distinguish.
+  (CE) Row 290 built (best score: 6). 98 pairs remaining to distinguish.
+  (CE) Row 300 built (best score: 6). 60 pairs remaining to distinguish.
+  (CE) Row 310 built (best score: 2). 29 pairs remaining to distinguish.
+  (CE) Row 320 built (best score: 2). 9 pairs remaining to distinguish.
+  (CE) Row 327 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=327 (N_initial=220, N_added=107), Time total=879 ms, Saved to: ./results/SPINS_loc_t3_l3_pareto_0.csv, percents=1, 
+
+------------locating, d=1, t=3, lambda=4, filename=./evaluation/SPINS/SPINS_3_4.csv------------
+Codec initialized: T=14366 interactions, d_max=1, M=14367 possible d-sets
+Computing actual partitioned row counts of d-sets...
+L1 ball size for radius 3 in Z^12: 2625 vectors
+Ready to look at pairs via neighbor enumeration...
+Checked 109616 bucket pairs (of 12733 total buckets)
+First Stage N=256, Time=2269
+There are 1232 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 1232 pairs. Example:
+       Pair 0: (9,15,16,),(1,2,1,)  vs (4,15,16,),(1,2,1,)  (already separated 2 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 260 built (best score: 54). 1115 pairs remaining to distinguish.
+  (CE) Row 270 built (best score: 47). 851 pairs remaining to distinguish.
+  (CE) Row 280 built (best score: 44). 657 pairs remaining to distinguish.
+  (CE) Row 290 built (best score: 24). 536 pairs remaining to distinguish.
+  (CE) Row 300 built (best score: 18). 458 pairs remaining to distinguish.
+  (CE) Row 310 built (best score: 16). 399 pairs remaining to distinguish.
+  (CE) Row 320 built (best score: 12). 357 pairs remaining to distinguish.
+  (CE) Row 330 built (best score: 13). 315 pairs remaining to distinguish.
+  (CE) Row 340 built (best score: 11). 281 pairs remaining to distinguish.
+  (CE) Row 350 built (best score: 11). 240 pairs remaining to distinguish.
+  (CE) Row 360 built (best score: 10). 204 pairs remaining to distinguish.
+  (CE) Row 370 built (best score: 10). 159 pairs remaining to distinguish.
+  (CE) Row 380 built (best score: 7). 119 pairs remaining to distinguish.
+  (CE) Row 390 built (best score: 6). 76 pairs remaining to distinguish.
+  (CE) Row 400 built (best score: 5). 39 pairs remaining to distinguish.
+  (CE) Row 410 built (best score: 2). 11 pairs remaining to distinguish.
+  (CE) Row 420 built (best score: 1). 0 pairs remaining to distinguish.
+--- Pareto Front Solutions ---
+Solution 0: N total=420 (N_initial=256, N_added=164), Time total=2908 ms, Saved to: ./results/SPINS_loc_t3_l4_pareto_0.csv, percents=1, 
+

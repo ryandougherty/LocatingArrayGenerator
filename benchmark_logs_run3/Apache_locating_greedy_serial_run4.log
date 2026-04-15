@@ -1,0 +1,17 @@
+------------locating, d=1, t=3, lambda=1, filename=./evaluation/Apache/Apache_3_1.csv------------
+Codec initialized: T=8154345 interactions, d_max=1, M=8154346 possible d-sets
+Computing actual partitioned row counts of d-sets...
+L1 ball size for radius 0 in Z^12: 1 vectors
+Ready to look at pairs via neighbor enumeration...
+Checked 5809504 bucket pairs (of 5809504 total buckets)
+First Stage N=170, Time=227482
+There are 377526 remaining non-locating pairs
+--- Running Density Algorithm (phase2_ce) for Locating ---
+  (CE) DEBUG: Trying to distinguish 377526 pairs. Example:
+       Pair 0: (32,34,168,),(1,0,0,)  vs (32,74,168,),(1,0,0,)  (already separated 0 times)
+  (CE) Using greedy column-by-column strategy.
+  (CE) Row 180 built (best score: 10067). 242553 pairs remaining to distinguish.
+  (CE) Row 190 built (best score: 5742). 162710 pairs remaining to distinguish.
+  (CE) Row 200 built (best score: 3919). 110960 pairs remaining to distinguish.
+  (CE) Row 210 built (best score: 3193). 78350 pairs remaining to distinguish.
+  (CE) Row 220 built (best score: 1969). 55875 pairs remaining to distinguish.
